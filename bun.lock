@@ -32,6 +32,28 @@
         "typescript6": "npm:typescript@^6.0.3",
       },
     },
+    "packages/create": {
+      "name": "@view-ignored/create",
+      "version": "0.12.3",
+      "bin": {
+        "create-target": "./out/index.js",
+        "create-view-ignored": "./out/index.js",
+      },
+      "dependencies": {
+        "view-ignored": "^0.12.0",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "@types/node": "npm:@types/node@latest",
+        "@types/node-22": "npm:@types/node@^22.20.1",
+        "@types/node-24": "npm:@types/node@^24.13.3",
+        "oxfmt": "latest",
+        "oxlint": "latest",
+        "typescript": "npm:typescript@^7.0.2",
+        "typescript5": "npm:typescript@~5.7.3",
+        "typescript6": "npm:typescript@^6.0.3",
+      },
+    },
   },
   "packages": {
     "@gar/promise-retry": ["@gar/promise-retry@1.0.3", "", {}, "sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA=="],
@@ -315,6 +337,8 @@
     "@typescript/typescript-win32-arm64": ["@typescript/typescript-win32-arm64@7.0.2", "", { "os": "win32", "cpu": "arm64" }, "sha512-Gyl1Vy6OsWesLzmq+EP0Fb7b4Nid5232AvcA2SFcdYreldpNtYFFofPjnt62y9hQy7VTaZp65ICJjuAQRaVcIQ=="],
 
     "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g=="],
+
+    "@view-ignored/create": ["@view-ignored/create@workspace:packages/create"],
 
     "abbrev": ["abbrev@5.0.0", "", {}, "sha512-/XrFJgzQQQHpti1raDJC6m4ws6aNktmjBlhk8Fdlk7LwCEuDoieEJJY9OFHjfiFJFFRM2tK+Ky/IsfbbmlMu1w=="],
 
@@ -715,6 +739,8 @@
     "util-deprecate": ["util-deprecate@1.0.2", "", {}, "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw=="],
 
     "validate-npm-package-name": ["validate-npm-package-name@8.0.0", "", {}, "sha512-SCv6OOV6Xj2/3cXy3dGmADluJTNcL3o7hZAglNPTe+WYuEuvxgJzxPrSDLZhF+CwyQOubqgecjMmTJGMVLWjYQ=="],
+
+    "view-ignored": ["view-ignored@0.12.0", "", { "dependencies": { "picomatch": "^4.0.5", "strip-json-comments": "^5.0.3" }, "bin": { "vign-diff": "out/cli/vign-diff.js" } }, "sha512-E7UGCZUJSbZSaNgDL3EXYkLwhp8o6DW5SOofDXnR8PLKYypwP7nM9/FIuv/oxA+CoyoQW9OVihpb4886usS/iw=="],
 
     "walk-up-path": ["walk-up-path@4.0.0", "", {}, "sha512-3hu+tD8YzSLGuFYtPRb48vdhKMi0KQV5sn+uWr8+7dMEq/2G/dtLrdDinkLjqq5TIbIBjYJ4Ax/n3YiaW7QM8A=="],
 

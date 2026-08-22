@@ -44,6 +44,9 @@
 	"directories": {
 		"lib": "out"
 	},
+	"workspaces": [
+		"packages/*"
+	],
 	"files": [
 		"/out"
 	],
@@ -86,7 +89,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"prerelease": "bun check && bun run test && bun run prod && bun run lint && bun run fmt --check && bun run ts-compat && bun run node-compat && bun publint --pack npm --strict && bun run badges --check",
+		"prerelease": "bun check && bun run test && bun run prod && bun run lint && bun run fmt --check && bun run ts-compat && bun run node-compat && bun publint --pack npm --strict && bun --filter '*' publint --pack npm --strict && bun run badges --check",
 		"heap": "bun scripts/scanHeap.js --snapshot",
 		"heap:node": "node scripts/scanHeap.js --snapshot",
 		"cpu": "bun run --expose-gc --cpu-prof --cpu-prof-md --cpu-prof-name CPU.me scripts/scan.js --skipInternal",
@@ -95,7 +98,7 @@
 		"benchreadme": "bun scripts/benchreadme.js",
 		"size": "bun scripts/size.js",
 		"coverage": "bun run test --coverage --coverage-reporter=lcov",
-		"test": "bun test --timeout 5000 src",
+		"test": "bun test --timeout 5000 src packages",
 		"test:base": "TEST_PACKLIST=0 TEST_WILDMATCH=0 bun test --timeout 5000 src",
 		"test:patterns": "bun test --timeout 5000 src/patterns",
 		"test:targets": "bun test --timeout 5000 src/targets",
@@ -109,11 +112,11 @@
 		"badges": "bun scripts/badges.js",
 		"lint": "bun run oxlint --type-aware",
 		"fmt": "bun run oxfmt",
-		"check": "bun tsc -p src --noEmit",
-		"dev": "bun tsc -p src",
-		"prod": "rm -rf out && bun tsc -p src/tsconfig.prod.json --emitDeclarationOnly && bun tsc -p src/tsconfig.prod.json --removeComments -d false && mv .gitignore .gitignore.tmp && oxfmt out; mv .gitignore.tmp .gitignore",
-		"node-compat": "bun node-compat-22 && bun node-compat-24",
-		"ts-compat": "bun run ts-compat-6 && bun run ts-compat-5",
+		"check": "bun tsc -p src --noEmit && bun --filter '@view-ignored/*' check",
+		"dev": "bun tsc -p src && bun --filter '@view-ignored/*' dev",
+		"prod": "rm -rf out && bun tsc -p src/tsconfig.prod.json --emitDeclarationOnly && bun tsc -p src/tsconfig.prod.json --removeComments -d false && mv .gitignore .gitignore.tmp && oxfmt out; mv .gitignore.tmp .gitignore && bun --filter '@view-ignored/*' prod",
+		"node-compat": "bun node-compat-22 && bun node-compat-24 && bun --filter '@view-ignored/*' node-compat",
+		"ts-compat": "bun run ts-compat-6 && bun run ts-compat-5 && bun --filter '@view-ignored/*' ts-compat",
 		"node-compat-24": "bun node_modules/typescript6/bin/tsc -p src/tsconfig.prod24.json --noEmit",
 		"node-compat-22": "bun node_modules/typescript6/bin/tsc -p src/tsconfig.prod22.json --noEmit",
 		"ts-compat-5": "bun node_modules/typescript5/bin/tsc -p src/tsconfig.prod.json --noEmit --resolveJsonModule",
