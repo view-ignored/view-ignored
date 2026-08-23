@@ -8,6 +8,9 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Remove `packageJsonExtractor` from `VSCE` target so `package.json`'s `files` array is not wrongly used to exclude extension files.
+- Improve `vign-diff` CLI handling for VSCE target, adding `no-dependencies` command set and stripping CLI status/info output.
+- Align command set resolution and header titles in `vign-diff` CLI for inverted modes (`--invert` and `--invert 2`) across all targets.
 - Optimize single-pattern list compilation in `patternListCompile` and `wildmatchCompile` by skipping duplicate secondary `RegExp` allocations for 1-pattern rules.
 - Parallelize `Git.init` configuration and branch file reading pipeline.
 - Remove stale `WeakMap` caches in `git` target initialization and `gitConfig` parsing to ensure configuration reads always evaluate live disk state.

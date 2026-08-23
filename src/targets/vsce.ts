@@ -6,7 +6,6 @@ import {
 	type Rule,
 	ruleCompile,
 	extractNpmignore,
-	packageJsonExtractor,
 	type GlobRule,
 } from "../patterns/index.js"
 import { vsceManifestParse } from "./vsceManifest.js"
@@ -18,7 +17,6 @@ let cachedVSCERule: GlobRule | null = null
  */
 export function makeVSCE(): Target {
 	const extractors: Extractor[] = [
-		packageJsonExtractor,
 		{
 			extract: extractNpmignore,
 			path: "./.vscodeignore",

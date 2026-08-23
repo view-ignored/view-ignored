@@ -20,6 +20,26 @@ describe("VSCE", () => {
 		)
 	})
 
+	test("ignores files array in package.json", async (done) => {
+		const pkgWithFiles = JSON.stringify({
+			engines: { vscode: "^1.0.0" },
+			files: ["out"],
+			name: "vsce-test",
+			version: "1.0.0",
+		})
+		await testScan(
+			done,
+			{
+				"package.json": pkgWithFiles,
+				"images/logo.png": "",
+				"out/main.js": "",
+				"src/extension.ts": "",
+			},
+			["package.json", "images/logo.png", "out/main.js", "src/extension.ts"],
+			{ dirs: false, target: makeVSCE() },
+		)
+	})
+
 	test("ignores nested .vscodeignore and .gitignore files", async (done) => {
 		await testScan(
 			done,
