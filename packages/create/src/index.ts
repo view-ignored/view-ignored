@@ -73,10 +73,11 @@ export function createTargetPackage(
 
 	if (existsSync(outputDir) && !options.force) {
 		const isPackageJsonExist = existsSync(resolve(outputDir, "package.json"))
-		if (isPackageJsonExist)
+		if (isPackageJsonExist) {
 			throw new Error(
 				`Directory "${outputDir}" already contains a package.json. Use force option to overwrite.`,
 			)
+		}
 	}
 
 	mkdirSync(resolve(outputDir, "src"), { recursive: true })
@@ -89,6 +90,7 @@ export function createTargetPackage(
 				"@types/node": "latest",
 				oxfmt: "latest",
 				oxlint: "latest",
+				publint: "latest",
 				typescript: "latest",
 				"view-ignored": "latest",
 			},
@@ -99,6 +101,14 @@ export function createTargetPackage(
 				".": {
 					default: "./out/index.js",
 					types: "./out/index.d.ts",
+				},
+				"./v0": {
+					default: "./out/v0.js",
+					types: "./out/v0.d.ts",
+				},
+				"./v1": {
+					default: "./out/v1.js",
+					types: "./out/v1.d.ts",
 				},
 			},
 			keywords: ["view-ignored", "target", targetName.toLowerCase()],
@@ -112,7 +122,8 @@ export function createTargetPackage(
 				dev: "bun tsc -p src",
 				fmt: "bun run oxfmt",
 				lint: "bun run oxlint --type-aware",
-				prod: "rm -rf out && bun tsc -p src/tsconfig.prod.json --emitDeclarationOnly && bun tsc -p src/tsconfig.prod.json --removeComments -d false && (mv .gitignore .gitignore.tmp 2>/dev/null || true); oxfmt out; (mv .gitignore.tmp .gitignore 2>/dev/null || true)",
+				prod: "rm -rf out && bun tsc -p src/tsconfig.prod.json --emitDeclarationOnly && bun tsc -p src/tsconfig.prod.json --removeComments -d false && oxfmt && oxfmt ./out/**",
+				publint: "publint",
 				test: "bun test --timeout 5000 src",
 			},
 			type: "module",
@@ -122,14 +133,47 @@ export function createTargetPackage(
 		"\t",
 	)
 
-	const indexTsContent = `import type { Target } from "view-ignored/targets"
+	const indexTsContent = `export * from "./v1.js"
+export { ${functionName}V1 as ${functionName} } from "./v1.js"
+`
+
+	const v0TsContent = `import type { Target } from "view-ignored/targets"
 
 import { extractIgnores, ruleCompile, ruleTest, type Extractor, type Rule } from "view-ignored/patterns"
 
+export interface ${targetName}V0Options {
+	/**
+	 * Execution mode (e.g. "list" | "publish").
+	 */
+	mode?: string
+	/**
+	 * Tool version (e.g. "0.5.0").
+	 */
+	version?: string
+}
+
+function parseSemver(version: string): [number, number, number] {
+	const cleaned = version.replace(/^v/, "").trim()
+	const parts = cleaned.split(".").map((num) => parseInt(num, 10) || 0)
+	return [parts[0] || 0, parts[1] || 0, parts[2] || 0]
+}
+
+function isVersionGte(version: string, targetVersion: string): boolean {
+	const [aMajor, aMinor, aPatch] = parseSemver(version)
+	const [bMajor, bMinor, bPatch] = parseSemver(targetVersion)
+
+	if (aMajor !== bMajor) return aMajor > bMajor
+	if (aMinor !== bMinor) return aMinor > bMinor
+	return aPatch >= bPatch
+}
+
 /**
- * Creates a view-ignored target for ${targetName}.
+ * Creates a view-ignored target for ${targetName} (v0.x compatibility).
  */
-export function ${functionName}(): Target {
+export function ${functionName}V0(options: ${targetName}V0Options = {}): Target {
+	const mode = options.mode || "publish"
+	const version = options.version || "0.5.0"
+
 	const extractors: Extractor[] = [
 		{
 			extract: extractIgnores,
@@ -141,7 +185,68 @@ export function ${functionName}(): Target {
 		ruleCompile({
 			compiled: null,
 			excludes: true,
-			list: [".git", "node_modules"],
+			list: isVersionGte(version, "0.5.0") ? [".git", "node_modules"] : [".git"],
+		}),
+	]
+
+	return {
+		extractors,
+		ignores: ruleTest,
+		internalRules,
+		root: ".",
+	}
+}
+`
+
+	const v1TsContent = `import type { Target } from "view-ignored/targets"
+
+import { extractIgnores, ruleCompile, ruleTest, type Extractor, type Rule } from "view-ignored/patterns"
+
+export interface ${targetName}V1Options {
+	/**
+	 * Execution mode (e.g. "list" | "publish").
+	 */
+	mode?: string
+	/**
+	 * Tool version (e.g. "1.0.0").
+	 */
+	version?: string
+}
+
+function parseSemver(version: string): [number, number, number] {
+	const cleaned = version.replace(/^v/, "").trim()
+	const parts = cleaned.split(".").map((num) => parseInt(num, 10) || 0)
+	return [parts[0] || 0, parts[1] || 0, parts[2] || 0]
+}
+
+function isVersionGte(version: string, targetVersion: string): boolean {
+	const [aMajor, aMinor, aPatch] = parseSemver(version)
+	const [bMajor, bMinor, bPatch] = parseSemver(targetVersion)
+
+	if (aMajor !== bMajor) return aMajor > bMajor
+	if (aMinor !== bMinor) return aMinor > bMinor
+	return aPatch >= bPatch
+}
+
+/**
+ * Creates a view-ignored target for ${targetName} (v1.x compatibility).
+ */
+export function ${functionName}V1(options: ${targetName}V1Options = {}): Target {
+	const mode = options.mode || "publish"
+	const version = options.version || "1.0.0"
+
+	const extractors: Extractor[] = [
+		{
+			extract: extractIgnores,
+			path: ".${targetName.toLowerCase()}ignore",
+		},
+	]
+
+	const internalRules: Rule[] = [
+		ruleCompile({
+			compiled: null,
+			excludes: true,
+			list: isVersionGte(version, "1.0.0") ? [".git", "node_modules"] : [".git"],
 		}),
 	]
 
@@ -160,8 +265,42 @@ import { scan } from "view-ignored"
 import { ${functionName} } from "./index.js"
 
 describe("${functionName}", () => {
-	test("creates target and scans directory", async () => {
+	test("creates default target and scans directory", async () => {
 		const target = ${functionName}()
+		expect(target.root).toBe(".")
+		expect(target.extractors.length).toBeGreaterThan(0)
+
+		const ctx = await scan({ target })
+		expect(ctx).toBeDefined()
+	})
+})
+`
+
+	const v0TestTsContent = `import { describe, expect, test } from "bun:test"
+import { scan } from "view-ignored"
+
+import { ${functionName}V0 } from "./v0.js"
+
+describe("${functionName}V0", () => {
+	test("creates v0 target and scans directory", async () => {
+		const target = ${functionName}V0()
+		expect(target.root).toBe(".")
+		expect(target.extractors.length).toBeGreaterThan(0)
+
+		const ctx = await scan({ target })
+		expect(ctx).toBeDefined()
+	})
+})
+`
+
+	const v1TestTsContent = `import { describe, expect, test } from "bun:test"
+import { scan } from "view-ignored"
+
+import { ${functionName}V1 } from "./v1.js"
+
+describe("${functionName}V1", () => {
+	test("creates v1 target and scans directory", async () => {
+		const target = ${functionName}V1()
 		expect(target.root).toBe(".")
 		expect(target.extractors.length).toBeGreaterThan(0)
 
@@ -231,9 +370,21 @@ bun add ${packageName} view-ignored
 
 \`\`\`ts
 import { scan } from "view-ignored"
-import { ${functionName} } from "${packageName}"
+import { ${functionName} } from "${packageName}" // Defaults to v1 target
 
 const ctx = await scan({ target: ${functionName}() })
+\`\`\`
+
+### Major Version Exports
+
+For explicit target version compatibility:
+
+\`\`\`ts
+// Explicit v0.x target compatibility
+import { ${functionName}V0 } from "${packageName}/v0"
+
+// Explicit v1.x target compatibility
+import { ${functionName}V1 } from "${packageName}/v1"
 \`\`\`
 
 ## License
@@ -245,6 +396,10 @@ MIT
 		"package.json",
 		"src/index.ts",
 		"src/index.test.ts",
+		"src/v0.ts",
+		"src/v0.test.ts",
+		"src/v1.ts",
+		"src/v1.test.ts",
 		"src/tsconfig.json",
 		"src/tsconfig.prod.json",
 		".gitignore",
@@ -254,6 +409,10 @@ MIT
 	writeFileSync(resolve(outputDir, "package.json"), packageJsonContent, "utf8")
 	writeFileSync(resolve(outputDir, "src/index.ts"), indexTsContent, "utf8")
 	writeFileSync(resolve(outputDir, "src/index.test.ts"), indexTestTsContent, "utf8")
+	writeFileSync(resolve(outputDir, "src/v0.ts"), v0TsContent, "utf8")
+	writeFileSync(resolve(outputDir, "src/v0.test.ts"), v0TestTsContent, "utf8")
+	writeFileSync(resolve(outputDir, "src/v1.ts"), v1TsContent, "utf8")
+	writeFileSync(resolve(outputDir, "src/v1.test.ts"), v1TestTsContent, "utf8")
 	writeFileSync(resolve(outputDir, "src/tsconfig.json"), tsconfigJsonContent, "utf8")
 	writeFileSync(resolve(outputDir, "src/tsconfig.prod.json"), tsconfigProdJsonContent, "utf8")
 	writeFileSync(resolve(outputDir, ".gitignore"), gitignoreContent, "utf8")

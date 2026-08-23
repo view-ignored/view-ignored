@@ -1,0 +1,18 @@
+{
+	"$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
+	"hooks": {
+		"before:init": "bun run check && bun run test && bun run prod && bun run lint"
+	},
+	"github": {
+		"release": false
+	},
+	"npm": {
+		"publish": true,
+		"skipChecks": true
+	},
+	"git": {
+		"requireBranch": false,
+		"commitMessage": "chore(release): @view-ignored/create v${version}",
+		"tagName": "@view-ignored/create@${version}"
+	}
+}

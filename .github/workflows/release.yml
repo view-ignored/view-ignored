@@ -3,6 +3,14 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
+      package:
+        description: Select package to release
+        required: true
+        type: choice
+        default: root
+        options:
+          - root
+          - create
       release_type:
         description: Select release type
         required: true
@@ -52,8 +60,13 @@ jobs:
 
       - name: Run release
         run: |
+          RUN_ARGS="--ci --git.requireCleanWorkingDir=false"
           if [ "${{ inputs.dry_run }}" = "true" ]; then
-            bun run release:${{ inputs.release_type }} --ci --dry-run --git.requireCleanWorkingDir=false
+            RUN_ARGS="$RUN_ARGS --dry-run"
+          fi
+
+          if [ "${{ inputs.package }}" = "root" ]; then
+            bun run release:${{ inputs.release_type }} $RUN_ARGS
           else
-            bun run release:${{ inputs.release_type }} --ci --git.requireCleanWorkingDir=false
+            (cd "packages/${{ inputs.package }}" && bun run release:${{ inputs.release_type }} $RUN_ARGS)
           fi
