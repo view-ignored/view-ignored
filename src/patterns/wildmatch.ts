@@ -304,7 +304,7 @@ export function wildmatchCompile(
 		combinedRegex = /(?!)/
 	}
 
-	const compiledItems = patternSources.map((s) => new RegExp(s, nocase ? "i" : ""))
+	const compiledItems = len === 1 ? [] : patternSources.map((s) => new RegExp(s, nocase ? "i" : ""))
 
 	return {
 		compiledItems,

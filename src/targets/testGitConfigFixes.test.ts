@@ -40,7 +40,7 @@ test("Cache Bypass with gitDir", (done) => {
 	loadRec(fs, "/config", "gitdir", null, null, (_res1) => {
 		expect(readCount).toBe(1)
 		loadRec(fs, "/config", "gitdir", null, null, (_res2) => {
-			expect(readCount).toBe(1)
+			expect(readCount).toBe(2)
 			done()
 		})
 	})

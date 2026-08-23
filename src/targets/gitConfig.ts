@@ -197,19 +197,7 @@ function hasConfig(obj: any, cond: string): boolean {
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
-const getIncludesCache = new WeakMap<any, Map<string, string[]>>()
-
-// oxlint-disable-next-line typescript/no-explicit-any
 export function getIncludes(parsed: any, gitDir: string | null, branch: string | null): string[] {
-	let cache = getIncludesCache.get(parsed)
-	if (!cache) {
-		cache = new Map()
-		getIncludesCache.set(parsed, cache)
-	}
-	const cacheKey = `${gitDir}::${branch}`
-	const cached = cache.get(cacheKey)
-	if (cached !== undefined) return cached
-
 	const order = parsed.__order
 	const res: string[] = []
 	if (!order) {
@@ -218,7 +206,6 @@ export function getIncludes(parsed: any, gitDir: string | null, branch: string |
 			if (Array.isArray(inc.path)) res.push(...inc.path)
 			else res.push(inc.path)
 		}
-		cache.set(cacheKey, res)
 		return res
 	}
 
@@ -253,23 +240,7 @@ export function getIncludes(parsed: any, gitDir: string | null, branch: string |
 
 		if (matched) res.push(parsed[sectionName].path[idx])
 	}
-	cache.set(cacheKey, res)
 	return res
-}
-
-// oxlint-disable-next-line typescript/no-explicit-any
-const configCacheMap = new WeakMap<FsAdapter, Map<string, any>>()
-// oxlint-disable-next-line typescript/no-explicit-any
-const mergedConfigCacheMap = new WeakMap<FsAdapter, Map<string, any>>()
-
-// oxlint-disable-next-line typescript/no-explicit-any
-export function getCache<K, V>(wm: WeakMap<FsAdapter, Map<K, V>>, fs: FsAdapter): Map<K, V> {
-	let m = wm.get(fs)
-	if (!m) {
-		m = new Map()
-		wm.set(fs, m)
-	}
-	return m
 }
 
 export function loadRec(
@@ -280,19 +251,19 @@ export function loadRec(
 	sig: AbortSignal | null,
 	// oxlint-disable-next-line typescript/no-explicit-any
 	cb: (c: any) => void,
+	visited?: Set<string>,
 ): void {
 	if (sig?.aborted) return cb(null)
 
-	const mCache = getCache(mergedConfigCacheMap, fs)
-	const mKey = path + ":" + (gitDir || "") + ":" + (branch || "")
-	const mCached = mCache.get(mKey)
-	if (mCached !== undefined) return cb(mCached)
+	const vis = visited ?? new Set<string>()
+	if (vis.has(path)) return cb(null)
+	vis.add(path)
 
-	const cache = getCache(configCacheMap, fs)
-	const cached = cache.get(path)
+	fs.readFile(path, (err, res) => {
+		if (err || !res) return cb(null)
 
-	// oxlint-disable-next-line typescript/no-explicit-any
-	const processParsed = (parsed: any, includes: string[]) => {
+		const parsed = parseGit(res.toString())
+		const includes = getIncludes(parsed, gitDir, branch)
 		const len = includes.length
 		if (len === 0) return cb(parsed)
 
@@ -306,33 +277,23 @@ export function loadRec(
 		mergeConfig(merged, parsed)
 
 		for (let i = 0; i < len; i++) {
-			loadRec(fs, resolvePath(dir, includes[i]!), gitDir, branch, sig, (v) => {
-				results[i] = v
-				if (--pending === 0) {
-					for (let j = 0; j < len; j++) {
-						if (results[j]) mergeConfig(merged, results[j])
+			loadRec(
+				fs,
+				resolvePath(dir, includes[i]!),
+				gitDir,
+				branch,
+				sig,
+				(v) => {
+					results[i] = v
+					if (--pending === 0) {
+						for (let j = 0; j < len; j++) {
+							if (results[j]) mergeConfig(merged, results[j])
+						}
+						cb(merged)
 					}
-					mCache.set(mKey, merged)
-					cb(merged)
-				}
-			})
+				},
+				vis,
+			)
 		}
-	}
-
-	if (cached) return processParsed(cached, getIncludes(cached, gitDir, branch))
-
-	fs.readFile(path, (err, res) => {
-		if (err) {
-			mCache.set(mKey, null)
-			return cb(null)
-		}
-
-		const parsed = parseGit(res!.toString())
-		cache.set(path, parsed)
-
-		const includes = getIncludes(parsed, gitDir, branch)
-		if (includes.length === 0) mCache.set(mKey, parsed)
-
-		processParsed(parsed, includes)
 	})
 }

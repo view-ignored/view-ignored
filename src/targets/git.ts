@@ -1,4 +1,3 @@
-import type { FsAdapter } from "../types.js"
 import type { Target } from "./target.js"
 
 import {
@@ -11,10 +10,7 @@ import {
 	type GlobRule,
 } from "../patterns/index.js"
 import { unixify, join, dirname } from "../unixify.js"
-import { HOME, XDG, resolvePath, loadRec, mergeConfig, getCache } from "./gitConfig.js"
-
-const findGCache = new WeakMap<FsAdapter, Map<string, string | null>>()
-const branchCache = new WeakMap<FsAdapter, Map<string, string | null>>()
+import { HOME, XDG, resolvePath, loadRec, mergeConfig } from "./gitConfig.js"
 
 const globalIgnore = XDG ? join(XDG, "git/ignore") : join(HOME, ".config/git/ignore")
 
@@ -95,31 +91,21 @@ export function makeGit(): Target {
 			}
 
 			const findG = (cur: string, callback: (g: string | null) => void) => {
-				let m = findGCache.get(fs)
-				if (!m) findGCache.set(fs, (m = new Map()))
-				const cached = m.get(cur)
-				if (cached !== undefined) return callback(cached)
-
 				fs.stat(join(cur, ".git"), (err, st) => {
 					if (!err && st) {
-						const res = join(cur, ".git")
-						m!.set(cur, res)
-						return callback(res)
+						return callback(join(cur, ".git"))
 					}
 					const p = dirname(cur)
 					if (p === cur || !cur || cur === ".") {
-						m!.set(cur, null)
 						return callback(null)
 					}
-					findG(p, (res) => {
-						m!.set(cur, res)
-						callback(res)
-					})
+					findG(p, callback)
 				})
 			}
 
 			findG(nCwd, (gDir) => {
 				if (signal?.aborted) return cb(null)
+
 				// oxlint-disable-next-line typescript/no-explicit-any
 				const m: any = {}
 				const confs: string[] = []
@@ -134,8 +120,8 @@ export function makeGit(): Target {
 
 				const start = (branch: string | null) => {
 					let pending = confs.length
-					for (const confPath of confs) {
-						loadRec(fs, confPath, gDir, branch, signal, (res) => {
+					for (let i = 0; i < confs.length; i++) {
+						loadRec(fs, confs[i]!, gDir, branch, signal, (res) => {
 							if (res) mergeConfig(m, res)
 							if (--pending === 0) finalize(m, gDir)
 						})
@@ -144,19 +130,11 @@ export function makeGit(): Target {
 
 				if (!gDir) return start(null)
 
-				const bCache = getCache(branchCache, fs)
 				const headPath = join(gDir, "HEAD")
-				const bCached = bCache.get(headPath)
-				if (bCached !== undefined) return start(bCached)
-
 				fs.readFile(headPath, (err, res) => {
-					if (err || !res) {
-						bCache.set(headPath, null)
-						return start(null)
-					}
+					if (err || !res) return start(null)
 					const s = res.toString().trim()
 					const branch = s.startsWith("ref: refs/heads/") ? s.slice(16) : null
-					bCache.set(headPath, branch)
 					start(branch)
 				})
 			})
