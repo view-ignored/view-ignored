@@ -137,7 +137,7 @@ export function patternListCompile(
 	const combinedSource = patternSources.join("|")
 	const combinedRegex = new RegExp(combinedSource, nocase ? "i" : "")
 
-	const compiledItems = patternSources.map((s) => new RegExp(s, nocase ? "i" : ""))
+	const compiledItems = len === 1 ? [] : patternSources.map((s) => new RegExp(s, nocase ? "i" : ""))
 
 	return {
 		compiledItems,
