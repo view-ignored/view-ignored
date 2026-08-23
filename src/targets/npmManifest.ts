@@ -131,82 +131,61 @@ function doNpmManifestParse(
 ): PackageJson {
 	const parsed = JSON.parse(s)
 
-	if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+	if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
 		throw new Error("npm manifest must be a JSON object")
-	}
 
-	if ("private" in parsed && typeof parsed.private !== "boolean") {
+	if ("private" in parsed && typeof parsed.private !== "boolean")
 		throw new Error("'private' field must be a boolean")
-	}
 
 	if (!parsed.private) {
-		if (typeof parsed.name !== "string") {
+		if (typeof parsed.name !== "string")
 			throw new Error("Manifest must have a non-empty string 'name'")
-		}
-		if (typeof parsed.version !== "string") {
+		if (typeof parsed.version !== "string")
 			throw new Error("Manifest must have a non-empty string 'version'")
-		}
 		if (mode === "vsce") {
-			if (!VSCE_NAME_REGEX.test(parsed.name)) {
+			if (!VSCE_NAME_REGEX.test(parsed.name))
 				throw new Error(`Invalid extension "name": "${parsed.name}" in package.json`)
-			}
-		} else if (!isValidNpmName(parsed.name)) {
+		} else if (!isValidNpmName(parsed.name))
 			throw new Error(`'${parsed.name}' is not a valid npm package name`)
-		}
 
 		// Strict SemVer verification
-		if (!SEMVER_REGEX.test(parsed.version)) {
+		if (!SEMVER_REGEX.test(parsed.version))
 			throw new Error(`'${parsed.version}' is not a valid SemVer version (expected format: X.Y.Z)`)
-		}
 	}
 
-	if ("bundleDependencies" in parsed && "bundledDependencies" in parsed) {
+	if ("bundleDependencies" in parsed && "bundledDependencies" in parsed)
 		throw new Error("Manifest cannot contain both 'bundleDependencies' and 'bundledDependencies'")
-	}
 
 	const stringFields: (keyof PackageJson)[] = ["browser", "main", "module"]
 	for (const field of stringFields) {
-		if (field in parsed && typeof parsed[field] !== "string") {
+		if (field in parsed && typeof parsed[field] !== "string")
 			throw new Error(`'${field}' field must be a string`)
-		}
 	}
 
-	if (parsed.engines !== undefined && !isRecordOfStrings(parsed.engines)) {
+	if (parsed.engines !== undefined && !isRecordOfStrings(parsed.engines))
 		throw new Error("'engines' field must be an object with string values")
-	}
-	if (parsed.scripts !== undefined && !isRecordOfStrings(parsed.scripts)) {
+	if (parsed.scripts !== undefined && !isRecordOfStrings(parsed.scripts))
 		throw new Error("'scripts' field must be an object with string values")
-	}
-	if (parsed.dependencies !== undefined && !isRecordOfStrings(parsed.dependencies)) {
+	if (parsed.dependencies !== undefined && !isRecordOfStrings(parsed.dependencies))
 		throw new Error("'dependencies' field must be an object with string values")
-	}
-	if (parsed.devDependencies !== undefined && !isRecordOfStrings(parsed.devDependencies)) {
+	if (parsed.devDependencies !== undefined && !isRecordOfStrings(parsed.devDependencies))
 		throw new Error("'devDependencies' field must be an object with string values")
-	}
-	if (
-		parsed.optionalDependencies !== undefined &&
-		!isRecordOfStrings(parsed.optionalDependencies)
-	) {
+	if (parsed.optionalDependencies !== undefined && !isRecordOfStrings(parsed.optionalDependencies))
 		throw new Error("'optionalDependencies' field must be an object with string values")
-	}
 
-	if ("files" in parsed && !isArrayOfStrings(parsed.files)) {
+	if ("files" in parsed && !isArrayOfStrings(parsed.files))
 		throw new Error("'files' field must be an array of strings")
-	}
 
 	const bundleFields: (keyof PackageJson)[] = ["bundleDependencies", "bundledDependencies"]
 	for (const field of bundleFields) {
-		if (field in parsed && typeof parsed[field] !== "boolean" && !isArrayOfStrings(parsed[field])) {
+		if (field in parsed && typeof parsed[field] !== "boolean" && !isArrayOfStrings(parsed[field]))
 			throw new Error(`'${field}' field must be a boolean or an array of strings`)
-		}
 	}
 
 	if ("bin" in parsed) {
 		const binValue = parsed.bin
 		const isValidBin = typeof binValue === "string" || isRecordOfStrings(binValue)
-		if (!isValidBin) {
-			throw new Error("'bin' field must be a string or an object with string values")
-		}
+		if (!isValidBin) throw new Error("'bin' field must be a string or an object with string values")
 	}
 
 	return parsed as PackageJson
@@ -316,9 +295,8 @@ export function resolveBundledDeps(
 		const optDeps = manifest.optionalDependencies
 		for (let i = 0; i < bundleDepsField.length; i++) {
 			const dep = bundleDepsField[i]!
-			if ((deps && deps[dep] !== undefined) || (optDeps && optDeps[dep] !== undefined)) {
+			if ((deps && deps[dep] !== undefined) || (optDeps && optDeps[dep] !== undefined))
 				initialBundledDeps.push(dep)
-			}
 		}
 	}
 
@@ -509,9 +487,7 @@ export function makeBundledDepsRule(
 
 		const remainingDepth = (options.depth ?? Infinity) - 2
 
-		if (remainingDepth < 0 || ctx.bundledDeps.length === 0) {
-			return 0
-		}
+		if (remainingDepth < 0 || ctx.bundledDeps.length === 0) return 0
 
 		const mergedCtx = {
 			external: new Map(),
@@ -623,9 +599,7 @@ export function initNpmContext(
 					// ignore invalid globs
 				}
 			}
-			if (reSources.length > 0) {
-				ctx.whitelistedRegex = new RegExp(reSources.join("|"), "i")
-			}
+			if (reSources.length > 0) ctx.whitelistedRegex = new RegExp(reSources.join("|"), "i")
 		}
 
 		extractManifestIncludes(parsedDist, ctx.directPathsInclude)
@@ -635,9 +609,7 @@ export function initNpmContext(
 			for (let i = 0; i < parsedDist.files.length; i++) {
 				const file = parsedDist.files[i]!
 				const normalized = trimLeadingDotSlash(file)
-				if (!normalized.includes("/")) {
-					ctx.explicitRootFiles.add(normalized)
-				}
+				if (!normalized.includes("/")) ctx.explicitRootFiles.add(normalized)
 			}
 
 			// Whitelist Mode: exclude ignore files in 'before' to prevent
@@ -684,9 +656,7 @@ export function initNpmContext(
 						// ignore invalid globs
 					}
 				}
-				if (reSources.length > 0) {
-					ctx.workspaceRegex = new RegExp(reSources.join("|"), "i")
-				}
+				if (reSources.length > 0) ctx.workspaceRegex = new RegExp(reSources.join("|"), "i")
 			}
 
 			cb(null)

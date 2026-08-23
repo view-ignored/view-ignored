@@ -16,9 +16,7 @@ export const HOME = (env.HOME || env.USERPROFILE || "").replaceAll("\\", "/")
 export const XDG = (env.XDG_CONFIG_HOME || (HOME ? HOME + "/.config" : "")).replaceAll("\\", "/")
 
 function resolveHome(p: string): string {
-	if (p.charCodeAt(0) === 126 && p.charCodeAt(1) === 47) {
-		return join(HOME, p.slice(2))
-	}
+	if (p.charCodeAt(0) === 126 && p.charCodeAt(1) === 47) return join(HOME, p.slice(2))
 	return p
 }
 
@@ -45,9 +43,8 @@ export function mergeConfig(target: any, source: any): void {
 // oxlint-disable-next-line typescript/no-explicit-any
 function handlePathKey(section: any, sectionName: string | null, res: any, order: string[]): void {
 	;(section[res.key] ||= []).push(res.val)
-	if (sectionName === "include" || sectionName?.startsWith('includeif "')) {
+	if (sectionName === "include" || sectionName?.startsWith('includeif "'))
 		order.push(sectionName + ":" + (section[res.key].length - 1))
-	}
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -109,9 +106,7 @@ function parseSectionHeader(text: string, i: number, len: number) {
 	const sp = name.indexOf(" ")
 	if (sp !== -1) {
 		let sub = name.slice(sp + 1).trim()
-		if (sub.startsWith('"') && sub.endsWith('"')) {
-			sub = sub.slice(1, -1)
-		}
+		if (sub.startsWith('"') && sub.endsWith('"')) sub = sub.slice(1, -1)
 		name = name.slice(0, sp).toLowerCase() + ' "' + sub + '"'
 	} else {
 		name = name.toLowerCase()
@@ -127,9 +122,7 @@ function parseKeyValuePair(text: string, i: number, len: number) {
 
 	const key = text.slice(kS, i).trim().toLowerCase() || null
 
-	if (i >= len || text.charCodeAt(i) === 10) {
-		return { key, nextIdx: i + 1, val: true }
-	}
+	if (i >= len || text.charCodeAt(i) === 10) return { key, nextIdx: i + 1, val: true }
 
 	i++
 	while (i < len && text.charCodeAt(i) <= 32 && text.charCodeAt(i) !== 10) i++
@@ -144,9 +137,7 @@ function parseKeyValuePair(text: string, i: number, len: number) {
 		i++
 
 	let val: string | boolean = text.slice(vS, i).trim()
-	if (val.startsWith('"') && val.endsWith('"')) {
-		val = unescapeGitValue(val.slice(1, -1))
-	}
+	if (val.startsWith('"') && val.endsWith('"')) val = unescapeGitValue(val.slice(1, -1))
 
 	return { key, nextIdx: i, val }
 }
@@ -198,11 +189,11 @@ function hasConfig(obj: any, cond: string): boolean {
 
 	if (Array.isArray(cur)) {
 		for (let i = 0; i < cur.length; i++) {
-			if (String(cur[i]) === val) return true
+			if (cur[i] === val || String(cur[i]) === val) return true
 		}
 		return false
 	}
-	return String(cur) === val
+	return cur === val || String(cur) === val
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
