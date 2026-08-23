@@ -291,7 +291,7 @@ async function remote(o) {
 		}
 
 		const runsRes = await fetch(
-			"https://api.github.com/repos/Mopsgamer/view-ignored/actions/workflows/benchmark.yml/runs?status=success&per_page=1",
+			"https://api.github.com/repos/view-ignored/view-ignored/actions/workflows/benchmark.yml/runs?status=success&per_page=1",
 			{ headers },
 		)
 
@@ -322,7 +322,7 @@ async function remote(o) {
 
 		console.log(`Found job ID ${job.id}. Fetching raw log output...`)
 		const logRes = await fetch(
-			`https://api.github.com/repos/Mopsgamer/view-ignored/actions/jobs/${job.id}/logs`,
+			`https://api.github.com/repos/view-ignored/view-ignored/actions/jobs/${job.id}/logs`,
 			{ headers },
 		)
 

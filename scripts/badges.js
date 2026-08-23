@@ -109,13 +109,13 @@ function updateBadge() {
 	}
 
 	const encodedPacklistValue = packlistValue.replace(/-/g, "--").replace(/\//g, "%2F")
-	const newPacklistBadge = `[![npm-packlist-tests](https://img.shields.io/badge/npm--packlist-${encodedPacklistValue}-blue)](https://github.com/Mopsgamer/view-ignored/tree/main/src/test-npm-packlist/)`
+	const newPacklistBadge = `[![npm-packlist-tests](https://img.shields.io/badge/npm--packlist-${encodedPacklistValue}-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-npm-packlist/)`
 
 	const encodedWildmatchValue = wildmatchValue.replace(/-/g, "--").replace(/\//g, "%2F")
-	const newWildmatchBadge = `[![wildmatch-tests](https://img.shields.io/badge/wildmatch-${encodedWildmatchValue}-blue)](https://github.com/Mopsgamer/view-ignored/tree/main/src/test-wildmatch/)`
+	const newWildmatchBadge = `[![wildmatch-tests](https://img.shields.io/badge/wildmatch-${encodedWildmatchValue}-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/)`
 
 	const encodedIgnoreValue = ignoreValue.replace(/-/g, "--").replace(/\//g, "%2F")
-	const newIgnoreBadge = `[![ignore-tests](https://img.shields.io/badge/ignore-${encodedIgnoreValue}-blue)](https://github.com/Mopsgamer/view-ignored/tree/main/src/test-wildmatch/)`
+	const newIgnoreBadge = `[![ignore-tests](https://img.shields.io/badge/ignore-${encodedIgnoreValue}-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/)`
 
 	// Replace packlist badge
 	if (packlistRegex.test(readmeContent)) {
