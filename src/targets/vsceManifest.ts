@@ -13,21 +13,18 @@ const VSCODE_ENGINE_REGEX = /^\*$|^(\^|>=)?((\d+)|x)\.((\d+)|x)\.((\d+)|x)(-.*)?
 export function vsceManifestParse(s: string): VsceManifest {
 	const parsed = npmManifestParse(s, "vsce")
 
-	if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+	if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
 		throw new Error("VSCE manifest must be a JSON object")
-	}
 
 	if (
 		!parsed.engines ||
 		typeof parsed.engines !== "object" ||
 		typeof parsed.engines.vscode !== "string"
-	) {
+	)
 		throw new Error("VSCE manifest must include an 'engines.vscode' string")
-	}
 
-	if (!VSCODE_ENGINE_REGEX.test(parsed.engines.vscode)) {
+	if (!VSCODE_ENGINE_REGEX.test(parsed.engines.vscode))
 		throw new Error(`Invalid 'engines.vscode' version format: "${parsed.engines.vscode}"`)
-	}
 
 	return parsed as VsceManifest
 }

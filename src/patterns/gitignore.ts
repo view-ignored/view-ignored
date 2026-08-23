@@ -112,9 +112,7 @@ function processGitignoreLine(
 			tempIsEscaped = false
 		} else if (c === 92) {
 			tempIsEscaped = true
-		} else if (c !== 32 && c !== 9 && c !== 13) {
-			actualLastRealCharIdx = k + 1
-		}
+		} else if (c !== 32 && c !== 9 && c !== 13) actualLastRealCharIdx = k + 1
 	}
 
 	if (tempIsEscaped) actualLastRealCharIdx = lineBuffIdx
@@ -127,9 +125,7 @@ function processGitignoreLine(
 	let resolvedIsEscaped = false
 	const startsWithEscapedBang =
 		rawLine.length > 1 && rawLine.charCodeAt(0) === 92 && rawLine.charCodeAt(1) === 33
-	if (startsWithEscapedBang) {
-		resolvedLine = "\\!"
-	}
+	if (startsWithEscapedBang) resolvedLine = "\\!"
 	for (let m = startsWithEscapedBang ? 2 : 0; m < rawLine.length; m++) {
 		const rc = rawLine[m]!
 		if (resolvedIsEscaped) {

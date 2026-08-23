@@ -137,9 +137,8 @@ const TARGETS: Record<string, TargetDef> = {
 						try {
 							const parsed = JSON.parse(jsonStr)
 							const info = Array.isArray(parsed) ? parsed[0] : parsed
-							if (info && Array.isArray(info.files)) {
+							if (info && Array.isArray(info.files))
 								return info.files.map((f: { path: string }) => f.path)
-							}
 						} catch {}
 					}
 					return []
@@ -296,9 +295,7 @@ function openUrl(url: string) {
 		return
 	}
 
-	if (hasBin("xdg-open")) {
-		spawn("xdg-open", [url], { detached: true, stdio: "ignore" }).unref()
-	}
+	if (hasBin("xdg-open")) spawn("xdg-open", [url], { detached: true, stdio: "ignore" }).unref()
 }
 
 function showHelp() {
@@ -452,9 +449,7 @@ async function run(
 					// oxlint-disable-next-line typescript/no-explicit-any
 					scanInvert = opt.invert as any
 				}
-			} else if (setName === "ignored") {
-				scanInvert = true
-			}
+			} else if (setName === "ignored") scanInvert = true
 
 			// Set scan options
 			const scanOptions: ScanOptions = {
@@ -464,9 +459,7 @@ async function run(
 				target: targetInstance,
 			}
 
-			if (opt.depth !== undefined) {
-				scanOptions.depth = parseInt(opt.depth, 10)
-			}
+			if (opt.depth !== undefined) scanOptions.depth = parseInt(opt.depth, 10)
 
 			ctx = await scan(scanOptions)
 		} catch (err: unknown) {
@@ -600,9 +593,7 @@ async function run(
 				// oxlint-disable-next-line typescript/no-explicit-any
 				scanInvert = opt.invert as any
 			}
-		} else if (setName === "ignored") {
-			scanInvert = true
-		}
+		} else if (setName === "ignored") scanInvert = true
 
 		// Set scan options
 		const scanOptions: ScanOptions = {
@@ -612,9 +603,7 @@ async function run(
 			target: targetInstance,
 		}
 
-		if (opt.depth !== undefined) {
-			scanOptions.depth = parseInt(opt.depth, 10)
-		}
+		if (opt.depth !== undefined) scanOptions.depth = parseInt(opt.depth, 10)
 
 		ctx = await scan(scanOptions)
 	} catch (err: unknown) {
@@ -764,9 +753,7 @@ async function run(
 					`  ${icon}${styleText("bold", r.file)}\n      ${styleText("dim", "Issue:")}  ${r.issue}${r.pattern ? `\n      ${styleText("dim", "Pattern:")} ${styleText("blue", JSON.stringify(r.pattern))} (${styleText("dim", r.origin)})` : ""}`,
 				)
 			}
-			if (hidden > 0) {
-				console.log(`      ${styleText("dim", `... and ${hidden} more items`)}`)
-			}
+			if (hidden > 0) console.log(`      ${styleText("dim", `... and ${hidden} more items`)}`)
 		}
 
 		process.stdout.write(
@@ -814,9 +801,7 @@ async function main() {
 					processedArgv.splice(invertIdx, 1)
 				}
 				processedArgv.splice(dDashIdx, 0, "--invert")
-				if (value !== undefined) {
-					processedArgv.splice(dDashIdx + 1, 0, value)
-				}
+				if (value !== undefined) processedArgv.splice(dDashIdx + 1, 0, value)
 			}
 		}
 
@@ -825,9 +810,7 @@ async function main() {
 			const arg = processedArgv[i]
 			if (arg !== "--invert") continue
 			const next = processedArgv[i + 1]
-			if (next === undefined || next.startsWith("-")) {
-				processedArgv.splice(i + 1, 0, "true")
-			}
+			if (next === undefined || next.startsWith("-")) processedArgv.splice(i + 1, 0, "true")
 		}
 
 		args = parseArgs({
