@@ -97,6 +97,10 @@ const TARGETS: Record<string, TargetDef> = {
 				cmd: "git ls-files --others --exclude-standard --cached",
 				parse: (out) => out.trim().split(/\r?\n/).filter(Boolean),
 			},
+			"all-with-ignored": {
+				cmd: "git ls-files --cached --others --ignored --exclude-standard",
+				parse: (out) => out.trim().split(/\r?\n/).filter(Boolean),
+			},
 			ignored: {
 				cmd: "git ls-files --ignored --others --exclude-standard",
 				parse: (out) => out.trim().split(/\r?\n/).filter(Boolean),
@@ -176,14 +180,49 @@ const TARGETS: Record<string, TargetDef> = {
 					out
 						.trim()
 						.split(/\r?\n/)
-						.filter(
-							(line) =>
-								line &&
-								!line.startsWith("npm notice") &&
-								!line.includes("DeprecationWarning") &&
-								!line.startsWith("ERROR"),
-						)
-						.filter(Boolean),
+						.map((line) => line.trim())
+						.filter((line) => {
+							if (!line) return false
+							if (
+								line.startsWith("npm notice") ||
+								line.startsWith("Executing") ||
+								line.startsWith("[vsce]")
+							)
+								return false
+							if (
+								line.includes("DeprecationWarning") ||
+								line.startsWith("ERROR") ||
+								line.startsWith("WARNING") ||
+								line.startsWith("INFO")
+							)
+								return false
+							return true
+						}),
+			},
+			"no-dependencies": {
+				cmd: "vsce ls --no-dependencies",
+				parse: (out) =>
+					out
+						.trim()
+						.split(/\r?\n/)
+						.map((line) => line.trim())
+						.filter((line) => {
+							if (!line) return false
+							if (
+								line.startsWith("npm notice") ||
+								line.startsWith("Executing") ||
+								line.startsWith("[vsce]")
+							)
+								return false
+							if (
+								line.includes("DeprecationWarning") ||
+								line.startsWith("ERROR") ||
+								line.startsWith("WARNING") ||
+								line.startsWith("INFO")
+							)
+								return false
+							return true
+						}),
 			},
 		},
 	},
@@ -429,27 +468,32 @@ async function run(
 	if (opt.list) {
 		const start = performance.now()
 		let ctx: MatcherContext
+		let setName = opt.cmdSet
+		if (!setName) {
+			if (opt.invert === "true") setName = "ignored"
+			else if (opt.invert === "2") setName = "all-with-ignored"
+			else setName = info.defaultSet
+		}
+		const isInvert = opt.invert === "true" || opt.invert === "2" || setName === "ignored"
+
+		let scanInvert: boolean | 2 = false
+		if (opt.invert !== undefined) {
+			if (opt.invert === "true") {
+				scanInvert = true
+			} else if (opt.invert === "false") {
+				scanInvert = false
+			} else if (opt.invert === "2") {
+				scanInvert = 2
+			} else {
+				// oxlint-disable-next-line typescript/no-explicit-any
+				scanInvert = opt.invert as any
+			}
+		} else if (setName === "ignored") scanInvert = true
+
 		try {
 			const modeArg = opt.mode as "publish" | "list" | "bundle" | undefined
 			// oxlint-disable-next-line typescript/no-explicit-any
 			const targetInstance = (info.make as any)(modeArg)
-
-			const setName = opt.cmdSet || info.defaultSet
-			const isInvert = opt.invert === "true" || setName === "ignored"
-
-			let scanInvert: boolean | 2 = false
-			if (opt.invert !== undefined) {
-				if (opt.invert === "true") {
-					scanInvert = true
-				} else if (opt.invert === "false") {
-					scanInvert = false
-				} else if (opt.invert === "2") {
-					scanInvert = 2
-				} else {
-					// oxlint-disable-next-line typescript/no-explicit-any
-					scanInvert = opt.invert as any
-				}
-			} else if (setName === "ignored") scanInvert = true
 
 			// Set scan options
 			const scanOptions: ScanOptions = {
@@ -485,8 +529,10 @@ async function run(
 		}
 		const dur = performance.now() - start
 
+		const headerText =
+			scanInvert === 2 ? "All files" : scanInvert === true ? "Ignored files" : "Included files"
 		process.stdout.write(
-			`${styleText(["blue", "bold"], "→")} ${styleText("bold", "Included files")} for ${styleText("blue", name)} (${fmtTime(dur)}):\n`,
+			`${styleText(["blue", "bold"], "→")} ${styleText("bold", headerText)} for ${styleText("blue", name)} (${fmtTime(dur)}):\n`,
 		)
 		Array.from(ctx!.paths.keys())
 			.sort()
@@ -504,12 +550,18 @@ async function run(
 		return false
 	}
 
-	const setName = opt.cmdSet || info.defaultSet
+	let setName = opt.cmdSet
+	if (!setName) {
+		if (opt.invert === "true") setName = "ignored"
+		else if (opt.invert === "2") setName = "all-with-ignored"
+		else setName = info.defaultSet
+	}
 	const setDef = info.sets[setName]
 	if (!setDef && !opt.cmd) {
 		if (isExplicit) {
+			const listHint = opt.invert ? ` --invert ${opt.invert}` : ""
 			process.stderr.write(
-				`${styleText("red", "✖")} ${styleText("bold", "Error:")} Predefined command set "${setName}" not found for target "${name}".\n`,
+				`${styleText("red", "✖")} ${styleText("bold", "Error:")} Target "${name}" CLI binary does not support command set "${setName}". Use ${styleText("blue", `vign-diff list ${name}${listHint}`)} to inspect scan results.\n`,
 			)
 			process.exit(1)
 		}
@@ -574,26 +626,26 @@ async function run(
 
 	const start = performance.now()
 	let ctx: MatcherContext
+	const isInvert = opt.invert === "true" || opt.invert === "2" || setName === "ignored"
+
+	let scanInvert: boolean | 2 = false
+	if (opt.invert !== undefined) {
+		if (opt.invert === "true") {
+			scanInvert = true
+		} else if (opt.invert === "false") {
+			scanInvert = false
+		} else if (opt.invert === "2") {
+			scanInvert = 2
+		} else {
+			// oxlint-disable-next-line typescript/no-explicit-any
+			scanInvert = opt.invert as any
+		}
+	} else if (setName === "ignored") scanInvert = true
+
 	try {
 		const modeArg = opt.mode as "publish" | "list" | "bundle" | undefined
 		// oxlint-disable-next-line typescript/no-explicit-any
 		const targetInstance = (info.make as any)(modeArg)
-
-		const isInvert = opt.invert === "true" || setName === "ignored"
-
-		let scanInvert: boolean | 2 = false
-		if (opt.invert !== undefined) {
-			if (opt.invert === "true") {
-				scanInvert = true
-			} else if (opt.invert === "false") {
-				scanInvert = false
-			} else if (opt.invert === "2") {
-				scanInvert = 2
-			} else {
-				// oxlint-disable-next-line typescript/no-explicit-any
-				scanInvert = opt.invert as any
-			}
-		} else if (setName === "ignored") scanInvert = true
 
 		// Set scan options
 		const scanOptions: ScanOptions = {
@@ -628,15 +680,6 @@ async function run(
 		return false
 	}
 	const dur = performance.now() - start
-
-	if (opt.list) {
-		process.stdout.write(
-			`${styleText(["blue", "bold"], "→")} ${styleText("bold", "Included files")} for ${styleText("blue", name)} (${fmtTime(dur)}):\n`,
-		)
-		Array.from(ctx!.paths.keys())
-			.sort()
-			.forEach((f) => console.log(`  ${styleText("dim", "•")} ${f}`))
-	}
 
 	let vignFiles = Array.from(ctx!.paths.keys()).sort()
 
