@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- Optimize single-pattern list compilation in `patternListCompile` and `wildmatchCompile` by skipping duplicate secondary `RegExp` allocations for 1-pattern rules.
+- Parallelize `Git.init` configuration and branch file reading pipeline.
+- Remove stale `WeakMap` caches in `git` target initialization and `gitConfig` parsing to ensure configuration reads always evaluate live disk state.
+
 ## [0.12.3] - 2026-08-22
 
 - Minimize README.md and create GitHub Wiki.
