@@ -106,54 +106,36 @@ export function makeGit(): Target {
 			findG(nCwd, (gDir) => {
 				if (signal?.aborted) return cb(null)
 
-				if (gDir) target.root = dirname(gDir)
-
-				let branch: string | null = null
-				let branchLoaded = !gDir
-				let confsLoaded = false
 				// oxlint-disable-next-line typescript/no-explicit-any
 				const m: any = {}
-
 				const confs: string[] = []
 				if (HOME) confs.push(join(HOME, ".gitconfig"))
 				if (XDG) confs.push(join(XDG, "git/config"))
-				if (gDir) confs.push(join(gDir, "config"))
-
-				const checkDone = () => {
-					if (!branchLoaded || !confsLoaded) return
-					finalize(m, gDir)
+				if (gDir) {
+					confs.push(join(gDir, "config"))
+					target.root = dirname(gDir)
 				}
 
-				const loadConfigs = () => {
-					if (!confs.length) {
-						confsLoaded = true
-						return checkDone()
-					}
+				if (!confs.length) return finalize(m, gDir)
+
+				const start = (branch: string | null) => {
 					let pending = confs.length
 					for (let i = 0; i < confs.length; i++) {
 						loadRec(fs, confs[i]!, gDir, branch, signal, (res) => {
 							if (res) mergeConfig(m, res)
-							if (--pending === 0) {
-								confsLoaded = true
-								checkDone()
-							}
+							if (--pending === 0) finalize(m, gDir)
 						})
 					}
 				}
 
-				if (!gDir) {
-					loadConfigs()
-					return
-				}
+				if (!gDir) return start(null)
 
 				const headPath = join(gDir, "HEAD")
 				fs.readFile(headPath, (err, res) => {
-					if (!err && res) {
-						const s = res.toString().trim()
-						if (s.startsWith("ref: refs/heads/")) branch = s.slice(16)
-					}
-					branchLoaded = true
-					loadConfigs()
+					if (err || !res) return start(null)
+					const s = res.toString().trim()
+					const branch = s.startsWith("ref: refs/heads/") ? s.slice(16) : null
+					start(branch)
 				})
 			})
 		},
