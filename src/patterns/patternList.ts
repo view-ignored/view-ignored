@@ -1,4 +1,4 @@
-import glob from "picomatch"
+import zeptomatch from "zeptomatch"
 
 import { wildmatchCompile } from "./wildmatch.js"
 
@@ -116,16 +116,11 @@ export function patternListCompile(
 		}
 
 		if (isGlob) {
-			const isMatchRe = glob.makeRe(cleaned, {
-				contains: true,
-				dot: true,
-				matchBase: false,
-				nobrace: true,
-				nocase,
-				nonegate: true,
-			})
+			const isMatchRe = zeptomatch.compile(cleaned)
 			part = isMatchRe.source
-			if (part.startsWith("^") && part.endsWith("$")) part = part.slice(1, -1)
+			if (part.startsWith("^")) part = part.slice(1)
+			if (part.endsWith("[\\/]?$")) part = part.slice(0, -7)
+			else if (part.endsWith("$")) part = part.slice(0, -1)
 		} else {
 			part = cleaned.replaceAll(REGEX_SPECIAL_CHARS, "\\$&")
 		}
