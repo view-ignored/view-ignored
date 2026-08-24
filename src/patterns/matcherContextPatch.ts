@@ -8,7 +8,7 @@ import type { RuleMatch } from "./rule.js"
 import { getOrInsert } from "../mapUtils.js"
 import { type ScanParallelOptions } from "../scanParallel.js"
 import { scanParallel } from "../scanParallel.js"
-import { dirname, unixify } from "../unixify.js"
+import { dirname, ffalse, unixify } from "../unixify.js"
 import {
 	walkPatchResult,
 	walkPatchTotal,
@@ -27,8 +27,6 @@ const promIgnores = (options: IgnoresOptions): Promise<RuleMatch> =>
 
 const promScanParallel = (options: ScanParallelOptions): Promise<WalkResult[] | null> =>
 	new Promise((res, rej) => scanParallel(options, (err, r) => (err ? rej(err) : res(r))))
-
-const ffalse = () => false
 
 function mockDirent(name: string, parentPath: string, isDir: boolean): Dirent {
 	return {
@@ -219,13 +217,9 @@ export async function matcherContextRemovePath(
 			)
 				continue
 
-			const isDeleted = ctx.external.delete(element)
-			if (isDeleted && ctx.failed.length) {
-				const failedEntryIndex = ctx.failed.findIndex(
-					(fail) => dirname(fail.source.path) === element,
-				)
-				if (failedEntryIndex >= 0) ctx.failed.splice(failedEntryIndex, 1)
-			}
+			if (!ctx.external.delete(element) || !ctx.failed.length) continue
+			const failedEntryIndex = ctx.failed.findIndex((fail) => dirname(fail.source.path) === element)
+			if (failedEntryIndex >= 0) ctx.failed.splice(failedEntryIndex, 1)
 		}
 		return removed
 	}

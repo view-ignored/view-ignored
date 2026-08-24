@@ -5,7 +5,7 @@ import type { Resource, InvalidSource } from "./patterns/resource.js"
 import type { ScanOptions } from "./types.js"
 
 import { resolveSources } from "./patterns/resolveSources.js"
-import { dirname, join } from "./unixify.js"
+import { countSlashes, dirname, ffalse, join } from "./unixify.js"
 import { walkIncludes, type WalkResult, type WalkTotal } from "./walk.js"
 
 export interface ScanParallelOptions {
@@ -42,15 +42,8 @@ function processSingleFile(
 	const lastSlash = within.lastIndexOf("/")
 	const name = lastSlash === -1 ? within : within.slice(lastSlash + 1)
 
-	let depth = 0
-	if (parentPath !== "." && parentPath !== "") {
-		depth = 1
-		for (let i = 0; i < parentPath.length; i++) {
-			if (parentPath.charCodeAt(i) === 47) depth++
-		}
-	}
+	const depth = parentPath !== "." && parentPath !== "" ? 1 + countSlashes(parentPath) : 0
 
-	const ffalse = () => false
 	const entry = {
 		isBlockDevice: typeof stat.isBlockDevice === "function" ? () => stat.isBlockDevice() : ffalse,
 		isCharacterDevice:
@@ -366,13 +359,7 @@ export function scanParallel(
 
 	for (let i = 0; i < withinList.length; i++) {
 		const item = withinList[i]!
-		let initialDepth = 0
-		if (item !== "." && item !== "") {
-			const len = item.length
-			for (let j = 0; j < len; j++) {
-				if (item.charCodeAt(j) === 47) initialDepth++
-			}
-		}
+		const initialDepth = item !== "." && item !== "" ? countSlashes(item) : 0
 
 		if (item !== "." && item !== "" && !item.endsWith("/")) {
 			state.activeTasks++

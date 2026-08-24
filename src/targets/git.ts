@@ -53,7 +53,8 @@ export function makeGit(): Target {
 			) => {
 				const { core } = conf
 				const ignorecase = core
-					? core["ignorecase"] === true || String(core["ignorecase"]).toLowerCase() === "true"
+					? core["ignorecase"] === true ||
+						(typeof core["ignorecase"] === "string" && core["ignorecase"].toLowerCase() === "true")
 					: false
 
 				if (ignorecase) {

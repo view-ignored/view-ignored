@@ -50,7 +50,7 @@ export type PatternList = string[]
 
 /**
  * Provides regexes and sources.
- * @see {patternListCompile}
+ * @see {@link patternListCompile}
  *
  * @since 0.12.2
  */

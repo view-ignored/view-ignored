@@ -97,7 +97,7 @@ export type CustomRule = {
 	 *   }
 	 *
 	 * @example
-	 *   // Some standandized examples
+	 *   // Some standardized examples
 	 *
 	 *   // message or glob
 	 *   return "//starts with 's' && !ends with 't'"
