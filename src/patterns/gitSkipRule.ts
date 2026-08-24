@@ -9,7 +9,7 @@ let cachedGitSkipRule: SkipRule | null = null
  */
 export function makeGitSkipRule(): SkipRule {
 	return (cachedGitSkipRule ||= (options) => {
-		if (options.dirent.isDirectory() && options.dirent.name === ".git") return 0
+		if (options.dirent.name === ".git") return 0
 		return null
 	})
 }

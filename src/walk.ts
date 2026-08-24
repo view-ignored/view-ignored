@@ -119,28 +119,32 @@ function checkRulesList(
 ): WalkResult | Promise<WalkResult> | null {
 	if (!list || list.length === 0) return null
 	const { entry, scanOptions, relPath: path, lowerEntry, parentPath, resource, depth } = options
-	const { target, fs, cwd, signal, within } = scanOptions
 
-	const ignoreOptions = {
-		cwd,
-		depth: maxDepth - depth,
-		dirent: entry,
-		entry: path,
-		fs,
-		lowerEntry,
-		parentPath,
-		resource,
-		signal,
-		target,
-		within,
-	}
-
+	let ignoreOptions: unknown = null
 	const len = list.length
 	for (let i = 0; i < len; i++) {
 		const rule = list[i]!
 		if (typeof rule !== "function") continue
 
-		const res = rule(ignoreOptions)
+		if (!ignoreOptions) {
+			const { target, fs, cwd, signal, within } = scanOptions
+			ignoreOptions = {
+				cwd,
+				depth: maxDepth - depth,
+				dirent: entry,
+				entry: path,
+				fs,
+				lowerEntry,
+				parentPath,
+				resource,
+				signal,
+				target,
+				within,
+			}
+		}
+
+		// oxlint-disable-next-line typescript/no-explicit-any
+		const res = rule(ignoreOptions as any)
 		if (res === null) continue
 
 		if (res && typeof (res as Promise<unknown>).then === "function")
