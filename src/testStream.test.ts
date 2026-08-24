@@ -52,8 +52,7 @@ describe("Git", () => {
 								{ kind: RuleMatchKind.noMatch, path: "src/" },
 								{ kind: RuleMatchKind.external, path: "src/file" },
 								{ kind: RuleMatchKind.noMatch, path: ".gitignore" },
-								{ kind: RuleMatchKind.internal, path: ".git/" },
-								{ kind: RuleMatchKind.internal, path: ".git/HEAD" },
+								{ kind: RuleMatchKind.none, path: ".git/" },
 							].sort((a, b) => a.path.localeCompare(b.path)),
 						)
 						done()

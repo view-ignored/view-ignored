@@ -7,6 +7,7 @@ import {
 	ruleCompile,
 	extractNpmignore,
 	type GlobRule,
+	makeGitSkipRule,
 } from "../patterns/index.js"
 import { makePackageJsonExtractor } from "../patterns/packagejson.js"
 import {
@@ -113,6 +114,7 @@ export function makeBun(mode: "list" | "publish" | "bundle" = "publish"): Target
 	})
 
 	const internal: Rule[] = [
+		makeGitSkipRule(),
 		makeBundledDepsRule(ctx, makeBun),
 		makePackageResolutionRule(ctx),
 		symlinkRule,

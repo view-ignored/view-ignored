@@ -8,6 +8,7 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Add `.git` `SkipRule` to all targets to skip `.git` directory traversal.
 - Move `Mopsgamer/view-ignored` to `view-ignored/view-ignored` + all related repos.
 - Remove `packageJsonExtractor` from `VSCE` target so `package.json`'s `files` array is not wrongly used to exclude extension files.
 - Improve `vign-diff` CLI handling for VSCE target, adding `no-dependencies` command set and stripping CLI status/info output.
