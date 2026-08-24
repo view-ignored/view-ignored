@@ -75,8 +75,6 @@ export function makeBun(mode: "list" | "publish" | "bundle" = "publish"): Target
 			"CVS",
 			"npm-debug.log",
 
-			// bun says it is "mentioned in the docs but does not appear to be ignored by default"
-			// but we know it should be /build/config.gypi, not just config.gypi, haha
 			// "config.gypi",
 
 			".env.production", // npm includes it

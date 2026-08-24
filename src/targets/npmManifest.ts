@@ -280,16 +280,9 @@ export function resolveBundledDeps(
 			: manifest.bundledDependencies
 	let initialBundledDeps: string[] = []
 	if (bundleDepsField === true) {
-		if (manifest.dependencies) {
-			for (const dep in manifest.dependencies) {
-				initialBundledDeps.push(dep)
-			}
-		}
-		if (manifest.optionalDependencies) {
-			for (const dep in manifest.optionalDependencies) {
-				initialBundledDeps.push(dep)
-			}
-		}
+		if (manifest.dependencies) initialBundledDeps.push(...Object.keys(manifest.dependencies))
+		if (manifest.optionalDependencies)
+			initialBundledDeps.push(...Object.keys(manifest.optionalDependencies))
 	} else if (Array.isArray(bundleDepsField)) {
 		const deps = manifest.dependencies
 		const optDeps = manifest.optionalDependencies
@@ -332,19 +325,10 @@ export function resolveBundledDeps(
 				return
 			}
 
-			let pending = 0
 			const deps = pkg.dependencies
 			const optDeps = pkg.optionalDependencies
-			if (deps) {
-				for (const _ in deps) {
-					pending++
-				}
-			}
-			if (optDeps) {
-				for (const _ in optDeps) {
-					pending++
-				}
-			}
+			let pending =
+				(deps ? Object.keys(deps).length : 0) + (optDeps ? Object.keys(optDeps).length : 0)
 
 			if (pending === 0) {
 				done()
@@ -567,17 +551,13 @@ export function initNpmContext(
 			return
 		}
 
-		const dep1 = parsedDist.dependencies
-		if (dep1) {
-			for (const dep in dep1) ctx.rootDeps.add(dep)
-		}
-		const dep2 = parsedDist.devDependencies
-		if (dep2) {
-			for (const dep in dep2) ctx.rootDeps.add(dep)
-		}
-		const dep3 = parsedDist.optionalDependencies
-		if (dep3) {
-			for (const dep in dep3) ctx.rootDeps.add(dep)
+		for (const depObj of [
+			parsedDist.dependencies,
+			parsedDist.devDependencies,
+			parsedDist.optionalDependencies,
+		]) {
+			if (!depObj) continue
+			for (const dep of Object.keys(depObj)) ctx.rootDeps.add(dep)
 		}
 
 		if (parsedDist.files) {

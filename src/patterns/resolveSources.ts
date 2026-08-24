@@ -7,7 +7,7 @@ import type { Resource } from "./resource.js"
 import type { GlobRule } from "./rule.js"
 import type { Source } from "./source.js"
 
-import { dirname, join, trimLeadingDotSlash } from "../unixify.js"
+import { countSlashes, dirname, join, trimLeadingDotSlash } from "../unixify.js"
 import { patternListCompile } from "./patternList.js"
 
 // Cache for resolved extended roots per cwd and extendsRoot field to avoid redundant filesystem lookups
@@ -24,14 +24,6 @@ function isParentOf(parent: string, child: string): boolean {
 	if (!child.startsWith(parent)) return false
 	if (parent.charCodeAt(pLen - 1) === 47) return true // parent ends with '/'
 	return child.charCodeAt(pLen) === 47 // child has '/' right after parent
-}
-
-function countSlashes(s: string): number {
-	let count = 0
-	for (let i = 0; i < s.length; i++) {
-		if (s.charCodeAt(i) === 47) count++
-	}
-	return count
 }
 
 function getLv(cwd: string, extRoot: string | null): number {
@@ -231,8 +223,8 @@ function launchExtractor(
 			if (act === null) return cb(null, null)
 			if (act === undefined) return cb(null, source)
 			return cb(null, { error: act as Error, source })
-		} catch (act) {
-			return cb(null, { error: act as Error, source })
+		} catch (e) {
+			return cb(null, { error: e as Error, source })
 		}
 	})
 }

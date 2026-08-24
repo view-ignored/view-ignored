@@ -38,6 +38,41 @@ interface TargetDef {
 	sets: Record<string, CommandSet>
 }
 
+function parseVsceOutput(out: string): string[] {
+	return out
+		.trim()
+		.split(/\r?\n/)
+		.map((line) => line.trim())
+		.filter((line) => {
+			if (!line) return false
+			if (
+				line.startsWith("npm notice") ||
+				line.startsWith("Executing") ||
+				line.startsWith("[vsce]")
+			)
+				return false
+			if (
+				line.includes("DeprecationWarning") ||
+				line.startsWith("ERROR") ||
+				line.startsWith("WARNING") ||
+				line.startsWith("INFO")
+			)
+				return false
+			return true
+		})
+}
+
+function getScanInvertOption(invertArg?: string, setName?: string): boolean | 2 {
+	if (invertArg !== undefined) {
+		if (invertArg === "true") return true
+		if (invertArg === "false") return false
+		if (invertArg === "2") return 2
+		// oxlint-disable-next-line typescript/no-explicit-any
+		return invertArg as any
+	}
+	return setName === "ignored" ? true : false
+}
+
 function parseDenoOrJSR(out: string): string[] {
 	const files: string[] = []
 	let inFiles = false
@@ -176,53 +211,11 @@ const TARGETS: Record<string, TargetDef> = {
 		sets: {
 			default: {
 				cmd: "vsce ls",
-				parse: (out) =>
-					out
-						.trim()
-						.split(/\r?\n/)
-						.map((line) => line.trim())
-						.filter((line) => {
-							if (!line) return false
-							if (
-								line.startsWith("npm notice") ||
-								line.startsWith("Executing") ||
-								line.startsWith("[vsce]")
-							)
-								return false
-							if (
-								line.includes("DeprecationWarning") ||
-								line.startsWith("ERROR") ||
-								line.startsWith("WARNING") ||
-								line.startsWith("INFO")
-							)
-								return false
-							return true
-						}),
+				parse: parseVsceOutput,
 			},
 			"no-dependencies": {
 				cmd: "vsce ls --no-dependencies",
-				parse: (out) =>
-					out
-						.trim()
-						.split(/\r?\n/)
-						.map((line) => line.trim())
-						.filter((line) => {
-							if (!line) return false
-							if (
-								line.startsWith("npm notice") ||
-								line.startsWith("Executing") ||
-								line.startsWith("[vsce]")
-							)
-								return false
-							if (
-								line.includes("DeprecationWarning") ||
-								line.startsWith("ERROR") ||
-								line.startsWith("WARNING") ||
-								line.startsWith("INFO")
-							)
-								return false
-							return true
-						}),
+				parse: parseVsceOutput,
 			},
 		},
 	},
@@ -476,19 +469,7 @@ async function run(
 		}
 		const isInvert = opt.invert === "true" || opt.invert === "2" || setName === "ignored"
 
-		let scanInvert: boolean | 2 = false
-		if (opt.invert !== undefined) {
-			if (opt.invert === "true") {
-				scanInvert = true
-			} else if (opt.invert === "false") {
-				scanInvert = false
-			} else if (opt.invert === "2") {
-				scanInvert = 2
-			} else {
-				// oxlint-disable-next-line typescript/no-explicit-any
-				scanInvert = opt.invert as any
-			}
-		} else if (setName === "ignored") scanInvert = true
+		const scanInvert = getScanInvertOption(opt.invert, setName)
 
 		try {
 			const modeArg = opt.mode as "publish" | "list" | "bundle" | undefined
@@ -628,19 +609,7 @@ async function run(
 	let ctx: MatcherContext
 	const isInvert = opt.invert === "true" || opt.invert === "2" || setName === "ignored"
 
-	let scanInvert: boolean | 2 = false
-	if (opt.invert !== undefined) {
-		if (opt.invert === "true") {
-			scanInvert = true
-		} else if (opt.invert === "false") {
-			scanInvert = false
-		} else if (opt.invert === "2") {
-			scanInvert = 2
-		} else {
-			// oxlint-disable-next-line typescript/no-explicit-any
-			scanInvert = opt.invert as any
-		}
-	} else if (setName === "ignored") scanInvert = true
+	const scanInvert = getScanInvertOption(opt.invert, setName)
 
 	try {
 		const modeArg = opt.mode as "publish" | "list" | "bundle" | undefined
@@ -904,11 +873,11 @@ async function main() {
 		depth: values.depth,
 		dirs: values.dirs,
 		invert: values.invert,
-		issue: !!values.issue,
+		issue: values.issue ?? false,
 		list: isList,
 		mode: values.mode,
 		skipInternal: values["skip-internal"],
-		verbose: !!values.verbose,
+		verbose: values.verbose ?? false,
 	}
 
 	let hasDiff = false

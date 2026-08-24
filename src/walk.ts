@@ -13,7 +13,7 @@ import {
 	type Rule,
 	type InternalRules,
 } from "./patterns/rule.js"
-import { dirname } from "./unixify.js"
+import { dirname, ffalse } from "./unixify.js"
 
 export type WalkOptions = {
 	relPath: string
@@ -226,7 +226,6 @@ function patch(
 		const lastSlash = cleanPath.lastIndexOf("/")
 		const parentPath = lastSlash === -1 ? "." : cleanPath.slice(0, lastSlash)
 		const name = lastSlash === -1 ? cleanPath : cleanPath.slice(lastSlash + 1)
-		const ffalse = () => false
 		const dirDirent = {
 			isBlockDevice: ffalse,
 			isCharacterDevice: ffalse,
@@ -260,7 +259,6 @@ function patchMerged(
 		const lastSlash = cleanPath.lastIndexOf("/")
 		const parentPath = lastSlash === -1 ? "." : cleanPath.slice(0, lastSlash)
 		const name = lastSlash === -1 ? cleanPath : cleanPath.slice(lastSlash + 1)
-		const ffalse = () => false
 		const dirent = {
 			isBlockDevice: ffalse,
 			isCharacterDevice: ffalse,

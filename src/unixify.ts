@@ -84,3 +84,21 @@ export function trimLeadingDotSlash(p: string): string {
 	if (c0 === 46 && p.charCodeAt(1) === 47) return p.slice(2)
 	return p
 }
+
+/**
+ * Counts forward slashes in a string.
+ *
+ * @since 0.12.3
+ */
+export function countSlashes(s: string): number {
+	let count = 0
+	for (let i = 0; i < s.length; i++) {
+		if (s.charCodeAt(i) === 47) count++
+	}
+	return count
+}
+
+/**
+ * Returns false.
+ */
+export const ffalse = (): false => false
