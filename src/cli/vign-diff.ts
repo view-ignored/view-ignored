@@ -363,7 +363,6 @@ function showHelp() {
 	)
 	console.log(`  ${blue("--depth")}             Depth limit for scanning`)
 	console.log(`  ${blue("--dirs")}              Include/exclude directories in scan (true/false)`)
-	console.log(`  ${blue("--skip-internal")}     Toggle skipping internal matches (true/false)`)
 	console.log(`  ${blue("--invert")}            Inverting matcher rules (true, false, or 2)\n`)
 
 	console.log(`${b("Examples:")}`)
@@ -419,7 +418,6 @@ async function run(
 		issue: boolean
 		list: boolean
 		mode?: string
-		skipInternal?: boolean
 		verbose: boolean
 	},
 	isExplicit: boolean,
@@ -467,8 +465,6 @@ async function run(
 			else if (opt.invert === "2") setName = "all-with-ignored"
 			else setName = info.defaultSet
 		}
-		const isInvert = opt.invert === "true" || opt.invert === "2" || setName === "ignored"
-
 		const scanInvert = getScanInvertOption(opt.invert, setName)
 
 		try {
@@ -480,7 +476,6 @@ async function run(
 			const scanOptions: ScanOptions = {
 				dirs: opt.dirs !== undefined ? opt.dirs : false,
 				invert: scanInvert,
-				skipInternal: opt.skipInternal !== undefined ? opt.skipInternal : !isInvert,
 				target: targetInstance,
 			}
 
@@ -607,7 +602,6 @@ async function run(
 
 	const start = performance.now()
 	let ctx: MatcherContext
-	const isInvert = opt.invert === "true" || opt.invert === "2" || setName === "ignored"
 
 	const scanInvert = getScanInvertOption(opt.invert, setName)
 
@@ -620,7 +614,6 @@ async function run(
 		const scanOptions: ScanOptions = {
 			dirs: opt.dirs !== undefined ? opt.dirs : false,
 			invert: scanInvert,
-			skipInternal: opt.skipInternal !== undefined ? opt.skipInternal : !isInvert,
 			target: targetInstance,
 		}
 
@@ -837,7 +830,6 @@ async function main() {
 				invert: { type: "string" },
 				issue: { short: "i", type: "boolean" },
 				mode: { short: "m", type: "string" },
-				"skip-internal": { type: "boolean" },
 				verbose: { short: "V", type: "boolean" },
 				version: { short: "v", type: "boolean" },
 			},
@@ -876,7 +868,6 @@ async function main() {
 		issue: values.issue ?? false,
 		list: isList,
 		mode: values.mode,
-		skipInternal: values["skip-internal"],
 		verbose: values.verbose ?? false,
 	}
 

@@ -5,6 +5,7 @@ import type { Resource, InvalidSource } from "./patterns/resource.js"
 import type { ScanOptions } from "./types.js"
 
 import { resolveSources } from "./patterns/resolveSources.js"
+import { isRuleMatchInvalid } from "./patterns/rule.js"
 import { countSlashes, dirname, ffalse, join } from "./unixify.js"
 import { walkIncludes, type WalkResult, type WalkTotal } from "./walk.js"
 
@@ -107,24 +108,25 @@ function processSingleFile(
 				}
 
 				if (self && self.match) {
-					let dirFiles = 0
-					let dirMatched = 0
-					if (entry.isFile() || entry.isSymbolicLink()) {
-						dirFiles = 1
-						const isIncluded =
-							invert === true ? self.match.ignored : invert === 2 ? true : !self.match.ignored
-						if (isIncluded) dirMatched = 1
-					}
+					let dirMatchedFiles = 0
+					const isIncluded = isRuleMatchInvalid(self.match)
+						? false
+						: invert === true
+							? self.match.ignored
+							: invert === 2
+								? true
+								: !self.match.ignored
+
+					if ((entry.isFile() || entry.isSymbolicLink()) && isIncluded) dirMatchedFiles = 1
 
 					if (onResult) {
 						onResult(self)
 						onResult({
 							depth,
 							dir: parentPath,
-							dirs: 0,
-							files: dirFiles,
 							ignored: false,
-							matched: dirMatched,
+							matchedDirs: 0,
+							matchedFiles: dirMatchedFiles,
 						})
 					} else if (state.results) state.results.push(self)
 				}
@@ -169,12 +171,11 @@ function processEntries(
 	const prefix = relPath === "." || relPath === "" ? "" : relPath + "/"
 
 	let pendingResults = len
-	let dirFiles = 0
-	let dirMatched = 0
-	let dirDirs = 0
+	let dirMatchedFiles = 0
+	let dirMatchedDirs = 0
 
 	if (len === 0 && onResult)
-		onResult({ depth, dir: relPath, dirs: 0, files: 0, ignored: false, matched: 0 })
+		onResult({ depth, dir: relPath, ignored: false, matchedDirs: 0, matchedFiles: 0 })
 
 	const handleResult = (self: WalkResult | null, entry: Dirent, currentRelPath: string) => {
 		const finish = () => {
@@ -183,10 +184,9 @@ function processEntries(
 				onResult({
 					depth,
 					dir: relPath,
-					dirs: dirDirs,
-					files: dirFiles,
 					ignored: false,
-					matched: dirMatched,
+					matchedDirs: dirMatchedDirs,
+					matchedFiles: dirMatchedFiles,
 				})
 			}
 			taskDone()
@@ -196,13 +196,16 @@ function processEntries(
 
 		if (!self || !self.match) return finish()
 
-		if (self.isDir) dirDirs++
-		else if (entry.isFile() || entry.isSymbolicLink()) {
-			dirFiles++
-			const isIncluded =
-				invert === true ? self.match.ignored : invert === 2 ? true : !self.match.ignored
-			if (isIncluded) dirMatched++
-		}
+		const isIncluded = isRuleMatchInvalid(self.match)
+			? false
+			: invert === true
+				? self.match.ignored
+				: invert === 2
+					? true
+					: !self.match.ignored
+
+		if (self.isDir && isIncluded) dirMatchedDirs++
+		else if ((entry.isFile() || entry.isSymbolicLink()) && isIncluded) dirMatchedFiles++
 
 		if (onResult) onResult(self)
 		else state.results!.push(self)

@@ -7,7 +7,7 @@ import { sortFirstFolders } from "./testSort.test.js"
 
 describe.skipIf(!!process.env.TEST_NO_SELF)("NPM", async () => {
 	const npm = npmTotalFiles()
-	const r = await scan({ dirs: false, skipInternal: true, target: makeNPM() })
+	const r = await scan({ dirs: false, target: makeNPM() })
 	// this test uses sortFirstFolders implementation
 	// provided by https://jsr.io/@m234/path/0.1.4/sort-cmp.ts
 	// you can install this jsr package in your project
@@ -17,7 +17,8 @@ describe.skipIf(!!process.env.TEST_NO_SELF)("NPM", async () => {
 	test(
 		"scans self",
 		async () => {
-			expect(sortFirstFolders(r.paths.keys())).toEqual(
+			const keys = Array.from(r.paths.keys()).filter((p) => !p.startsWith(".bun/"))
+			expect(sortFirstFolders(keys)).toEqual(
 				expect.arrayContaining(sortFirstFolders((await npm).files)),
 			)
 		},
@@ -26,7 +27,9 @@ describe.skipIf(!!process.env.TEST_NO_SELF)("NPM", async () => {
 	test(
 		"scans self count",
 		async () => {
-			expect(r.total.get(".")?.totalMatchedFiles).toEqual((await npm).total)
+			const bunCount = Array.from(r.paths.keys()).filter((p) => p.startsWith(".bun/")).length
+			const matched = (r.total.get(".")?.totalMatchedFiles ?? 0) - bunCount
+			expect(matched).toEqual((await npm).total)
 			expect((await npm).total).toBe((await npm).files.length)
 		},
 		{ timeout: 120e3 },

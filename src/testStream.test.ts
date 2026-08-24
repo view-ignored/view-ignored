@@ -199,7 +199,6 @@ describe("scanParallel and walk edge cases", () => {
 					// oxlint-disable-next-line typescript/no-explicit-any
 					signal: null as any,
 					skipDepth: false,
-					skipInternal: false,
 					target: makeNPM(),
 					within: [],
 				},
@@ -231,7 +230,6 @@ describe("scanParallel and walk edge cases", () => {
 					// oxlint-disable-next-line typescript/no-explicit-any
 					signal: null as any,
 					skipDepth: false,
-					skipInternal: false,
 					target: makeNPM(),
 					within: "somefile.js",
 				},
@@ -274,7 +272,6 @@ describe("scanParallel and walk edge cases", () => {
 					// oxlint-disable-next-line typescript/no-explicit-any
 					signal: null as any,
 					skipDepth: false,
-					skipInternal: false,
 					// oxlint-disable-next-line typescript/no-explicit-any
 					target: { extractors: [{ extract: () => {}, path: ".gitignore" }], root: "." } as any,
 					within: "single.js",
@@ -316,7 +313,6 @@ describe("scanParallel and walk edge cases", () => {
 				invert: false,
 				signal: null,
 				skipDepth: false,
-				skipInternal: false,
 				target: mockTarget,
 			},
 			stream: undefined,

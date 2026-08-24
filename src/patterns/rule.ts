@@ -343,13 +343,19 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 	if (src !== null && "error" in src)
 		return { ...src, ignored: true, kind: RuleMatchKind.invalidSource }
 
-	const { entry } = options
+	const entry =
+		options.dirent &&
+		typeof options.dirent.isDirectory === "function" &&
+		options.dirent.isDirectory() &&
+		!options.entry.endsWith("/")
+			? options.entry + "/"
+			: options.entry
 
 	const { internalRules } = options.target
 	const beforeInternal = Array.isArray(internalRules) ? internalRules : internalRules.before
 
 	if (beforeInternal.length > 0) {
-		const internalMatch = ruleTestInternalSync(beforeInternal, options, src)
+		const internalMatch = ruleTestInternalSync(beforeInternal, options, src, entry)
 		if (internalMatch) return internalMatch
 	}
 
@@ -392,7 +398,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 	}
 
 	if (!Array.isArray(internalRules) && internalRules.after.length > 0) {
-		const internalMatch = ruleTestInternalSync(internalRules.after, options, src)
+		const internalMatch = ruleTestInternalSync(internalRules.after, options, src, entry)
 		if (internalMatch) return internalMatch
 	}
 
@@ -409,6 +415,7 @@ function ruleTestInternalSync(
 	rules: Rule[],
 	options: RuleTestOptions,
 	src: Resource,
+	entryPath: string,
 ): RuleMatch | void {
 	let ignoreOpts: IgnoresOptions | null = null
 	for (let i = 0, len = rules.length; i < len; i++) {
@@ -417,7 +424,7 @@ function ruleTestInternalSync(
 		const res =
 			"match" in rule
 				? rule.match(ignoreOpts || (ignoreOpts = getIgnoreOptions(options, src)))
-				: cacheTest(rule.compiled!, options.entry)
+				: cacheTest(rule.compiled!, entryPath)
 		if (res === null) continue
 		if (res instanceof Error) {
 			return {

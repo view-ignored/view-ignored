@@ -91,8 +91,7 @@ export type ScanOptions = {
 	 * by skipping files after first match.
 	 *
 	 * This makes the scan faster but affects
-	 * {@link MatcherContext.totalDirs},
-	 * {@link MatcherContext.totalFiles},
+	 * {@link MatcherContext.totalMatchedDirs},
 	 * {@link MatcherContext.totalMatchedFiles}
 	 * and {@link MatcherContext.depthPaths} numbers.
 	 *
@@ -104,28 +103,6 @@ export type ScanOptions = {
 	 * @since 0.12.0
 	 */
 	skipDepth?: boolean
-
-	/**
-	 * Enables skipping entire directories for internal matches.
-	 * For example, when scanning a Git repository,
-	 * '.git' directory will be skipped without reading its contents.
-	 *
-	 * This makes the scan faster but affects
-	 * {@link MatcherContext.totalDirs},
-	 * {@link MatcherContext.totalFiles},
-	 * and {@link MatcherContext.depthPaths}.
-	 *
-	 * Recommended for fast scans (e.g. packing). Should NOT be used if:
-	 * 1) You need complete total file/dir counts inside ignored folders.
-	 * 2) The target overrides internal patterns or uses inverted matching (`invert: true`).
-	 *
-	 * This option should never affect {@link MatcherContext.totalMatchedFiles}.
-	 *
-	 * @default `false`
-	 *
-	 * @since 0.12.0
-	 */
-	skipInternal?: boolean
 
 	/**
 	 * If disabled, the scan will not return directories.

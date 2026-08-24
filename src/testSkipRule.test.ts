@@ -43,7 +43,7 @@ describe("SkipRule implementation", () => {
 		}
 	}
 
-	test("SkipRule skips directory traversal and merges returned context (skipInternal: false)", async (done) => {
+	test("SkipRule skips directory traversal and merges returned context", async (done) => {
 		await testScan(
 			done,
 			tree,
@@ -63,28 +63,7 @@ describe("SkipRule implementation", () => {
 				// Other files should be traversed as usual
 				expect(ctx.paths.has("src/index.ts")).toBeTrue()
 			},
-			{ skipInternal: false, target: makeCustomTarget() },
-		)
-	})
-
-	test("SkipRule skips directory traversal and merges returned context (skipInternal: true)", async (done) => {
-		await testScan(
-			done,
-			tree,
-			(o) => {
-				const { ctx } = o
-				expect(ctx.paths.has("node_modules/real-file.js")).toBeFalse()
-				expect(ctx.paths.has("node_modules/nested/ignored-nested.js")).toBeFalse()
-
-				expect(ctx.paths.has("node_modules/custom-file.js")).toBeTrue()
-				// oxlint-disable-next-line typescript/no-explicit-any
-				expect((ctx.paths.get("node_modules/custom-file.js") as any).pattern).toBe(
-					"SkipRule-injected",
-				)
-
-				expect(ctx.paths.has("src/index.ts")).toBeTrue()
-			},
-			{ skipInternal: true, target: makeCustomTarget() },
+			{ target: makeCustomTarget() },
 		)
 	})
 })

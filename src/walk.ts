@@ -41,9 +41,8 @@ export type WalkResult = {
 
 export type WalkTotal = {
 	dir: string
-	files: number
-	matched: number
-	dirs: number
+	matchedFiles: number
+	matchedDirs: number
 	depth: number
 	ignored: boolean
 }
@@ -54,7 +53,7 @@ function isMatchExcluded(invert: boolean | 2, match: RuleMatch): boolean {
 
 function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): WalkResult {
 	const { entry, scanOptions, relPath: path, parentPath, depth } = options
-	const { depth: maxDepth, invert, skipDepth, skipInternal } = scanOptions
+	const { depth: maxDepth, invert, skipDepth } = scanOptions
 
 	const tooDeepFlag = skipDepth && depth > maxDepth
 	const isExcluded = isMatchExcluded(invert, match)
@@ -74,7 +73,6 @@ function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): 
 	}
 
 	if (isRuleMatchInvalid(match)) return result
-	if (isDir && skipInternal && match.ignored) result.next = 1
 	if (isExcluded) return result
 	if (tooDeepFlag) {
 		result.next = isDir ? 0 : 1
@@ -171,7 +169,7 @@ function checkRulesList(
  */
 export function walkIncludes(options: WalkOptions): WalkResult | Promise<WalkResult> {
 	const { entry, scanOptions, relPath: path, lowerEntry, parentPath, resource, depth } = options
-	const { target, depth: maxDepth, skipInternal, fs, cwd, signal, within } = scanOptions
+	const { target, depth: maxDepth, fs, cwd, signal, within } = scanOptions
 
 	const isDir = entry.isDirectory()
 
@@ -187,7 +185,7 @@ export function walkIncludes(options: WalkOptions): WalkResult | Promise<WalkRes
 			resource,
 			signal,
 			target,
-			within: skipInternal ? undefined : within,
+			within,
 		} as unknown as RuleTestOptions)
 		return getWalkResult(match, options, isDir)
 	}
@@ -282,8 +280,7 @@ function patchMerged(
 			ctx.total.set(p, { ...t })
 			return
 		}
-		existing.totalDirs += t.totalDirs
-		existing.totalFiles += t.totalFiles
+		existing.totalMatchedDirs += t.totalMatchedDirs
 		existing.totalMatchedFiles += t.totalMatchedFiles
 	})
 }
@@ -314,29 +311,26 @@ export function walkPatchResult(
 function addToTotal(
 	total: Map<string, Total>,
 	dir: string,
-	files: number,
-	matched: number,
-	dirs: number,
+	matchedFiles: number,
+	matchedDirs: number,
 ): void {
 	const dirTotal = total.get(dir)
 	if (!dirTotal) {
 		total.set(dir, {
-			totalDirs: dirs,
-			totalFiles: files,
-			totalMatchedFiles: matched,
+			totalMatchedDirs: matchedDirs,
+			totalMatchedFiles: matchedFiles,
 		})
 		return
 	}
-	dirTotal.totalFiles += files
-	dirTotal.totalMatchedFiles += matched
-	dirTotal.totalDirs += dirs
+	dirTotal.totalMatchedFiles += matchedFiles
+	dirTotal.totalMatchedDirs += matchedDirs
 }
 
 /**
  * Patches the {@link MatcherContext} with the given total.
  */
 export function walkPatchTotal(ctx: MatcherContext, maxDepth: number, t: WalkTotal): void {
-	if (t.depth <= maxDepth && !t.ignored) addToTotal(ctx.total, t.dir, t.files, t.matched, t.dirs)
+	if (t.depth <= maxDepth && !t.ignored) addToTotal(ctx.total, t.dir, t.matchedFiles, t.matchedDirs)
 }
 
 /**
@@ -349,12 +343,6 @@ export function propagateTotals(total: Map<string, Total>): void {
 		const dir = dirs[i]!
 		if (dir === "." || dir === "/") continue
 		const dirTotal = total.get(dir)!
-		addToTotal(
-			total,
-			dirname(dir),
-			dirTotal.totalFiles,
-			dirTotal.totalMatchedFiles,
-			dirTotal.totalDirs,
-		)
+		addToTotal(total, dirname(dir), dirTotal.totalMatchedFiles, dirTotal.totalMatchedDirs)
 	}
 }

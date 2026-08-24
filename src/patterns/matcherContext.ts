@@ -35,22 +35,7 @@ export interface MatcherContext {
 	failed: InvalidSource[]
 
 	/**
-	 * Total number of files and directories scanned.
-	 *
-	 * @example
-	 * // for
-	 * "src/"
-	 * "src/components/"
-	 * "src/views/"
-	 * "src/views/index.html"
-	 *
-	 * // depth: 0
-	 * "." => { totalFiles: 1, totalMatchedFiles: 1, totalDirs: 3 }
-	 * "src" => { totalFiles: 1, totalMatchedFiles: 1, totalDirs: 2 }
-	 *
-	 * // depth: 1
-	 * "src/components" => { totalFiles: 0, totalMatchedFiles: 0, totalDirs: 0 }
-	 * "src/views" => { totalFiles: 1, totalMatchedFiles: 1, totalDirs: 0 }
+	 * Total number of matched files and directories per path.
 	 *
 	 * @since 0.11.0
 	 */
@@ -59,13 +44,6 @@ export interface MatcherContext {
 
 export interface Total {
 	/**
-	 * Total number of files scanned.
-	 *
-	 * @since 0.6.0
-	 */
-	totalFiles: number
-
-	/**
 	 * Total number of files matched by the target.
 	 *
 	 * @since 0.6.0
@@ -73,9 +51,9 @@ export interface Total {
 	totalMatchedFiles: number
 
 	/**
-	 * Total number of directories scanned.
+	 * Total number of directories matched by the target.
 	 *
-	 * @since 0.6.0
+	 * @since 0.13.0
 	 */
-	totalDirs: number
+	totalMatchedDirs: number
 }

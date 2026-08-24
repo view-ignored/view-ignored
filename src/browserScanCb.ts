@@ -35,7 +35,6 @@ export function browserScanCb(
 		depth: maxDepth = Infinity,
 		signal = null,
 		skipDepth = false,
-		skipInternal = false,
 		dirs = true,
 		fs: { readdir, readFile, stat },
 	} = options
@@ -52,7 +51,7 @@ export function browserScanCb(
 		external: new Map<string, Resource>(),
 		failed: [],
 		paths: new Map<string, RuleMatch>(),
-		total: new Map<string, Total>([[".", { totalDirs: 0, totalFiles: 0, totalMatchedFiles: 0 }]]),
+		total: new Map<string, Total>([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 	}
 
 	const normalCwd = unixify(cwd)
@@ -66,7 +65,6 @@ export function browserScanCb(
 		invert,
 		signal,
 		skipDepth,
-		skipInternal,
 		target,
 		within: normalWithin,
 	}

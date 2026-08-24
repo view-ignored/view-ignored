@@ -99,7 +99,7 @@ export async function matcherContextAddPath(
 			added.push(entry)
 		}
 
-		updateTotals(ctx, parentPath, 0, 0, 1)
+		updateTotals(ctx, parentPath, 0, match.ignored ? 0 : 1)
 		if (parentPath !== ".")
 			added.push(...(await matcherContextAddPath(ctx, options, parentPath + "/")))
 
@@ -154,7 +154,7 @@ export async function matcherContextAddPath(
 		target,
 	})
 
-	updateTotals(ctx, parentPath, 1, match.ignored ? 0 : 1, 0)
+	updateTotals(ctx, parentPath, match.ignored ? 0 : 1, 0)
 	if (!match.ignored && !ctx.paths.has(entry)) {
 		ctx.paths.set(entry, match)
 		added.push(entry)
@@ -181,24 +181,22 @@ export async function matcherContextRemovePath(
 		ctx.paths.clear()
 		ctx.external.clear()
 		ctx.failed.length = 0
-		ctx.total.set(direntPath, { totalDirs: 0, totalFiles: 0, totalMatchedFiles: 0 })
+		ctx.total.set(direntPath, { totalMatchedDirs: 0, totalMatchedFiles: 0 })
 		return removed
 	}
 	const parentPath = dirname(direntPath)
 
 	if (isDir) {
-		let deletedDirs = 0,
-			deletedFiles = 0,
-			deletedMatchedFiles = 0
+		let deletedMatchedFiles = 0,
+			deletedMatchedDirs = 0
 		const total = ctx.total.get(direntPath)
 		if (total) {
-			deletedDirs = total.totalDirs + 1
-			deletedFiles = total.totalFiles
 			deletedMatchedFiles = total.totalMatchedFiles
+			deletedMatchedDirs = total.totalMatchedDirs
 			ctx.total.delete(direntPath)
-		} else deletedDirs = 1
+		}
 
-		updateTotals(ctx, parentPath, -deletedFiles, -deletedMatchedFiles, -deletedDirs)
+		updateTotals(ctx, parentPath, -deletedMatchedFiles, -deletedMatchedDirs)
 
 		const entryLen = entry.length
 		for (const element of ctx.paths.keys()) {
@@ -228,7 +226,7 @@ export async function matcherContextRemovePath(
 	if (!isSource) {
 		const deleted = ctx.paths.delete(entry)
 		if (deleted) removed.push(entry)
-		updateTotals(ctx, parentPath, -1, deleted ? -1 : 0, 0)
+		updateTotals(ctx, parentPath, deleted ? -1 : 0, 0)
 		return removed
 	}
 	const maxDepth = options.depth
@@ -255,20 +253,17 @@ export async function matcherContextRemovePath(
 function updateTotals(
 	ctx: MatcherContext,
 	path: string,
-	deltaFiles: number,
 	deltaMatchedFiles: number,
-	deltaDirs: number,
+	deltaMatchedDirs: number,
 ) {
-	if (deltaFiles === 0 && deltaMatchedFiles === 0 && deltaDirs === 0) return
+	if (deltaMatchedFiles === 0 && deltaMatchedDirs === 0) return
 	for (let parent = path; ;) {
 		const total = getOrInsert(ctx.total, parent, {
-			totalDirs: 0,
-			totalFiles: 0,
+			totalMatchedDirs: 0,
 			totalMatchedFiles: 0,
 		})
-		total.totalDirs += deltaDirs
-		total.totalFiles += deltaFiles
 		total.totalMatchedFiles += deltaMatchedFiles
+		total.totalMatchedDirs += deltaMatchedDirs
 
 		if (parent === "." || parent === "/") break
 		parent = dirname(parent)
