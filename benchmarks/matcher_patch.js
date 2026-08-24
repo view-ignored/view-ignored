@@ -22,7 +22,6 @@ const options = {
 	invert: false,
 	signal: null,
 	skipDepth: false,
-	skipInternal: false,
 	target,
 	within: ".",
 }

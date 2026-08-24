@@ -22,10 +22,6 @@ let tree = await arborist.loadActual()
 if (!igw) {
 	for (let i = 0; i < 10; i++) {
 		// oxlint-disable-next-line eslint/no-await-in-loop
-		await scan({ cwd, fs, skipInternal: true, target: makeNPM() })
-		// oxlint-disable-next-line eslint/no-await-in-loop
-		await browserScan({ cwd, fs, skipInternal: true, target: makeNPM() })
-		// oxlint-disable-next-line eslint/no-await-in-loop
 		await scan({ cwd, fs, target: makeNPM() })
 		// oxlint-disable-next-line eslint/no-await-in-loop
 		await browserScan({ cwd, fs, target: makeNPM() })
@@ -53,24 +49,6 @@ console.log("You can use --vign to test view-ignored separately")
 
 barplot(() => {
 	summary(async () => {
-		if (!igw)
-			bench("'view-ignored'.scan(NPM, skipInternal)", async () => {
-				return scan({
-					cwd,
-					fs,
-					skipInternal: true,
-					target: makeNPM(),
-				})
-			}).gc(true)
-		if (!igw)
-			bench("'view-ignored'.browserScan(NPM, skipInternal)", async () => {
-				return browserScan({
-					cwd,
-					fs,
-					skipInternal: true,
-					target: makeNPM(),
-				})
-			}).gc(true)
 		if (!igw)
 			bench("'view-ignored'.scan(NPM)", async () => {
 				return scan({ cwd, fs, target: makeNPM() })

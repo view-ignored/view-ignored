@@ -4,7 +4,6 @@ import * as Targets from "../out/targets/index.js"
 const args = process.argv.slice(2)
 const targetFlag = args.find((a) => a.startsWith("--target="))
 const targetName = targetFlag ? targetFlag.split("=")[1] : "Git"
-const skipInternal = args.includes("--skipInternal")
 const printPaths = args.includes("--print")
 
 // oxlint-disable-next-line import/namespace
@@ -21,7 +20,6 @@ if (!targetMaker) {
 console.log(`Scanning "${process.cwd()}" with target: ${targetName}`)
 const start = performance.now()
 const ctx = await scan({
-	skipInternal,
 	target: targetMaker(),
 })
 const end = performance.now()
@@ -40,6 +38,5 @@ if (printPaths) {
 
 console.log(`- Time: ${(end - start).toFixed(2)}ms`)
 const total = ctx.total.get(".")
-console.log(`- Total Files: ${total.totalFiles}`)
-console.log(`- Total Dirs: ${total.totalDirs}`)
-console.log(`- Total Matched: ${total.totalMatchedFiles}`)
+console.log(`- Total Matched Files: ${total.totalMatchedFiles}`)
+console.log(`- Total Matched Dirs: ${total.totalMatchedDirs}`)

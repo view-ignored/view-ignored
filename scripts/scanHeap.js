@@ -19,7 +19,6 @@ function getMemoryReport() {
 const args = process.argv.slice(2)
 const targetFlag = args.find((a) => a.startsWith("--target="))
 const targetName = targetFlag ? targetFlag.split("=")[1] : "Git"
-const skipInternal = args.includes("--skipInternal")
 const printPaths = args.includes("--print")
 const takeSnapshot = args.includes("--snapshot")
 
@@ -42,7 +41,6 @@ const memBefore = getMemoryReport()
 const start = performance.now()
 
 const ctx = await scan({
-	skipInternal,
 	target,
 })
 
@@ -64,9 +62,8 @@ if (printPaths) {
 console.log(`--- Execution Stats ---`)
 console.log(`- Time: ${(end - start).toFixed(2)}ms`)
 const total = ctx.total.get(".")
-console.log(`- Total Files: ${total.totalFiles}`)
-console.log(`- Total Dirs: ${total.totalDirs}`)
-console.log(`- Total Matched: ${total.totalMatchedFiles}`)
+console.log(`- Total Matched Files: ${total.totalMatchedFiles}`)
+console.log(`- Total Matched Dirs: ${total.totalMatchedDirs}`)
 
 console.log(`\n--- Heap Memory Report ---`)
 console.log(`- Used Before: ${memBefore.heapUsed}`)

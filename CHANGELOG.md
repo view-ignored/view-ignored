@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Remove `skipInternal` option (directory traversal now always operates in non-skipping mode).
+- Remove `totalFiles` and `totalDirs` from `Total` and add `totalMatchedDirs`.
 - Add `.git` `SkipRule` to all targets to skip `.git` directory traversal.
 - Port glob matcher from `picomatch` to `zeptomatch`.
 - Move `Mopsgamer/view-ignored` to `view-ignored/view-ignored` + all related repos.

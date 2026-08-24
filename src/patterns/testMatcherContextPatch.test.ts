@@ -122,7 +122,6 @@ const opt: Required<ScanOptions> = {
 	invert: false,
 	signal: null,
 	skipDepth: false,
-	skipInternal: false,
 	target: makeNPM(),
 	within: ".",
 }
@@ -243,8 +242,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 				[
 					".",
 					{
-						totalDirs: 11,
-						totalFiles: 22,
+						totalMatchedDirs: 3,
 						totalMatchedFiles: 9,
 					},
 				],
@@ -261,7 +259,6 @@ const optDepth1: Required<ScanOptions> = {
 	invert: false,
 	signal: null,
 	skipDepth: false,
-	skipInternal: false,
 	target: makeNPM(),
 	within: ".",
 }
@@ -329,16 +326,14 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 				[
 					".",
 					{
-						totalDirs: 11,
-						totalFiles: 22,
+						totalMatchedDirs: 3,
 						totalMatchedFiles: 9,
 					},
 				],
 				[
 					"out",
 					{
-						totalDirs: 2,
-						totalFiles: 6,
+						totalMatchedDirs: 2,
 						totalMatchedFiles: 6,
 					},
 				],
@@ -361,12 +356,11 @@ describe("matcherContextAddPath", () => {
 			const c = await scan(opt)
 			expect(await matcherContextAddPath(c, opt, "test/")).toEqual([])
 		})
-		test("ignored file is not added to paths, but added to totals", async () => {
+		test("ignored file is not added to paths", async () => {
 			const c = await scan(opt)
 			const initialTotal = { ...c.total.get(".")! }
 			expect(await matcherContextAddPath(c, opt, "test")).toEqual([])
 			expect(c.paths.has("test")).toBeFalse()
-			expect(c.total.get(".")!.totalFiles).toBe(initialTotal.totalFiles + 1)
 			expect(c.total.get(".")!.totalMatchedFiles).toBe(initialTotal.totalMatchedFiles)
 		})
 		test("source file is changed", async () => {
@@ -453,8 +447,7 @@ describe("matcherContextAddPath", () => {
 					[
 						".",
 						{
-							totalDirs: 11,
-							totalFiles: 22,
+							totalMatchedDirs: 3,
 							totalMatchedFiles: 10,
 						},
 					],
@@ -628,9 +621,7 @@ describe("matcherContextAddPath", () => {
 						{ ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" },
 					],
 				]),
-				total: new Map<string, Total>([
-					[".", { totalDirs: 13, totalFiles: 24, totalMatchedFiles: 11 }],
-				]),
+				total: new Map<string, Total>([[".", { totalMatchedDirs: 5, totalMatchedFiles: 11 }]]),
 			})
 		})
 	})
@@ -646,7 +637,7 @@ describe("matcherContextRemovePath", () => {
 			expect(c.paths.size).toBe(0)
 			expect(c.external.size).toBe(0)
 			expect(c.failed.length).toBe(0)
-			expect(c.total.get(".")).toEqual({ totalDirs: 0, totalFiles: 0, totalMatchedFiles: 0 })
+			expect(c.total.get(".")).toEqual({ totalMatchedDirs: 0, totalMatchedFiles: 0 })
 		})
 		test("ignored dir is removed", async () => {
 			const c = await scan(opt)
@@ -776,9 +767,7 @@ describe("matcherContextRemovePath", () => {
 						{ ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" },
 					],
 				]),
-				total: new Map<string, Total>([
-					[".", { totalDirs: 11, totalFiles: 21, totalMatchedFiles: 8 }],
-				]),
+				total: new Map<string, Total>([[".", { totalMatchedDirs: 3, totalMatchedFiles: 8 }]]),
 			})
 		})
 		test("included dir is removed", async () => {
@@ -806,9 +795,7 @@ describe("matcherContextRemovePath", () => {
 						{ ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" },
 					],
 				]),
-				total: new Map<string, Total>([
-					[".", { totalDirs: 8, totalFiles: 15, totalMatchedFiles: 2 }],
-				]),
+				total: new Map<string, Total>([[".", { totalMatchedDirs: 0, totalMatchedFiles: 2 }]]),
 			})
 		})
 		test("source file update: remove and add back", async () => {
@@ -862,7 +849,7 @@ describe("matcherContextRemovePath", () => {
 			expect(c.total.get(".")!).toEqual(initialTotal)
 		})
 
-		test("removing directory accounts for ignored files in totals", async () => {
+		test("removing directory accounts for matched entries in totals", async () => {
 			const o = {
 				...opt,
 				fs: patchFS((json) => {
@@ -872,16 +859,17 @@ describe("matcherContextRemovePath", () => {
 			}
 			const c = await scan(o)
 			const initialTotal = { ...c.total.get(".")! }
-			const srcTotal = { ...c.total.get("src")! }
+			const srcTotal = c.total.get("src") ?? { totalMatchedDirs: 0, totalMatchedFiles: 0 }
 
 			await matcherContextRemovePath(c, o, "src/")
 
 			const finalTotal = c.total.get(".")!
-			expect(finalTotal.totalFiles).toBe(initialTotal.totalFiles - srcTotal.totalFiles)
 			expect(finalTotal.totalMatchedFiles).toBe(
 				initialTotal.totalMatchedFiles - srcTotal.totalMatchedFiles,
 			)
-			expect(finalTotal.totalDirs).toBe(initialTotal.totalDirs - srcTotal.totalDirs - 1)
+			expect(finalTotal.totalMatchedDirs).toBe(
+				initialTotal.totalMatchedDirs - srcTotal.totalMatchedDirs,
+			)
 		})
 	})
 
@@ -952,8 +940,7 @@ describe("matcherContextRemovePath", () => {
 					[
 						".",
 						{
-							totalDirs: 11,
-							totalFiles: 22,
+							totalMatchedDirs: 3,
 							totalMatchedFiles: 8,
 						},
 					],
@@ -1011,8 +998,7 @@ describe("matcherContextRemovePath", () => {
 					[
 						".",
 						{
-							totalDirs: 12,
-							totalFiles: 21,
+							totalMatchedDirs: 3,
 							totalMatchedFiles: 5,
 						},
 					],

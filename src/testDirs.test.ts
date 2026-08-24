@@ -42,7 +42,7 @@ describe("dirs option", () => {
 		)
 	})
 
-	test("dirs: false with skipDepth and skipInternal (skipOptions)", async (done) => {
+	test("dirs: false with skipDepth (skipOptions)", async (done) => {
 		// .git should be ignored by default in makeGit()
 		// node_modules is NOT ignored by default in makeGit() unless it's in .gitignore
 		await testScan(
@@ -56,7 +56,7 @@ describe("dirs option", () => {
 				"ignored.txt": "ignored",
 			},
 			["a.txt", ".gitignore"],
-			{ dirs: false, skipDepth: true, skipInternal: true, target: makeGit() },
+			{ dirs: false, skipDepth: true, target: makeGit() },
 		)
 	})
 
@@ -75,26 +75,12 @@ describe("dirs option", () => {
 		)
 	})
 
-	test("dirs: false with skipInternal: true (skipInternal)", async (done) => {
-		await testScan(
-			done,
-			{
-				".git": {
-					config: "config",
-				},
-				"a.txt": "a",
-			},
-			["a.txt"],
-			{ dirs: false, skipInternal: true, target: makeGit() },
-		)
-	})
-
 	test("matcherContextAddPath honors dirs: false", async () => {
 		const ctx = {
 			external: new Map(),
 			failed: [],
 			paths: new Map(),
-			total: new Map([[".", { totalDirs: 0, totalFiles: 0, totalMatchedFiles: 0 }]]),
+			total: new Map([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 		}
 		const options: Required<ScanOptions> = {
 			cwd: unixify(process.cwd()),
@@ -115,7 +101,6 @@ describe("dirs option", () => {
 			invert: false,
 			signal: null,
 			skipDepth: false,
-			skipInternal: false,
 			target: {
 				...makeGit(),
 				ignores: (_opts, cb) => {
@@ -138,7 +123,7 @@ describe("dirs option", () => {
 			external: new Map(),
 			failed: [],
 			paths: new Map(),
-			total: new Map([[".", { totalDirs: 0, totalFiles: 0, totalMatchedFiles: 0 }]]),
+			total: new Map([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 		}
 		const optionsTrue: Required<ScanOptions> = { ...options, dirs: true }
 		await matcherContextAddPath(ctx2, optionsTrue, "dir2/")

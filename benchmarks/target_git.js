@@ -16,10 +16,6 @@ const cwd = process.cwd()
 if (!igw) {
 	for (let i = 0; i < 10; i++) {
 		// oxlint-disable-next-line eslint/no-await-in-loop
-		await scan({ cwd, fs, skipInternal: true, target: makeGit() })
-		// oxlint-disable-next-line eslint/no-await-in-loop
-		await browserScan({ cwd, fs, skipInternal: true, target: makeGit() })
-		// oxlint-disable-next-line eslint/no-await-in-loop
 		await scan({ cwd, fs, target: makeGit() })
 		// oxlint-disable-next-line eslint/no-await-in-loop
 		await browserScan({ cwd, fs, target: makeGit() })
@@ -40,24 +36,6 @@ console.log("You can use --vign to test view-ignored separately")
 
 barplot(() => {
 	summary(async () => {
-		if (!igw)
-			bench("'view-ignored'.scan(Git, skipInternal)", async () => {
-				return scan({
-					cwd,
-					fs,
-					skipInternal: true,
-					target: makeGit(),
-				})
-			}).gc(true)
-		if (!igw)
-			bench("'view-ignored'.browserScan(Git, skipInternal)", async () => {
-				return browserScan({
-					cwd,
-					fs,
-					skipInternal: true,
-					target: makeGit(),
-				})
-			}).gc(true)
 		if (!igw)
 			bench("'view-ignored'.scan(Git)", async () => {
 				return scan({ cwd, fs, target: makeGit() })
