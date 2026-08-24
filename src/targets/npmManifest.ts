@@ -11,7 +11,7 @@ import type { Source } from "../patterns/source.js"
 import type { FsAdapter } from "../types.js"
 import type { Target } from "./target.js"
 
-import glob from "picomatch"
+import zeptomatch from "zeptomatch"
 
 import { extractNpmignore } from "../patterns/npmignore.js"
 import { ruleCompile } from "../patterns/resolveSources.js"
@@ -574,7 +574,7 @@ export function initNpmContext(
 				}
 
 				try {
-					reSources.push(glob.makeRe(normalized, { dot: true, nocase: true }).source)
+					reSources.push(zeptomatch.compile(normalized).source)
 				} catch {
 					// ignore invalid globs
 				}
@@ -631,7 +631,7 @@ export function initNpmContext(
 					if (cleaned.startsWith("./")) cleaned = cleaned.slice(2)
 					if (cleaned.endsWith("/")) cleaned = cleaned.slice(0, -1)
 					try {
-						reSources.push(glob.makeRe(cleaned, { nocase: true }).source)
+						reSources.push(zeptomatch.compile(cleaned).source)
 					} catch {
 						// ignore invalid globs
 					}

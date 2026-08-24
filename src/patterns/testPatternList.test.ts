@@ -19,7 +19,7 @@ function patternCacheTest(
 }
 
 describe("patternListCompile", () => {
-	test("compiles picomatch patterns by default", () => {
+	test("compiles zeptomatch patterns by default", () => {
 		expect(patternCacheTest(patternListCompile({ list: [".git"] }), ".git/message")).toBeTrue()
 		expect(patternCacheTest(patternListCompile({ list: [".git"] }), ".Git/message")).toBeFalse()
 		expect(
