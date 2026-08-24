@@ -8,6 +8,7 @@ import {
 	extractJsrJson,
 	packageJsonExtractor,
 	type GlobRule,
+	makeGitSkipRule,
 } from "../patterns/index.js"
 import { makeJsrInit } from "./jsrManifest.js"
 
@@ -43,7 +44,7 @@ export function makeDeno(): Target {
 		list: [".git", ".DS_Store", ".gitignore", "node_modules"],
 	})
 
-	const internal: Rule[] = [cachedDenoRule]
+	const internal: Rule[] = [makeGitSkipRule(), cachedDenoRule]
 
 	return {
 		extractors,

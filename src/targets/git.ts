@@ -8,6 +8,7 @@ import {
 	type InternalRules,
 	type Source,
 	type GlobRule,
+	makeGitSkipRule,
 } from "../patterns/index.js"
 import { unixify, join, dirname } from "../unixify.js"
 import { HOME, XDG, resolvePath, loadRec, mergeConfig } from "./gitConfig.js"
@@ -35,7 +36,7 @@ export function makeGit(): Target {
 
 	const internal: InternalRules = {
 		after: [],
-		before: [cachedGitRule],
+		before: [makeGitSkipRule(), cachedGitRule],
 	}
 
 	return {

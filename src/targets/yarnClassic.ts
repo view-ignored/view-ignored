@@ -6,6 +6,7 @@ import {
 	ruleCompile,
 	type GlobRule,
 	type InternalRules,
+	makeGitSkipRule,
 } from "../patterns/index.js"
 import { makePackageJsonExtractor } from "../patterns/packagejson.js"
 import {
@@ -122,6 +123,7 @@ export function makeYarnClassic(mode: "list" | "publish" | "bundle" = "publish")
 	const internal: InternalRules = {
 		after: [cachedYarnClassicAfterExcludesRule],
 		before: [
+			makeGitSkipRule(),
 			makeBundledDepsRule(ctx, makeYarnClassic),
 			makePackageResolutionRule(ctx),
 			symlinkRule,

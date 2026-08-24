@@ -7,6 +7,7 @@ import {
 	ruleCompile,
 	extractNpmignore,
 	type GlobRule,
+	makeGitSkipRule,
 } from "../patterns/index.js"
 import { vsceManifestParse } from "./vsceManifest.js"
 
@@ -67,7 +68,7 @@ export function makeVSCE(): Target {
 		],
 	})
 
-	const internal: Rule[] = [cachedVSCERule]
+	const internal: Rule[] = [makeGitSkipRule(), cachedVSCERule]
 
 	return {
 		extractors,

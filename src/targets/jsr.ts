@@ -7,6 +7,7 @@ import {
 	ruleCompile,
 	extractJsrJson,
 	type GlobRule,
+	makeGitSkipRule,
 } from "../patterns/index.js"
 import { makeJsrInit } from "./jsrManifest.js"
 
@@ -33,7 +34,7 @@ export function makeJSR(): Target {
 		list: [".git", ".DS_Store", ".gitignore", "node_modules"],
 	})
 
-	const internal: Rule[] = [cachedJSRRule]
+	const internal: Rule[] = [makeGitSkipRule(), cachedJSRRule]
 
 	return {
 		extractors,

@@ -6,6 +6,7 @@ import {
 	ruleCompile,
 	extractNpmignore,
 	type InternalRules,
+	makeGitSkipRule,
 } from "../patterns/index.js"
 import { makePackageJsonExtractor } from "../patterns/packagejson.js"
 import {
@@ -108,6 +109,7 @@ export function makeNPM(mode: "list" | "publish" | "bundle" = "publish"): Target
 	const internal: InternalRules = {
 		after: [cachedNpmAfterExcludesRule],
 		before: [
+			makeGitSkipRule(),
 			makeBundledDepsRule(ctx, makeNPM),
 			makePackageResolutionRule(ctx),
 			symlinkRule,

@@ -6,6 +6,7 @@ import {
 	type Rule,
 	ruleCompile,
 	type GlobRule,
+	makeGitSkipRule,
 } from "../patterns/index.js"
 import { makePackageJsonExtractor } from "../patterns/packagejson.js"
 import {
@@ -88,6 +89,7 @@ export function makeYarn(mode: "list" | "publish" | "bundle" = "publish"): Targe
 	)
 
 	const internal: Rule[] = [
+		makeGitSkipRule(),
 		makeBundledDepsRule(ctx, makeYarn),
 		makePackageResolutionRule(ctx),
 		symlinkRule,

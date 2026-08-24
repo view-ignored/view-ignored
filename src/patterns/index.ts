@@ -1,4 +1,5 @@
 export * from "./extractor.js"
+export * from "./gitSkipRule.js"
 export * from "./gitignore.js"
 export * from "./ignores.js"
 export * from "./init.js"
