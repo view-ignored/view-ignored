@@ -10,7 +10,7 @@
 [![speed-fast](https://img.shields.io/badge/speed-fast-salad?repo=view-ignored/view-ignored.svg)](https://github.com/view-ignored/view-ignored/tree/main/benchmarks)
 [![npm-packlist-tests](https://img.shields.io/badge/npm--packlist-68%2F68-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-npm-packlist/)
 [![wildmatch-tests](https://img.shields.io/badge/wildmatch-346%2F346-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/)
-[![ignore-tests](https://img.shields.io/badge/ignore-66%2F84-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/)
+[![ignore-tests](https://img.shields.io/badge/ignore-68%2F84-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/)
 
 Retrieve a list of files ignored or included by Git, NPM, Yarn, JSR, Deno, Bun, VS Code extension CLI, and other tools.
 

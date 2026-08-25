@@ -164,7 +164,9 @@ export function extractGitignoreRules(
 			: { list: options.list, nocase: options.nocase, spec: PatternSpec.gitignore }
 		: { spec: PatternSpec.gitignore }
 	let rule: GlobRule | undefined
-	let start = 0
+	// Skip UTF-8 Byte Order Mark (0xEF, 0xBB, 0xBF) if present
+	let start =
+		content.length >= 3 && content[0] === 239 && content[1] === 187 && content[2] === 191 ? 3 : 0
 	const len = content.length
 	while (start < len) {
 		let end = content.indexOf(10, start)

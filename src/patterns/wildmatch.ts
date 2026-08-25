@@ -274,7 +274,7 @@ function wildmatchToRegexpSource(pattern: string): string {
 	let prefix = "(?:^|\\/)"
 	if (hasLeadingGlobstar) prefix = "(?:^|.*\\/)"
 	else if (isAnchored) prefix = "^"
-	const suffix = "(?:\\/|$)"
+	const suffix = hasTrailingSlash ? "\\/" : "(?:\\/|$)"
 	return prefix + res + suffix
 }
 

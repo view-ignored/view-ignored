@@ -17,6 +17,7 @@ export interface MatcherContext {
 
 	/**
 	 * Maps directory paths to their corresponding sources.
+	 * Directory paths do not end with a trailing slash.
 	 *
 	 * @example
 	 * "dir" => Source
@@ -36,6 +37,7 @@ export interface MatcherContext {
 
 	/**
 	 * Total number of matched files and directories per path.
+	 * Directory paths do not end with a trailing slash.
 	 *
 	 * @since 0.11.0
 	 */
