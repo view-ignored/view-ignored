@@ -163,6 +163,7 @@ export function extractGitignoreRules(
 			? options
 			: { list: options.list, nocase: options.nocase, spec: PatternSpec.gitignore }
 		: { spec: PatternSpec.gitignore }
+	source.spec = compileOpts.spec
 	let rule: GlobRule | undefined
 	// Skip UTF-8 Byte Order Mark (0xEF, 0xBB, 0xBF) if present
 	let start =

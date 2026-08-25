@@ -5,9 +5,11 @@ import type { MatcherStream } from "./patterns/matcherStream.js"
 import type { Resource } from "./patterns/resource.js"
 import type { ScanOptions } from "./types.js"
 
+import { PatternSpec } from "./patterns/patternList.js"
 import {
 	isRuleMatchInvalid,
 	type RuleMatch,
+	RuleMatchKind,
 	ruleTestSync,
 	type RuleTestOptions,
 	type Rule,
@@ -73,7 +75,16 @@ function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): 
 	}
 
 	if (isRuleMatchInvalid(match)) return result
-	if (isExcluded) return result
+	if (isExcluded) {
+		if (
+			isDir &&
+			match.kind !== RuleMatchKind.noMatch &&
+			(match.kind !== RuleMatchKind.external || match.source?.spec === PatternSpec.gitignore)
+		)
+			result.next = 1
+
+		return result
+	}
 	if (tooDeepFlag) {
 		result.next = isDir ? 0 : 1
 		return result

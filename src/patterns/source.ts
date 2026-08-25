@@ -1,3 +1,4 @@
+import type { PatternSpec } from "./patternList.js"
 import type { Resource } from "./resource.js"
 import type { GlobRule, Rule, RuleMatch } from "./rule.js"
 
@@ -7,6 +8,12 @@ import type { GlobRule, Rule, RuleMatch } from "./rule.js"
  * @since 0.6.0
  */
 export type Source = {
+	/**
+	 * Specification standard used for pattern compilation.
+	 *
+	 * @since 0.12.2
+	 */
+	spec?: PatternSpec
 	/**
 	 * Parent source for hierarchical ignore file rules.
 	 *

@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Add `Source.spec`.
+- Skip traversing explicitly excluded directories per wildmatch pathname spec in directory walker.
 - Remove `skipInternal` option (directory traversal now always operates in non-skipping mode).
 - Remove `totalFiles` and `totalDirs` from `Total` and add `totalMatchedDirs`.
 - Add `.git` `SkipRule` to all targets to skip `.git` directory traversal.

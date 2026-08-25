@@ -75,6 +75,24 @@ describe("dirs option", () => {
 		)
 	})
 
+	test("skips directory recursion for explicitly excluded directories", async (done) => {
+		await testScan(
+			done,
+			{
+				".gitignore": "ignored_dir/\n",
+				"a.txt": "a",
+				ignored_dir: {
+					"file.txt": "ignored",
+					nested: {
+						"file.txt": "ignored",
+					},
+				},
+			},
+			[".gitignore", "a.txt"],
+			{ dirs: false, target: makeGit() },
+		)
+	})
+
 	test("matcherContextAddPath honors dirs: false", async () => {
 		const ctx = {
 			external: new Map(),

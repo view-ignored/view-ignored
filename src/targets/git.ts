@@ -94,13 +94,9 @@ export function makeGit(): Target {
 
 			const findG = (cur: string, callback: (g: string | null) => void) => {
 				fs.stat(join(cur, ".git"), (err, st) => {
-					if (!err && st) {
-						return callback(join(cur, ".git"))
-					}
+					if (!err && st) return callback(join(cur, ".git"))
 					const p = dirname(cur)
-					if (p === cur || !cur || cur === ".") {
-						return callback(null)
-					}
+					if (p === cur || !cur || cur === ".") return callback(null)
 					findG(p, callback)
 				})
 			}
