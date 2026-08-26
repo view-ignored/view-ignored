@@ -33,10 +33,8 @@ function parseEscapedInBracket(
 		return { appended: isRange ? "-" : "\\-", newPos: nextPos + 1 }
 	}
 
-	if (nextC === "\\")
-		return { appended: "\\\\\\\\", newPos: nextPos + 1 }
-	if (nextC === "]" || nextC === "^")
-		return { appended: "\\" + nextC, newPos: nextPos + 1 }
+	if (nextC === "\\") return { appended: "\\\\\\\\", newPos: nextPos + 1 }
+	if (nextC === "]" || nextC === "^") return { appended: "\\" + nextC, newPos: nextPos + 1 }
 
 	return { appended: nextC.replace(REGEX_SPECIAL_CHARS, "\\$&"), newPos: nextPos + 1 }
 }
