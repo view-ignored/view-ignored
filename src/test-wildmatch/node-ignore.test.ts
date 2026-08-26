@@ -103,7 +103,7 @@ function buildTree(paths: string[]): any {
 			if (isLast) {
 				if (isDir) {
 					current[part] = current[part] || {}
-				} else {
+				} else if (typeof current[part] !== "object") {
 					current[part] = ""
 				}
 			} else {

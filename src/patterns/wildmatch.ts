@@ -33,7 +33,9 @@ function parseEscapedInBracket(
 		return { appended: isRange ? "-" : "\\-", newPos: nextPos + 1 }
 	}
 
-	if (nextC === "]" || nextC === "\\" || nextC === "^")
+	if (nextC === "\\")
+		return { appended: "\\\\\\\\", newPos: nextPos + 1 }
+	if (nextC === "]" || nextC === "^")
 		return { appended: "\\" + nextC, newPos: nextPos + 1 }
 
 	return { appended: nextC.replace(REGEX_SPECIAL_CHARS, "\\$&"), newPos: nextPos + 1 }
@@ -204,7 +206,12 @@ function wildmatchToRegexpSource(pattern: string): string {
 				i = bracketResult.nextIdx
 				continue
 			}
-			res += "\\["
+			if (i === len - 1 || (i + 1 < len && cleaned[i + 1] === "]")) {
+				res += "\\["
+				i++
+				continue
+			}
+			res += "(?!)"
 			i++
 			continue
 		}
@@ -226,7 +233,7 @@ function wildmatchToRegexpSource(pattern: string): string {
 					continue
 				}
 				if (isAtEnd) {
-					res += "(?:/.*)?"
+					res += "(?:/.*)"
 					i += 3 // consume '/**'
 					continue
 				}
@@ -252,7 +259,7 @@ function wildmatchToRegexpSource(pattern: string): string {
 
 				if (isSlashBefore && isAtEnd) {
 					// /**
-					res += "(?:/.*)?"
+					res += "(?:/.*)"
 					i += 2 // consume '**'
 					continue
 				}
