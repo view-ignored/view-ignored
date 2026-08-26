@@ -41,10 +41,18 @@ export function mergeConfig(target: any, source: any): void {
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
-function handlePathKey(section: any, sectionName: string | null, res: any, order: string[]): void {
-	;(section[res.key] ||= []).push(res.val)
+function handlePathKey(
+	// oxlint-disable-next-line typescript/no-explicit-any
+	section: any,
+	sectionName: string | null,
+	key: string,
+	// oxlint-disable-next-line typescript/no-explicit-any
+	val: any,
+	order: string[],
+): void {
+	;(section[key] ||= []).push(val)
 	if (sectionName === "include" || sectionName?.startsWith('includeif "'))
-		order.push(sectionName + ":" + (section[res.key].length - 1))
+		order.push(sectionName + ":" + (section[key].length - 1))
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -71,19 +79,60 @@ export function parseGit(text: string): any {
 				while (++i < len && text.charCodeAt(i) !== 10);
 				continue
 			case 91: // section header
-				const res = parseSectionHeader(text, i, len)
-				i = res.nextIdx
-				;({ sectionName } = res)
+				let s = ++i
+				while (i < len && text.charCodeAt(i) !== 93) i++
+				let e = i
+				while (s < e && text.charCodeAt(s) <= 32) s++
+				while (e > s && text.charCodeAt(e - 1) <= 32) e--
+
+				let name = text.slice(s, e)
+				const sp = name.indexOf(" ")
+				if (sp !== -1) {
+					let sub = name.slice(sp + 1).trim()
+					if (sub.startsWith('"') && sub.endsWith('"')) sub = sub.slice(1, -1)
+					name = name.slice(0, sp).toLowerCase() + ' "' + sub + '"'
+				} else {
+					name = name.toLowerCase()
+				}
+
+				while (++i < len && text.charCodeAt(i) !== 10);
+				sectionName = name
 				section = obj[sectionName] ||= {}
 				continue
 		}
 
 		if (section) {
-			const res = parseKeyValuePair(text, i, len)
-			i = res.nextIdx
-			if (res.key) {
-				if (res.key === "path") handlePathKey(section, sectionName, res, order)
-				else section[res.key] = res.val
+			const kS = i
+			while (i < len && text.charCodeAt(i) !== 61 && text.charCodeAt(i) !== 10) i++
+
+			const key = text.slice(kS, i).trim().toLowerCase() || null
+
+			if (i >= len || text.charCodeAt(i) === 10) {
+				i++
+				if (key === "path") handlePathKey(section, sectionName, "path", true, order)
+				else if (key) section[key] = true
+				continue
+			}
+
+			i++
+			while (i < len && text.charCodeAt(i) <= 32 && text.charCodeAt(i) !== 10) i++
+
+			const vS = i
+			while (
+				i < len &&
+				text.charCodeAt(i) !== 10 &&
+				text.charCodeAt(i) !== 35 &&
+				text.charCodeAt(i) !== 59
+			)
+				i++
+
+			let val: string | boolean = text.slice(vS, i).trim()
+			if (typeof val === "string" && val.startsWith('"') && val.endsWith('"'))
+				val = unescapeGitValue(val.slice(1, -1))
+
+			if (key) {
+				if (key === "path") handlePathKey(section, sectionName, "path", val, order)
+				else section[key] = val
 			}
 			continue
 		}
@@ -93,53 +142,6 @@ export function parseGit(text: string): any {
 
 	if (order.length > 0) obj.__order = order
 	return obj
-}
-
-function parseSectionHeader(text: string, i: number, len: number) {
-	let s = ++i
-	while (i < len && text.charCodeAt(i) !== 93) i++
-	let e = i
-	while (s < e && text.charCodeAt(s) <= 32) s++
-	while (e > s && text.charCodeAt(e - 1) <= 32) e--
-
-	let name = text.slice(s, e)
-	const sp = name.indexOf(" ")
-	if (sp !== -1) {
-		let sub = name.slice(sp + 1).trim()
-		if (sub.startsWith('"') && sub.endsWith('"')) sub = sub.slice(1, -1)
-		name = name.slice(0, sp).toLowerCase() + ' "' + sub + '"'
-	} else {
-		name = name.toLowerCase()
-	}
-
-	while (++i < len && text.charCodeAt(i) !== 10);
-	return { nextIdx: i, sectionName: name }
-}
-
-function parseKeyValuePair(text: string, i: number, len: number) {
-	const kS = i
-	while (i < len && text.charCodeAt(i) !== 61 && text.charCodeAt(i) !== 10) i++
-
-	const key = text.slice(kS, i).trim().toLowerCase() || null
-
-	if (i >= len || text.charCodeAt(i) === 10) return { key, nextIdx: i + 1, val: true }
-
-	i++
-	while (i < len && text.charCodeAt(i) <= 32 && text.charCodeAt(i) !== 10) i++
-
-	const vS = i
-	while (
-		i < len &&
-		text.charCodeAt(i) !== 10 &&
-		text.charCodeAt(i) !== 35 &&
-		text.charCodeAt(i) !== 59
-	)
-		i++
-
-	let val: string | boolean = text.slice(vS, i).trim()
-	if (val.startsWith('"') && val.endsWith('"')) val = unescapeGitValue(val.slice(1, -1))
-
-	return { key, nextIdx: i, val }
 }
 
 function unescapeGitValue(val: string): string {

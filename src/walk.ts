@@ -349,11 +349,15 @@ export function walkPatchTotal(ctx: MatcherContext, maxDepth: number, t: WalkTot
  */
 export function propagateTotals(total: Map<string, Total>): void {
 	if (total.size <= 1) return
-	const dirs = Array.from(total.keys()).sort((a, b) => b.length - a.length)
+	const dirs = Array.from(total.keys())
+	dirs.sort((a, b) => b.length - a.length)
 	for (let i = 0, len = dirs.length; i < len; i++) {
 		const dir = dirs[i]!
 		if (dir === "." || dir === "/") continue
 		const dirTotal = total.get(dir)!
-		addToTotal(total, dirname(dir), dirTotal.totalMatchedFiles, dirTotal.totalMatchedDirs)
+		const files = dirTotal.totalMatchedFiles
+		const subdirs = dirTotal.totalMatchedDirs
+		if (files === 0 && subdirs === 0) continue
+		addToTotal(total, dirname(dir), files, subdirs)
 	}
 }
