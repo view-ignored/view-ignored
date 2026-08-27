@@ -8,6 +8,7 @@ import {
 	type InternalRules,
 	type Source,
 	type GlobRule,
+	type Rule,
 	makeGitSkipRule,
 } from "../patterns/index.js"
 import { unixify, join, dirname } from "../unixify.js"
@@ -64,32 +65,49 @@ export function makeGit(): Target {
 				}
 
 				const ex = core ? core["excludesfile"] : null
-				const p = ex ? resolvePath(gDir || nCwd, ex) : resolvePath(gDir || nCwd, globalIgnore)
+				const repoRoot = gDir ? dirname(gDir) : nCwd
+				const p = ex ? resolvePath(repoRoot, ex) : resolvePath(repoRoot, globalIgnore)
 
 				const excludePath = gDir ? join(gDir, "info/exclude") : null
+				let excludeRules: Rule[] | null = null
+				let globalRules: Rule[] | null = null
+
 				let pending = excludePath ? 2 : 1
 				const done = () => {
-					if (--pending === 0) cb(null)
+					if (--pending === 0) {
+						if (excludeRules && globalRules) internal.after = excludeRules.concat(globalRules)
+						else internal.after = excludeRules || globalRules || []
+						cb(null)
+					}
 				}
 
-				const loadIgnoreFile = (filePath: string, sourcePath: string) => {
+				const loadIgnoreFile = (
+					filePath: string,
+					sourcePath: string,
+					store: (rules: Rule[]) => void,
+				) => {
 					fs.readFile(filePath, (err, res) => {
-						if (err || !res) return done()
-
-						const source: Source = {
-							inverted: false,
-							path: sourcePath,
-							rules: [],
+						if (!err && res) {
+							const source: Source = {
+								inverted: false,
+								path: sourcePath,
+								rules: [],
+							}
+							extractGitignore(source, res, { nocase: ignorecase })
+							if (source.rules.length > 0) store(source.rules)
 						}
-						extractGitignore(source, res, { nocase: ignorecase })
-						internal.after = source.rules
 						done()
 					})
 				}
 
-				loadIgnoreFile(p, p)
-
-				if (excludePath) loadIgnoreFile(excludePath, ".git/info/exclude")
+				loadIgnoreFile(p, p, (rules) => {
+					globalRules = rules
+				})
+				if (excludePath) {
+					loadIgnoreFile(excludePath, ".git/info/exclude", (rules) => {
+						excludeRules = rules
+					})
+				}
 			}
 
 			const findG = (cur: string, callback: (g: string | null) => void) => {
