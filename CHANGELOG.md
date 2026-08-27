@@ -8,6 +8,7 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Fix Git target ignore file aggregation to preserve and combine rules from both `.git/info/exclude` and global `core.excludesfile`.
 - Add `Source.spec`.
 - Skip traversing explicitly excluded directories per wildmatch pathname spec in directory walker.
 - Remove `skipInternal` option (directory traversal now always operates in non-skipping mode).

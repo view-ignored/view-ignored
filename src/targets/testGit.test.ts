@@ -377,4 +377,42 @@ describe("Git", () => {
 			{ target: makeGit() },
 		)
 	})
+
+	test("respects both global excludesfile and .git/info/exclude", async (done) => {
+		await testScan(
+			done,
+			{
+				".git": {
+					config: "[core]\n\texcludesfile = global_ignore",
+					info: {
+						exclude: "exclude_file",
+					},
+				},
+				global_ignore: "global_file",
+				global_file: "",
+				exclude_file: "",
+				keep_file: "",
+			},
+			["global_ignore", "keep_file"],
+			{ target: makeGit() },
+		)
+	})
+
+	test("git info exclude has higher priority than global excludesfile", async (done) => {
+		await testScan(
+			done,
+			{
+				".git": {
+					config: "[core]\n\texcludesfile = global_ignore",
+					info: {
+						exclude: "!file_both",
+					},
+				},
+				global_ignore: "file_both",
+				file_both: "",
+			},
+			["file_both", "global_ignore"],
+			{ target: makeGit() },
+		)
+	})
 })
