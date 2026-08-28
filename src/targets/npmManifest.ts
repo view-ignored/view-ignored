@@ -62,15 +62,6 @@ export interface PackageJson {
 	workspaces?: string[] | { packages?: string[] }
 }
 
-function hasUppercase(s: string): boolean {
-	const len = s.length
-	for (let i = 0; i < len; i++) {
-		const c = s.charCodeAt(i)
-		if (c >= 65 && c <= 90) return true
-	}
-	return false
-}
-
 function isValidNpmName(name: string): boolean {
 	const len = name.length
 	if (
@@ -94,11 +85,18 @@ function isValidNpmName(name: string): boolean {
 }
 
 const VSCE_NAME_REGEX = /^[a-z0-9][a-z0-9-]*$/i
-const INVALID_NAME_COMPONENT_REGEX = /[^a-z0-9._-]/
 
 function isValidNameComponent(part: string): boolean {
-	if (part.startsWith(".") || part.startsWith("_") || hasUppercase(part)) return false
-	return !INVALID_NAME_COMPONENT_REGEX.test(part)
+	const len = part.length
+	if (len === 0) return false
+	const c0 = part.charCodeAt(0)
+	if (c0 === 46 || c0 === 95) return false
+	for (let i = 0; i < len; i++) {
+		const c = part.charCodeAt(i)
+		if ((c >= 97 && c <= 122) || (c >= 48 && c <= 57) || c === 45 || c === 46 || c === 95) continue
+		return false
+	}
+	return true
 }
 
 function isRecordOfStrings(value: unknown): value is Record<string, string> {
