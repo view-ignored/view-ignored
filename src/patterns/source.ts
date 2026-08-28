@@ -79,9 +79,8 @@ export function resolveNegatable(pattern: string, invert: boolean, reuse?: GlobR
 	const isEscapedBang =
 		pattern.length > 1 && pattern.charCodeAt(0) === 92 && pattern.charCodeAt(1) === 33
 	let negated = false
-	if (isEscapedBang) {
-		pattern = pattern.slice(1)
-	} else if (pattern.charCodeAt(0) === 33) {
+	if (isEscapedBang) pattern = pattern.slice(1)
+	else if (pattern.charCodeAt(0) === 33) {
 		negated = true
 		pattern = pattern.slice(1)
 	}

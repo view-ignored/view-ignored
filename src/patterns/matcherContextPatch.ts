@@ -121,7 +121,7 @@ export async function matcherContextAddPath(
 		const o: ScanParallelOptions = {
 			external: ctx.external,
 			failed: ctx.failed,
-			onResult: onResult,
+			onResult,
 			scanOptions: { ...options, within: unixify(parentPath) },
 			stream: undefined,
 		}

@@ -70,7 +70,7 @@ function getScanInvertOption(invertArg?: string, setName?: string): boolean | 2 
 		// oxlint-disable-next-line typescript/no-explicit-any
 		return invertArg as any
 	}
-	return setName === "ignored" ? true : false
+	return setName === "ignored"
 }
 
 function parseDenoOrJSR(out: string): string[] {
