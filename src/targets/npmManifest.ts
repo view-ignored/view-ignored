@@ -93,17 +93,12 @@ function isValidNpmName(name: string): boolean {
 	return isValidNameComponent(name)
 }
 
-const INVALID_NAME_CHAR_REGEX = /[~!'()* ]/
 const VSCE_NAME_REGEX = /^[a-z0-9][a-z0-9-]*$/i
+const INVALID_NAME_COMPONENT_REGEX = /[^a-z0-9._-]/
 
 function isValidNameComponent(part: string): boolean {
 	if (part.startsWith(".") || part.startsWith("_") || hasUppercase(part)) return false
-	if (INVALID_NAME_CHAR_REGEX.test(part)) return false
-	try {
-		return encodeURIComponent(part) === part
-	} catch {
-		return false
-	}
+	return !INVALID_NAME_COMPONENT_REGEX.test(part)
 }
 
 function isRecordOfStrings(value: unknown): value is Record<string, string> {
@@ -278,6 +273,12 @@ export function resolveBundledDeps(
 		manifest.bundleDependencies !== undefined
 			? manifest.bundleDependencies
 			: manifest.bundledDependencies
+
+	if (!bundleDepsField) {
+		cb(null, [])
+		return
+	}
+
 	let initialBundledDeps: string[] = []
 	if (bundleDepsField === true) {
 		if (manifest.dependencies) initialBundledDeps.push(...Object.keys(manifest.dependencies))
@@ -551,14 +552,17 @@ export function initNpmContext(
 			return
 		}
 
-		for (const depObj of [
-			parsedDist.dependencies,
-			parsedDist.devDependencies,
-			parsedDist.optionalDependencies,
-		]) {
-			if (!depObj) continue
-			for (const dep of Object.keys(depObj)) ctx.rootDeps.add(dep)
+		if (parsedDist.dependencies) {
+			for (const dep of Object.keys(parsedDist.dependencies)) ctx.rootDeps.add(dep)
 		}
+		if (parsedDist.devDependencies) {
+			for (const dep of Object.keys(parsedDist.devDependencies)) ctx.rootDeps.add(dep)
+		}
+		if (parsedDist.optionalDependencies) {
+			for (const dep of Object.keys(parsedDist.optionalDependencies)) ctx.rootDeps.add(dep)
+		}
+
+		extractManifestIncludes(parsedDist, ctx.directPathsInclude)
 
 		if (parsedDist.files) {
 			const reSources: string[] = []
@@ -566,6 +570,7 @@ export function initNpmContext(
 				const file = parsedDist.files[i]!
 				const normalized = trimLeadingDotSlash(file)
 				ctx.whitelistedPaths.add(normalized)
+				if (!normalized.includes("/")) ctx.explicitRootFiles.add(normalized)
 
 				let parent = dirname(normalized)
 				while (parent && parent !== "." && parent !== "/") {
@@ -580,21 +585,10 @@ export function initNpmContext(
 				}
 			}
 			if (reSources.length > 0) ctx.whitelistedRegex = new RegExp(reSources.join("|"), "i")
-		}
-
-		extractManifestIncludes(parsedDist, ctx.directPathsInclude)
-
-		if (parsedDist.files) {
-			const list: string[] = []
-			for (let i = 0; i < parsedDist.files.length; i++) {
-				const file = parsedDist.files[i]!
-				const normalized = trimLeadingDotSlash(file)
-				if (!normalized.includes("/")) ctx.explicitRootFiles.add(normalized)
-			}
 
 			// Whitelist Mode: exclude ignore files in 'before' to prevent
 			// nested ones from leaking if parent directory is whitelisted.
-			list.push("/*/**/.npmignore", "/*/**/.gitignore")
+			const list: string[] = ["/*/**/.npmignore", "/*/**/.gitignore"]
 			if (!ctx.explicitRootFiles.has(".npmignore")) list.push(".npmignore")
 			if (!ctx.explicitRootFiles.has(".gitignore")) list.push(".gitignore")
 
