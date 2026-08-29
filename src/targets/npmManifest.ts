@@ -62,15 +62,6 @@ export interface PackageJson {
 	workspaces?: string[] | { packages?: string[] }
 }
 
-function hasUppercase(s: string): boolean {
-	const len = s.length
-	for (let i = 0; i < len; i++) {
-		const c = s.charCodeAt(i)
-		if (c >= 65 && c <= 90) return true
-	}
-	return false
-}
-
 function isValidNpmName(name: string): boolean {
 	const len = name.length
 	if (
@@ -93,17 +84,19 @@ function isValidNpmName(name: string): boolean {
 	return isValidNameComponent(name)
 }
 
-const INVALID_NAME_CHAR_REGEX = /[~!'()* ]/
 const VSCE_NAME_REGEX = /^[a-z0-9][a-z0-9-]*$/i
 
 function isValidNameComponent(part: string): boolean {
-	if (part.startsWith(".") || part.startsWith("_") || hasUppercase(part)) return false
-	if (INVALID_NAME_CHAR_REGEX.test(part)) return false
-	try {
-		return encodeURIComponent(part) === part
-	} catch {
+	const len = part.length
+	if (len === 0) return false
+	const c0 = part.charCodeAt(0)
+	if (c0 === 46 || c0 === 95) return false
+	for (let i = 0; i < len; i++) {
+		const c = part.charCodeAt(i)
+		if ((c >= 97 && c <= 122) || (c >= 48 && c <= 57) || c === 45 || c === 46 || c === 95) continue
 		return false
 	}
+	return true
 }
 
 function isRecordOfStrings(value: unknown): value is Record<string, string> {
@@ -278,6 +271,12 @@ export function resolveBundledDeps(
 		manifest.bundleDependencies !== undefined
 			? manifest.bundleDependencies
 			: manifest.bundledDependencies
+
+	if (!bundleDepsField) {
+		cb(null, [])
+		return
+	}
+
 	let initialBundledDeps: string[] = []
 	if (bundleDepsField === true) {
 		if (manifest.dependencies) initialBundledDeps.push(...Object.keys(manifest.dependencies))
@@ -551,14 +550,17 @@ export function initNpmContext(
 			return
 		}
 
-		for (const depObj of [
-			parsedDist.dependencies,
-			parsedDist.devDependencies,
-			parsedDist.optionalDependencies,
-		]) {
-			if (!depObj) continue
-			for (const dep of Object.keys(depObj)) ctx.rootDeps.add(dep)
+		if (parsedDist.dependencies) {
+			for (const dep of Object.keys(parsedDist.dependencies)) ctx.rootDeps.add(dep)
 		}
+		if (parsedDist.devDependencies) {
+			for (const dep of Object.keys(parsedDist.devDependencies)) ctx.rootDeps.add(dep)
+		}
+		if (parsedDist.optionalDependencies) {
+			for (const dep of Object.keys(parsedDist.optionalDependencies)) ctx.rootDeps.add(dep)
+		}
+
+		extractManifestIncludes(parsedDist, ctx.directPathsInclude)
 
 		if (parsedDist.files) {
 			const reSources: string[] = []
@@ -566,6 +568,7 @@ export function initNpmContext(
 				const file = parsedDist.files[i]!
 				const normalized = trimLeadingDotSlash(file)
 				ctx.whitelistedPaths.add(normalized)
+				if (!normalized.includes("/")) ctx.explicitRootFiles.add(normalized)
 
 				let parent = dirname(normalized)
 				while (parent && parent !== "." && parent !== "/") {
@@ -580,21 +583,10 @@ export function initNpmContext(
 				}
 			}
 			if (reSources.length > 0) ctx.whitelistedRegex = new RegExp(reSources.join("|"), "i")
-		}
-
-		extractManifestIncludes(parsedDist, ctx.directPathsInclude)
-
-		if (parsedDist.files) {
-			const list: string[] = []
-			for (let i = 0; i < parsedDist.files.length; i++) {
-				const file = parsedDist.files[i]!
-				const normalized = trimLeadingDotSlash(file)
-				if (!normalized.includes("/")) ctx.explicitRootFiles.add(normalized)
-			}
 
 			// Whitelist Mode: exclude ignore files in 'before' to prevent
 			// nested ones from leaking if parent directory is whitelisted.
-			list.push("/*/**/.npmignore", "/*/**/.gitignore")
+			const list: string[] = ["/*/**/.npmignore", "/*/**/.gitignore"]
 			if (!ctx.explicitRootFiles.has(".npmignore")) list.push(".npmignore")
 			if (!ctx.explicitRootFiles.has(".gitignore")) list.push(".gitignore")
 
