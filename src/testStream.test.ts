@@ -87,7 +87,6 @@ describe("Stream Stability - Unique Directories", () => {
 					const expected = ["a/", "a/b/", "a/b/c/", "a/b/c/file.txt"].sort()
 					expect(paths.sort()).toEqual(expected)
 
-					// Check for duplicates
 					const uniquePaths = new Set(paths)
 					expect(uniquePaths.size).toBe(paths.length)
 				})

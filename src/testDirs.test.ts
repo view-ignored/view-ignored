@@ -136,7 +136,6 @@ describe("dirs option", () => {
 		await matcherContextAddPath(ctx, options, "file.txt")
 		expect(ctx.paths.has("file.txt")).toBe(true)
 
-		// Set dirs: true to test it works normally
 		const ctx2 = {
 			external: new Map(),
 			failed: [],

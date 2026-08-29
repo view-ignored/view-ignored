@@ -472,7 +472,6 @@ async function run(
 			// oxlint-disable-next-line typescript/no-explicit-any
 			const targetInstance = (info.make as any)(modeArg)
 
-			// Set scan options
 			const scanOptions: ScanOptions = {
 				dirs: opt.dirs !== undefined ? opt.dirs : false,
 				invert: scanInvert,
@@ -610,7 +609,6 @@ async function run(
 		// oxlint-disable-next-line typescript/no-explicit-any
 		const targetInstance = (info.make as any)(modeArg)
 
-		// Set scan options
 		const scanOptions: ScanOptions = {
 			dirs: opt.dirs !== undefined ? opt.dirs : false,
 			invert: scanInvert,
