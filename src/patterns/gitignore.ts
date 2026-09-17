@@ -123,14 +123,13 @@ function processGitignoreLine(
 
 	let resolvedLine = ""
 	let resolvedIsEscaped = false
-	const startsWithEscapedBang =
-		rawLine.length > 1 && rawLine.charCodeAt(0) === 92 && rawLine.charCodeAt(1) === 33
-	if (startsWithEscapedBang) resolvedLine = "\\!"
-	for (let m = startsWithEscapedBang ? 2 : 0; m < rawLine.length; m++) {
+	for (let m = 0; m < rawLine.length; m++) {
 		const rc = rawLine[m]!
 		if (resolvedIsEscaped) {
-			if (rc === "#" || rc === " " || rc === "\\") {
+			if (rc === " " || rc === "#") {
 				resolvedLine += rc
+			} else if (rc === "\\") {
+				resolvedLine += "\\"
 			} else {
 				resolvedLine += "\\" + rc
 			}
@@ -183,12 +182,10 @@ export function extractGitignoreRules(
 		const nextRule = processGitignoreLine(source, content, start, lineEnd, rule)
 		if (nextRule && nextRule !== rule) {
 			rule = nextRule
-			source.rules.push(rule)
+			source.rules.unshift(rule)
 		}
 		start = end + 1
 	}
-
-	if (source.rules.length > 1) source.rules.reverse()
 
 	const rlen = source.rules.length
 	for (let i = 0; i < rlen; i++) {

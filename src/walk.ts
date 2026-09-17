@@ -78,6 +78,7 @@ function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): 
 	if (isExcluded) {
 		if (
 			isDir &&
+			match.ignored &&
 			match.kind !== RuleMatchKind.noMatch &&
 			(match.kind !== RuleMatchKind.external || match.source?.spec === PatternSpec.gitignore)
 		)
