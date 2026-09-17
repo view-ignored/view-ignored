@@ -8,6 +8,9 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Refine `wildmatch` pattern prefix/suffix handling and `gitignore` escape sequence parsing.
+- Fix `walk.ts` directory pruning to ensure subdirectories are only skipped when explicitly ignored.
+- Export pattern and target types from `src/index.ts` and simplify `FsAdapter` to `Pick<typeof fs>`.
 - Fix Git target ignore file aggregation to preserve and combine rules from both `.git/info/exclude` and global `core.excludesfile`.
 - Add `Source.spec`.
 - Skip traversing explicitly excluded directories per wildmatch pathname spec in directory walker.

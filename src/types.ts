@@ -7,14 +7,7 @@ import type { Target } from "./targets/target.js"
  *
  * @since 0.6.0
  */
-export interface FsAdapter {
-	/**
-	 * `readdir` is better than `opendir`.
-	 */
-	readdir: typeof fs.readdir
-	readFile: typeof fs.readFile
-	stat: typeof fs.stat
-}
+export type FsAdapter = Pick<typeof fs, "readdir" | "readFile" | "stat">
 
 /**
  * Same as {@link ScanOptions}, but with required `fs` and `cwd` properties.
