@@ -36,7 +36,7 @@ function updateBadge() {
 
 	console.log(`npm-packlist Test Results: ${packlistValue}`)
 	console.log(`wildmatch Test Results: ${wildmatchValue}`)
-	console.log(`ignore Test Results: ${ignoreValue}`)
+	console.log(`node-ignore Test Results: ${ignoreValue}`)
 
 	let readmeContent = ""
 	try {
@@ -51,7 +51,7 @@ function updateBadge() {
 	const wildmatchRegex =
 		/\[!\[wildmatch-tests\]\(https:\/\/img\.shields\.io\/badge\/wildmatch-(.*?)-blue\)\]\([^)]*\)/
 	const ignoreRegex =
-		/\[!\[ignore-tests\]\(https:\/\/img\.shields\.io\/badge\/ignore-(.*?)-blue\)\]\([^)]*\)/
+		/\[!\[node-ignore-tests\]\(https:\/\/img\.shields\.io\/badge\/node--ignore-(.*?)-blue\)\]\([^)]*\)/
 
 	const existingPacklistMatch = readmeContent.match(packlistRegex)
 	const oldPacklistValue = existingPacklistMatch
@@ -91,11 +91,11 @@ function updateBadge() {
 		}
 
 		if (!oldIgnoreValue) {
-			console.error("ignore-tests badge is missing from README.md")
+			console.error("node-ignore-tests badge is missing from README.md")
 			mismatch = true
 		} else if (ignoreValue !== oldIgnoreValue) {
 			console.error(
-				`ignore badge is outdated. Current: ${oldIgnoreValue}, Expected: ${ignoreValue}`,
+				`node-ignore badge is outdated. Current: ${oldIgnoreValue}, Expected: ${ignoreValue}`,
 			)
 			mismatch = true
 		}
@@ -115,7 +115,7 @@ function updateBadge() {
 	const newWildmatchBadge = `[![wildmatch-tests](https://img.shields.io/badge/wildmatch-${encodedWildmatchValue}-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/)`
 
 	const encodedIgnoreValue = ignoreValue.replace(/-/g, "--").replace(/\//g, "%2F")
-	const newIgnoreBadge = `[![ignore-tests](https://img.shields.io/badge/ignore-${encodedIgnoreValue}-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/)`
+	const newIgnoreBadge = `[![node-ignore-tests](https://img.shields.io/badge/node--ignore-${encodedIgnoreValue}-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-node-ignore/)`
 
 	// Replace packlist badge
 	if (packlistRegex.test(readmeContent)) {
@@ -148,7 +148,7 @@ function updateBadge() {
 	console.log(`Successfully updated ${README_PATH} with:`)
 	console.log(` - npm-packlist badge value ${packlistValue}`)
 	console.log(` - wildmatch badge value ${wildmatchValue}`)
-	console.log(` - ignore badge value ${ignoreValue}`)
+	console.log(` - node-ignore badge value ${ignoreValue}`)
 }
 
 updateBadge()
