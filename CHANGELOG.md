@@ -8,14 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Introduce `PathMap` for `MatcherContext.paths` to support memory-efficient parent directory match fallback via `.dirs`.
 - Refine `wildmatch` pattern prefix/suffix handling and `gitignore` escape sequence parsing.
 - Fix `walk.ts` directory pruning to ensure subdirectories are only skipped when explicitly ignored.
 - Export pattern and target types from `src/index.ts` and simplify `FsAdapter` to `Pick<typeof fs>`.
 - Fix Git target ignore file aggregation to preserve and combine rules from both `.git/info/exclude` and global `core.excludesfile`.
 - Add `Source.spec`.
 - Skip traversing explicitly excluded directories per wildmatch pathname spec in directory walker.
-- Remove `skipInternal` option (directory traversal now always operates in non-skipping mode).
-- Remove `totalFiles` and `totalDirs` from `Total` and add `totalMatchedDirs`.
+- BREAKING CHANGE: Remove `skipInternal` option (directory traversal now always operates in non-skipping mode).
+- BREAKING CHANGE: Remove `totalFiles` and `totalDirs` from `Total` and add `totalMatchedDirs`.
 - Add `.git` `SkipRule` to all targets to skip `.git` directory traversal.
 - Port glob matcher from `picomatch` to `zeptomatch`.
 - Move `Mopsgamer/view-ignored` to `view-ignored/view-ignored` + all related repos.

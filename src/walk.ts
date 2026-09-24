@@ -259,6 +259,12 @@ function patchMerged(
 	stream: MatcherStream | undefined,
 	mergedCtx: MatcherContext,
 ): void {
+	if (mergedCtx.paths.dirs) {
+		mergedCtx.paths.dirs.forEach((match, dir) => {
+			ctx.paths.dirs.set(dir, match)
+		})
+	}
+
 	mergedCtx.paths.forEach((match, path) => {
 		if (ctx.paths.has(path)) return
 		ctx.paths.set(path, match)
@@ -308,6 +314,13 @@ export function walkPatchResult(
 ): void {
 	const { match, path, parentPath, tooDeep, includeParent, isDir, entry, context } = r
 	const { dirs, invert } = options
+
+	if (isDir && match) {
+		const cleanDir = path.endsWith("/") ? path.slice(0, -1) : path
+		if (cleanDir && cleanDir !== "." && cleanDir !== "/") {
+			ctx.paths.dirs.set(cleanDir, match)
+		}
+	}
 
 	const isExcluded = isMatchExcluded(invert, match)
 	if (context) patchMerged(ctx, stream, context)

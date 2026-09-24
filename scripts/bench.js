@@ -208,6 +208,13 @@ function formatUnit(ns) {
 	return `${(ns / 1000000000).toFixed(2)} s`
 }
 
+function formatBytes(bytes) {
+	if (!bytes || bytes <= 0) return "0 b"
+	if (bytes < 1024) return `${bytes.toFixed(0)} b`
+	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} kb`
+	return `${(bytes / (1024 * 1024)).toFixed(2)} mb`
+}
+
 function getStatScore95(df) {
 	if (df <= 0) return 12.706
 	if (df === 1) return 12.706
@@ -316,6 +323,14 @@ function compareBenchmarks(current, base) {
 				)})`
 			: `${formatUnit(currStats.mean)} (${formatUnit(mLow)} … ${formatUnit(mHigh)})`
 
+		const currHeap = curr.stats?.heap?.avg || curr.runs?.[0]?.stats?.heap?.avg || 0
+		const baseHeap =
+			baseBenchWrapper?.stats?.heap?.avg || baseBenchWrapper?.runs?.[0]?.stats?.heap?.avg || 0
+		const memoryStr =
+			baseStats && baseHeap > 0
+				? `${formatBytes(baseHeap)} → ${formatBytes(currHeap)}`
+				: formatBytes(currHeap)
+
 		rows.push({
 			diffPercent,
 			emoji,
@@ -323,6 +338,7 @@ function compareBenchmarks(current, base) {
 			half,
 			isSig,
 			measurement: measurementStr,
+			memory: memoryStr,
 			name,
 			outliers: `${currStats.outliers.toString().padStart(4)} (${Math.round(
 				(currStats.outliers * 100) / (currStats.sampleCount || 1),
@@ -368,6 +384,7 @@ function getTable(rows, isTerminal) {
 	const headers = [
 		"Benchmark",
 		"Measurement (mean [std.dev range])",
+		"Memory (avg heap)",
 		"Min \u2026 Max (Raw extremes)",
 		"Outliers",
 		"Ratio (delta [confidence interval])",
@@ -380,9 +397,10 @@ function getTable(rows, isTerminal) {
 	for (const row of rows) {
 		colWidths[0] = Math.max(colWidths[0], lengthFn(row.name))
 		colWidths[1] = Math.max(colWidths[1], lengthFn(row.measurement))
-		colWidths[2] = Math.max(colWidths[2], lengthFn(row.range))
-		colWidths[3] = Math.max(colWidths[3], lengthFn(row.outliers))
-		colWidths[4] = Math.max(colWidths[4], lengthFn(`${row.emoji}${row.ratioStr}`))
+		colWidths[2] = Math.max(colWidths[2], lengthFn(row.memory))
+		colWidths[3] = Math.max(colWidths[3], lengthFn(row.range))
+		colWidths[4] = Math.max(colWidths[4], lengthFn(row.outliers))
+		colWidths[5] = Math.max(colWidths[5], lengthFn(`${row.emoji}${row.ratioStr}`))
 	}
 
 	const pad = (str, width) => str + " ".repeat(Math.max(0, width - lengthFn(str)))
@@ -400,7 +418,9 @@ function getTable(rows, isTerminal) {
 			"  " +
 			padLeft(headers[3], colWidths[3]) +
 			"  " +
-			padLeft(headers[4], colWidths[4])
+			padLeft(headers[4], colWidths[4]) +
+			"  " +
+			padLeft(headers[5], colWidths[5])
 		).trimEnd() + "\n"
 	const separatorLine =
 		(
@@ -412,7 +432,9 @@ function getTable(rows, isTerminal) {
 			"  " +
 			"-".repeat(colWidths[3]) +
 			"  " +
-			"-".repeat(colWidths[4])
+			"-".repeat(colWidths[4]) +
+			"  " +
+			"-".repeat(colWidths[5])
 		).trimEnd() + "\n"
 
 	out += isTerminal ? c("bold", headerLine) : headerLine
@@ -440,11 +462,13 @@ function getTable(rows, isTerminal) {
 				"  " +
 				padLeft(row.measurement, colWidths[1]) +
 				"  " +
-				padLeft(row.range, colWidths[2]) +
+				padLeft(row.memory, colWidths[2]) +
 				"  " +
-				padLeft(row.outliers, colWidths[3]) +
+				padLeft(row.range, colWidths[3]) +
 				"  " +
-				padLeft(ratio, colWidths[4])
+				padLeft(row.outliers, colWidths[4]) +
+				"  " +
+				padLeft(ratio, colWidths[5])
 			).trimEnd() + "\n"
 
 		out += rowLine

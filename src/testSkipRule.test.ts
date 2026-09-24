@@ -2,6 +2,7 @@ import type { Target } from "./targets/target.js"
 
 import { describe, test, expect } from "bun:test"
 
+import { PathMap } from "./patterns/matcherContext.js"
 import { ruleTest } from "./patterns/rule.js"
 import { testScan } from "./testScan.test.js"
 
@@ -25,7 +26,7 @@ describe("SkipRule implementation", () => {
 			internalRules: [
 				(options) => {
 					if (options.entry !== "node_modules") return null
-					const paths = new Map()
+					const paths = new PathMap()
 					paths.set("node_modules/custom-file.js", {
 						ignored: false,
 						kind: 7, // RuleMatchKind.internal
