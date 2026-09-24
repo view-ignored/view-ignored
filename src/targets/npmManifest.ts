@@ -13,6 +13,7 @@ import type { Target } from "./target.js"
 
 import zeptomatch from "zeptomatch"
 
+import { PathMap } from "../patterns/matcherContext.js"
 import { extractNpmignore } from "../patterns/npmignore.js"
 import { ruleCompile } from "../patterns/resolveSources.js"
 import { scan } from "../scan.js"
@@ -475,7 +476,7 @@ export function makeBundledDepsRule(
 		const mergedCtx = {
 			external: new Map(),
 			failed: [],
-			paths: new Map(),
+			paths: new PathMap(),
 			total: new Map(),
 		}
 

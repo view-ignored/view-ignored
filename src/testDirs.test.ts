@@ -4,6 +4,7 @@ import { describe, test, expect } from "bun:test"
 import * as nodefs from "node:fs"
 import * as process from "node:process"
 
+import { PathMap } from "./patterns/matcherContext.js"
 import { matcherContextAddPath } from "./patterns/matcherContextPatch.js"
 import { RuleMatchKind } from "./patterns/rule.js"
 import { makeGit } from "./targets/git.js"
@@ -97,7 +98,7 @@ describe("dirs option", () => {
 		const ctx = {
 			external: new Map(),
 			failed: [],
-			paths: new Map(),
+			paths: new PathMap(),
 			total: new Map([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 		}
 		const options: Required<ScanOptions> = {
@@ -139,7 +140,7 @@ describe("dirs option", () => {
 		const ctx2 = {
 			external: new Map(),
 			failed: [],
-			paths: new Map(),
+			paths: new PathMap(),
 			total: new Map([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 		}
 		const optionsTrue: Required<ScanOptions> = { ...options, dirs: true }

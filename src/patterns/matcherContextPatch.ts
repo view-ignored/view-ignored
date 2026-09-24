@@ -94,6 +94,10 @@ export async function matcherContextAddPath(
 			target,
 		})
 
+		if (match) {
+			ctx.paths.dirs.set(direntPath, match)
+		}
+
 		if (!match.ignored && options.dirs && !ctx.paths.has(entry)) {
 			ctx.paths.set(entry, match)
 			added.push(entry)
@@ -208,6 +212,15 @@ export async function matcherContextRemovePath(
 
 		const direntPathLen = direntPath.length
 		const direntDir = direntPath + "/"
+		for (const element of ctx.paths.dirs.keys()) {
+			if (
+				element === direntPath ||
+				(element.length > direntPathLen && element.startsWith(direntDir))
+			) {
+				ctx.paths.dirs.delete(element)
+			}
+		}
+
 		for (const element of ctx.external.keys()) {
 			if (
 				element.length < direntPathLen ||

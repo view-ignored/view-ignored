@@ -1,5 +1,6 @@
 import { describe, test, expect } from "bun:test"
 
+import { PathMap } from "./patterns/matcherContext.js"
 import { RuleMatchKind, type SkipRule } from "./patterns/rule.js"
 import { scanParallel } from "./scanParallel.js"
 import { makeGit } from "./targets/git.js"
@@ -342,7 +343,7 @@ describe("scanParallel and walk edge cases", () => {
 		const mockCtx: any = {
 			external: new Map(),
 			failed: [],
-			paths: new Map(),
+			paths: new PathMap(),
 			total: new Map(),
 		}
 

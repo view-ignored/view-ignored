@@ -1,9 +1,8 @@
-import type { MatcherContext, Total } from "./patterns/matcherContext.js"
 import type { MatcherStream } from "./patterns/matcherStream.js"
 import type { Resource } from "./patterns/resource.js"
-import type { RuleMatch } from "./patterns/rule.js"
 import type { ScanOptions, FsAdapter, ScanBrowserOptions } from "./types.js"
 
+import { PathMap, type MatcherContext, type Total } from "./patterns/matcherContext.js"
 import { scanParallel, type ScanParallelOptions } from "./scanParallel.js"
 import { unixify } from "./unixify.js"
 import { walkPatchResult, walkPatchTotal, propagateTotals } from "./walk.js"
@@ -50,7 +49,7 @@ export function browserScanCb(
 	const ctx: MatcherContext = {
 		external: new Map<string, Resource>(),
 		failed: [],
-		paths: new Map<string, RuleMatch>(),
+		paths: new PathMap(),
 		total: new Map<string, Total>([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 	}
 

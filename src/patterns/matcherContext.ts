@@ -1,5 +1,7 @@
+import type { PathMap } from "./pathMap.js"
 import type { Resource, InvalidSource } from "./resource.js"
-import type { RuleMatch } from "./rule.js"
+
+export { PathMap } from "./pathMap.js"
 
 /**
  * Post-scan results.
@@ -13,7 +15,7 @@ export interface MatcherContext {
 	 *
 	 * @since 0.6.0
 	 */
-	paths: Map<string, RuleMatch>
+	paths: PathMap
 
 	/**
 	 * Maps directory paths to their corresponding sources.

@@ -1,4 +1,3 @@
-import type { MatcherContext, Total } from "./matcherContext.js"
 import type { Resource } from "./resource.js"
 import type { Source } from "./source.js"
 
@@ -9,9 +8,10 @@ import { scan, type ScanOptions } from "../scan.js"
 import { makeNPM } from "../targets/npm.js"
 import { createAdapter } from "../testScan.test.js"
 import { unixify } from "../unixify.js"
+import { PathMap, type MatcherContext, type Total } from "./matcherContext.js"
 import { matcherContextAddPath, matcherContextRemovePath } from "./matcherContextPatch.js"
 import { patternListCompile } from "./patternList.js"
-import { RuleMatchKind, type RuleMatch } from "./rule.js"
+import { RuleMatchKind } from "./rule.js"
 
 const fsJson = {
 	".gitignore": "node_modules\nout\ndist\n*.tgz\n*.cpuprofile",
@@ -144,7 +144,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 				["src/targets", sourcePackageJson],
 			]),
 			failed: [],
-			paths: new Map<string, RuleMatch>([
+			paths: new PathMap([
 				["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
 				[
 					"out/",
@@ -282,7 +282,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 				["src/targets", sourcePackageJson],
 			]),
 			failed: [],
-			paths: new Map<string, RuleMatch>([
+			paths: new PathMap([
 				["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
 				[
 					"out/",
@@ -395,7 +395,7 @@ describe("matcherContextAddPath", () => {
 					["src/targets", sourceGitignore],
 				]),
 				failed: [],
-				paths: new Map<string, RuleMatch>([
+				paths: new PathMap([
 					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
 					["src/", { ignored: false, kind: RuleMatchKind.noMatch, source: sourceGitignore }],
 					[
@@ -488,7 +488,7 @@ describe("matcherContextAddPath", () => {
 					["src/targets", sourcePackageJson],
 				]),
 				failed: [],
-				paths: new Map<string, RuleMatch>([
+				paths: new PathMap([
 					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
 					[
 						"out/",
@@ -679,7 +679,7 @@ describe("matcherContextRemovePath", () => {
 					["src/targets", sourcePackageJson],
 				]),
 				failed: [],
-				paths: new Map<string, RuleMatch>([
+				paths: new PathMap([
 					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
 					[
 						"out/",
@@ -788,7 +788,7 @@ describe("matcherContextRemovePath", () => {
 					["node_modules/a/lib", sourcePackageJson],
 				]),
 				failed: [],
-				paths: new Map<string, RuleMatch>([
+				paths: new PathMap([
 					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE.*" }],
 					[
 						"package.json",
@@ -833,7 +833,7 @@ describe("matcherContextRemovePath", () => {
 						source: { dir: "src", inverted: false, path: "src/.gitignore", rules: [] },
 					},
 				],
-				paths: new Map(),
+				paths: new PathMap(),
 				total: new Map(),
 			}
 			await matcherContextRemovePath(c, opt, "src/")
@@ -893,7 +893,7 @@ describe("matcherContextRemovePath", () => {
 					["src/targets", sourcePackageJson],
 				]),
 				failed: [],
-				paths: new Map<string, RuleMatch>([
+				paths: new PathMap([
 					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
 					[
 						"out/",
@@ -974,7 +974,7 @@ describe("matcherContextRemovePath", () => {
 					["node_modules/a/lib", sourceGitignore],
 				]),
 				failed: [],
-				paths: new Map<string, RuleMatch>([
+				paths: new PathMap([
 					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE.*" }],
 					["src/", { ignored: false, kind: RuleMatchKind.noMatch, source: sourceGitignore }],
 					[
