@@ -1,3 +1,4 @@
+import type { FsAdapter } from "../types.js"
 import type { Target } from "./target.js"
 
 import {
@@ -9,14 +10,69 @@ import {
 	type Source,
 	type GlobRule,
 	type Rule,
+	type CustomRule,
 	makeGitSkipRule,
 } from "../patterns/index.js"
-import { unixify, join, dirname } from "../unixify.js"
+import { unixify, join, dirname, trimLeadingDotSlash } from "../unixify.js"
 import { HOME, XDG, resolvePath, loadRec, mergeConfig } from "./gitConfig.js"
+import { parseGitIndex } from "./gitIndex.js"
 
 const globalIgnore = XDG ? join(XDG, "git/ignore") : join(HOME, ".config/git/ignore")
 
 let cachedGitRule: GlobRule | null = null
+
+const textEncoder = typeof TextEncoder !== "undefined" ? new TextEncoder() : null
+
+function getRelativePath(repoRoot: string, cwd: string, entry: string): string {
+	const relDir = cwd === repoRoot ? "" : trimLeadingDotSlash(cwd.slice(repoRoot.length))
+	return trimLeadingDotSlash(relDir ? join(relDir, entry) : entry)
+}
+
+function createTrackedRule(
+	root: string,
+	trackedPaths: Set<string>,
+	trackedDirs: Set<string>,
+): CustomRule {
+	return {
+		excludes: false,
+		match(options) {
+			let path = getRelativePath(root, unixify(options.cwd), options.entry)
+			if (options.dirent.isDirectory()) {
+				if (path.endsWith("/")) path = path.slice(0, -1)
+				return trackedDirs.has(path) ? "//tracked by git" : null
+			}
+			return trackedPaths.has(path) ? "//tracked by git" : null
+		},
+	}
+}
+
+function loadGitIndex(
+	fs: FsAdapter,
+	gDir: string | null,
+	targetRoot: string,
+	internalBefore: Rule[],
+	done: () => void,
+): void {
+	if (!gDir) return done()
+
+	fs.readFile(join(gDir, "index"), (err, res) => {
+		if (err || !res) return done()
+
+		const buf =
+			typeof res === "string"
+				? textEncoder
+					? textEncoder.encode(res)
+					: new Uint8Array(0)
+				: new Uint8Array(res.buffer, res.byteOffset, res.byteLength)
+
+		const { paths, dirs } = parseGitIndex(buf)
+		if (paths.size > 0) {
+			internalBefore.splice(1, 0, createTrackedRule(targetRoot, paths, dirs))
+		}
+
+		done()
+	})
+}
 
 /**
  * @since 0.12.0
@@ -72,7 +128,7 @@ export function makeGit(): Target {
 				let excludeRules: Rule[] | null = null
 				let globalRules: Rule[] | null = null
 
-				let pending = excludePath ? 2 : 1
+				let pending = 1 + (excludePath ? 1 : 0) + (gDir ? 1 : 0)
 				const done = () => {
 					if (--pending === 0) {
 						if (excludeRules && globalRules) internal.after = excludeRules.concat(globalRules)
@@ -108,6 +164,7 @@ export function makeGit(): Target {
 						excludeRules = rules
 					})
 				}
+				loadGitIndex(fs, gDir, target.root || repoRoot, internal.before, done)
 			}
 
 			const findG = (cur: string, callback: (g: string | null) => void) => {
