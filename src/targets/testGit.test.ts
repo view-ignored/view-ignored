@@ -1,7 +1,36 @@
-import { test, describe } from "bun:test"
+import { test, describe, expect } from "bun:test"
 
 import { testScan } from "../testScan.test.js"
 import { makeGit } from "./git.js"
+
+function createGitIndexBuffer(paths: string[]): Uint8Array {
+	let totalLen = 12
+	for (const p of paths) {
+		const entryLen = 62 + Buffer.byteLength(p) + 1
+		const pad = (8 - (entryLen % 8)) % 8
+		totalLen += entryLen + pad
+	}
+	const buf = Buffer.alloc(totalLen)
+	buf.write("DIRC", 0, 4, "utf8")
+	buf.writeUInt32BE(2, 4)
+	buf.writeUInt32BE(paths.length, 8)
+
+	let pos = 12
+	for (const p of paths) {
+		const start = pos
+		const pLen = Buffer.byteLength(p)
+		const flags = pLen < 0xfff ? pLen : 0xfff
+		buf.writeUInt16BE(flags, pos + 60)
+		pos += 62
+		buf.write(p, pos, "utf8")
+		pos += pLen
+		buf[pos++] = 0
+		const entryLen = pos - start
+		const pad = (8 - (entryLen % 8)) % 8
+		pos += pad
+	}
+	return buf
+}
 
 describe("Git", () => {
 	test("empty for empty", async (done) => {
@@ -412,6 +441,34 @@ describe("Git", () => {
 				file_both: "",
 			},
 			["file_both", "global_ignore"],
+			{ target: makeGit() },
+		)
+	})
+
+	test("unignores tracked files from .git/index and reports reasoning", async (done) => {
+		const indexBuf = createGitIndexBuffer(["src/tracked.ts", "package.json"])
+		await testScan(
+			done,
+			{
+				".git": {
+					index: indexBuf,
+				},
+				".gitignore": "src/\n*.log",
+				"package.json": "{}",
+				src: {
+					"tracked.ts": "console.log(1)",
+					"untracked.log": "log",
+				},
+			},
+			({ ctx }) => {
+				expect(ctx.paths.has("src/tracked.ts")).toBe(true)
+				expect(ctx.paths.has("src/untracked.log")).toBe(false)
+				const trackedMatch = ctx.paths.get("src/tracked.ts")
+				expect(trackedMatch?.ignored).toBe(false)
+				expect(trackedMatch && "pattern" in trackedMatch ? trackedMatch.pattern : undefined).toBe(
+					"//tracked by git",
+				)
+			},
 			{ target: makeGit() },
 		)
 	})
