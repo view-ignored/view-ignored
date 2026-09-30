@@ -11,7 +11,10 @@ import { unixify } from "../unixify.js"
 import { PathMap, type MatcherContext, type Total } from "./matcherContext.js"
 import { matcherContextAddPath, matcherContextRemovePath } from "./matcherContextPatch.js"
 import { patternListCompile } from "./patternList.js"
-import { RuleMatchKind } from "./rule.js"
+import { RuleMatchKind, type Rule, type InternalRules } from "./rule.js"
+
+const defaultNpmTarget = makeNPM()
+const cachedNpmBeforeIncludesRule = (defaultNpmTarget.internalRules as InternalRules).before.at(-1)!
 
 const fsJson = {
 	".gitignore": "node_modules\nout\ndist\n*.tgz\n*.cpuprofile",
@@ -128,7 +131,7 @@ const opt: Required<ScanOptions> = {
 const ctx = await scan(opt)
 describe("matcherContext{Add,Remove}Path prepare", () => {
 	test("ctx", () => {
-		expect(ctx).toMatchObject(<MatcherContext>{
+		expect(ctx).toMatchObject({
 			external: new Map<string, Resource>([
 				[".", sourcePackageJson],
 				["node_modules", sourcePackageJson],
@@ -144,14 +147,24 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 				["src/targets", sourcePackageJson],
 			]),
 			failed: [],
+			matchedRules: new Set([cachedNpmBeforeIncludesRule, sourcePackageJson.rules[0]!]),
 			paths: new PathMap([
-				["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
+				[
+					"LICENSE.txt",
+					{
+						ignored: false,
+						kind: RuleMatchKind.internal,
+						pattern: "LICENSE*",
+						rule: cachedNpmBeforeIncludesRule,
+					},
+				],
 				[
 					"out/",
 					{
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -161,6 +174,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -170,6 +184,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -179,6 +194,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -188,6 +204,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -197,6 +214,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -206,6 +224,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -215,6 +234,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -224,6 +244,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -233,10 +254,19 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
-				["package.json", { ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" }],
+				[
+					"package.json",
+					{
+						ignored: false,
+						kind: RuleMatchKind.internal,
+						pattern: "package.json",
+						rule: cachedNpmBeforeIncludesRule,
+					},
+				],
 			]),
 			total: new Map<string, Total>([
 				[
@@ -266,7 +296,7 @@ const optDepth1: Required<ScanOptions> = {
 const ctxDepth1 = await scan(optDepth1)
 describe("matcherContext{Add,Remove}Path prepare", () => {
 	test("ctxDepth1", () => {
-		expect(ctxDepth1).toMatchObject(<MatcherContext>{
+		expect(ctxDepth1).toMatchObject({
 			external: new Map<string, Resource>([
 				[".", sourcePackageJson],
 				["node_modules", sourcePackageJson],
@@ -282,14 +312,24 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 				["src/targets", sourcePackageJson],
 			]),
 			failed: [],
+			matchedRules: new Set([cachedNpmBeforeIncludesRule, sourcePackageJson.rules[0]!]),
 			paths: new PathMap([
-				["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
+				[
+					"LICENSE.txt",
+					{
+						ignored: false,
+						kind: RuleMatchKind.internal,
+						pattern: "LICENSE*",
+						rule: cachedNpmBeforeIncludesRule,
+					},
+				],
 				[
 					"out/",
 					{
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -299,6 +339,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -308,6 +349,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
@@ -317,10 +359,19 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 						ignored: false,
 						kind: RuleMatchKind.external,
 						pattern: "/out",
+						rule: sourcePackageJson.rules[0]!,
 						source: sourcePackageJson,
 					},
 				],
-				["package.json", { ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" }],
+				[
+					"package.json",
+					{
+						ignored: false,
+						kind: RuleMatchKind.internal,
+						pattern: "package.json",
+						rule: cachedNpmBeforeIncludesRule,
+					},
+				],
 			]),
 			total: new Map<string, Total>([
 				[
@@ -395,8 +446,17 @@ describe("matcherContextAddPath", () => {
 					["src/targets", sourceGitignore],
 				]),
 				failed: [],
+				matchedRules: new Set([cachedNpmBeforeIncludesRule]),
 				paths: new PathMap([
-					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
+					[
+						"LICENSE.txt",
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "LICENSE*",
+							rule: cachedNpmBeforeIncludesRule,
+						},
+					],
 					["src/", { ignored: false, kind: RuleMatchKind.noMatch, source: sourceGitignore }],
 					[
 						"src/index.ts",
@@ -436,7 +496,12 @@ describe("matcherContextAddPath", () => {
 					],
 					[
 						"package.json",
-						{ ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" },
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "package.json",
+							rule: cachedNpmBeforeIncludesRule,
+						},
 					],
 					[
 						"tsconfig.prod.json",
@@ -489,13 +554,22 @@ describe("matcherContextAddPath", () => {
 				]),
 				failed: [],
 				paths: new PathMap([
-					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
+					[
+						"LICENSE.txt",
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "LICENSE*",
+							rule: cachedNpmBeforeIncludesRule,
+						},
+					],
 					[
 						"out/",
 						{
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -505,6 +579,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -514,6 +589,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -523,6 +599,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -532,6 +609,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -541,6 +619,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -550,6 +629,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -559,6 +639,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -568,6 +649,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -577,6 +659,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -586,6 +669,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -595,6 +679,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -604,6 +689,7 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -613,12 +699,18 @@ describe("matcherContextAddPath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
 					[
 						"package.json",
-						{ ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" },
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "package.json",
+							rule: cachedNpmBeforeIncludesRule,
+						},
 					],
 				]),
 				total: new Map<string, Total>([[".", { totalMatchedDirs: 5, totalMatchedFiles: 11 }]]),
@@ -680,13 +772,22 @@ describe("matcherContextRemovePath", () => {
 				]),
 				failed: [],
 				paths: new PathMap([
-					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
+					[
+						"LICENSE.txt",
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "LICENSE*",
+							rule: cachedNpmBeforeIncludesRule,
+						},
+					],
 					[
 						"out/",
 						{
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -696,6 +797,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -705,6 +807,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -714,6 +817,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -723,6 +827,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -732,6 +837,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -741,6 +847,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -750,6 +857,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -759,12 +867,18 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
 					[
 						"package.json",
-						{ ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" },
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "package.json",
+							rule: cachedNpmBeforeIncludesRule,
+						},
 					],
 				]),
 				total: new Map<string, Total>([[".", { totalMatchedDirs: 3, totalMatchedFiles: 8 }]]),
@@ -788,11 +902,25 @@ describe("matcherContextRemovePath", () => {
 					["node_modules/a/lib", sourcePackageJson],
 				]),
 				failed: [],
-				paths: new PathMap([
-					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE.*" }],
+				matchedRules: new Set([cachedNpmBeforeIncludesRule, sourcePackageJson.rules[0]!]),
+				paths: new Map([
+					[
+						"LICENSE.txt",
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "LICENSE.*",
+							rule: cachedNpmBeforeIncludesRule,
+						},
+					],
 					[
 						"package.json",
-						{ ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" },
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "package.json",
+							rule: cachedNpmBeforeIncludesRule,
+						},
 					],
 				]),
 				total: new Map<string, Total>([[".", { totalMatchedDirs: 0, totalMatchedFiles: 2 }]]),
@@ -833,6 +961,7 @@ describe("matcherContextRemovePath", () => {
 						source: { dir: "src", inverted: false, path: "src/.gitignore", rules: [] },
 					},
 				],
+				matchedRules: new Set<Rule>(),
 				paths: new PathMap(),
 				total: new Map(),
 			}
@@ -877,7 +1006,7 @@ describe("matcherContextRemovePath", () => {
 		test("should change ctx.total", async () => {
 			const c = await scan(optDepth1)
 			expect(await matcherContextRemovePath(c, optDepth1, "out/targets/index.js")).toEqual([])
-			expect(c).toMatchObject(<MatcherContext>{
+			expect(c).toMatchObject({
 				external: new Map<string, Resource>([
 					[".", sourcePackageJson],
 					["node_modules", sourcePackageJson],
@@ -893,14 +1022,24 @@ describe("matcherContextRemovePath", () => {
 					["src/targets", sourcePackageJson],
 				]),
 				failed: [],
-				paths: new PathMap([
-					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE*" }],
+				matchedRules: new Set([cachedNpmBeforeIncludesRule, sourcePackageJson.rules[0]!]),
+				paths: new Map([
+					[
+						"LICENSE.txt",
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "LICENSE*",
+							rule: cachedNpmBeforeIncludesRule,
+						},
+					],
 					[
 						"out/",
 						{
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -910,6 +1049,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -919,6 +1059,7 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
@@ -928,12 +1069,18 @@ describe("matcherContextRemovePath", () => {
 							ignored: false,
 							kind: RuleMatchKind.external,
 							pattern: "/out",
+							rule: sourcePackageJson.rules[0]!,
 							source: sourcePackageJson,
 						},
 					],
 					[
 						"package.json",
-						{ ignored: false, kind: RuleMatchKind.internal, pattern: "package.json" },
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "package.json",
+							rule: cachedNpmBeforeIncludesRule,
+						},
 					],
 				]),
 				total: new Map<string, Total>([
@@ -958,7 +1105,7 @@ describe("matcherContextRemovePath", () => {
 			expect(res).toBeArray()
 
 			// NPM will use gitignore
-			const newc = <MatcherContext>{
+			const newc = {
 				external: new Map<string, Resource>([
 					[".", sourceGitignore],
 					["node_modules", sourceGitignore],
@@ -974,8 +1121,17 @@ describe("matcherContextRemovePath", () => {
 					["node_modules/a/lib", sourceGitignore],
 				]),
 				failed: [],
-				paths: new PathMap([
-					["LICENSE.txt", { ignored: false, kind: RuleMatchKind.internal, pattern: "LICENSE.*" }],
+				matchedRules: new Set([cachedNpmBeforeIncludesRule]),
+				paths: new Map([
+					[
+						"LICENSE.txt",
+						{
+							ignored: false,
+							kind: RuleMatchKind.internal,
+							pattern: "LICENSE.*",
+							rule: cachedNpmBeforeIncludesRule,
+						},
+					],
 					["src/", { ignored: false, kind: RuleMatchKind.noMatch, source: sourceGitignore }],
 					[
 						"src/index.ts",

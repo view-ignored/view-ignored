@@ -49,6 +49,7 @@ export function browserScanCb(
 	const ctx: MatcherContext = {
 		external: new Map<string, Resource>(),
 		failed: [],
+		matchedRules: new Set(),
 		paths: new PathMap(),
 		total: new Map<string, Total>([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 	}

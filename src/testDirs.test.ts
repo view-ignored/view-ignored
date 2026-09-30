@@ -6,7 +6,7 @@ import * as process from "node:process"
 
 import { PathMap } from "./patterns/matcherContext.js"
 import { matcherContextAddPath } from "./patterns/matcherContextPatch.js"
-import { RuleMatchKind } from "./patterns/rule.js"
+import { RuleMatchKind, type Rule } from "./patterns/rule.js"
 import { makeGit } from "./targets/git.js"
 import { testScan } from "./testScan.test.js"
 import { unixify } from "./unixify.js"
@@ -98,6 +98,7 @@ describe("dirs option", () => {
 		const ctx = {
 			external: new Map(),
 			failed: [],
+			matchedRules: new Set<Rule>(),
 			paths: new PathMap(),
 			total: new Map([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 		}
@@ -140,6 +141,7 @@ describe("dirs option", () => {
 		const ctx2 = {
 			external: new Map(),
 			failed: [],
+			matchedRules: new Set<Rule>(),
 			paths: new PathMap(),
 			total: new Map([[".", { totalMatchedDirs: 0, totalMatchedFiles: 0 }]]),
 		}

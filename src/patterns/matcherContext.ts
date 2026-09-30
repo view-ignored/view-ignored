@@ -1,5 +1,6 @@
 import type { PathMap } from "./pathMap.js"
 import type { Resource, InvalidSource } from "./resource.js"
+import type { Rule } from "./rule.js"
 
 export { PathMap } from "./pathMap.js"
 
@@ -36,6 +37,13 @@ export interface MatcherContext {
 	 * @since 0.6.0
 	 */
 	failed: InvalidSource[]
+
+	/**
+	 * Set of rules matched during scanning.
+	 *
+	 * @since 0.13.0
+	 */
+	matchedRules: Set<Rule>
 
 	/**
 	 * Total number of matched files and directories per path.

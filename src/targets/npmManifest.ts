@@ -5,6 +5,7 @@ import type {
 	GlobRule,
 	IgnoresOptions,
 	MatcherContext,
+	Rule,
 	SkipRule,
 } from "../patterns/index.js"
 import type { Source } from "../patterns/source.js"
@@ -476,6 +477,7 @@ export function makeBundledDepsRule(
 		const mergedCtx = {
 			external: new Map(),
 			failed: [],
+			matchedRules: new Set<Rule>(),
 			paths: new PathMap(),
 			total: new Map(),
 		}
