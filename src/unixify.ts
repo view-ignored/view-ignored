@@ -88,7 +88,7 @@ export function trimLeadingDotSlash(p: string): string {
 /**
  * Counts forward slashes in a string.
  *
- * @since 0.12.3
+ * @since 0.13.0
  */
 export function countSlashes(s: string): number {
 	let count = 0

@@ -4,7 +4,7 @@ import type { GlobRule } from "./rule.js"
 import stripJsonComments from "strip-json-comments"
 
 import { ruleCompile } from "./resolveSources.js"
-import { resolveNegatable, type Source } from "./source.js"
+import { scanJsonRuleRanges, resolveNegatable, type Source } from "./source.js"
 
 const decoder = new TextDecoder()
 
@@ -55,10 +55,19 @@ export function extractJsrJsonRules(source: Source, content: Uint8Array): void {
 	// Resolve patterns based on the manifest hierarchy
 	const target = dist.publish ?? dist
 
+	const exKey = dist.publish ? "publish.exclude" : "exclude"
+	const incKey = dist.publish ? "publish.include" : "include"
+
+	const exRanges = scanJsonRuleRanges(content, exKey)
+	const incRanges = scanJsonRuleRanges(content, incKey)
+
+	let exIdx = 0
+	let incIdx = 0
 	const options = { nocase: true }
 	if (Array.isArray(target.exclude)) {
 		for (const pattern of target.exclude) {
-			const nextRule = resolveNegatable(pattern, false, rule)
+			const range = exRanges[exIdx++]
+			const nextRule = resolveNegatable(pattern, false, rule, range?.[0], range?.[1])
 			if (nextRule === rule) continue
 			rule = nextRule
 			source.rules.push(rule)
@@ -67,7 +76,8 @@ export function extractJsrJsonRules(source: Source, content: Uint8Array): void {
 
 	if (Array.isArray(target.include)) {
 		for (const pattern of target.include) {
-			const nextRule = resolveNegatable(pattern, true, rule)
+			const range = incRanges[incIdx++]
+			const nextRule = resolveNegatable(pattern, true, rule, range?.[0], range?.[1])
 			if (nextRule === rule) continue
 			rule = nextRule
 			source.rules.push(rule)

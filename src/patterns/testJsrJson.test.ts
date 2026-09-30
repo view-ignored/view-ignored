@@ -1,3 +1,4 @@
+import type { GlobRule } from "./rule.js"
 import type { Source } from "./source.js"
 
 import { describe, test, expect } from "bun:test"
@@ -46,5 +47,24 @@ describe("jsr.json", () => {
 		})
 		extractJsrJson(source, Buffer.from(jsrContent))
 		expect(source.rules.length).toBe(2)
+	})
+
+	test("records byte offset range for extracted rules", () => {
+		const source: Source = {
+			inverted: false,
+			path: "jsr.json",
+			rules: [],
+		}
+		const content = '{\n  "exclude": ["*.tmp"],\n  "include": ["src/**"]\n}'
+		const buf = Buffer.from(content)
+		extractJsrJsonRules(source, buf)
+		expect(source.rules).toHaveLength(2)
+
+		const exRule = source.rules[0] as GlobRule
+		const incRule = source.rules[1] as GlobRule
+		expect(exRule.range).toBeDefined()
+		expect(incRule.range).toBeDefined()
+		expect(content.slice(exRule.range![0], exRule.range![1])).toBe('"*.tmp"')
+		expect(content.slice(incRule.range![0], incRule.range![1])).toBe('"src/**"')
 	})
 })

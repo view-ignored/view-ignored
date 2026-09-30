@@ -420,6 +420,51 @@ describe("NPM", () => {
 		})
 	})
 
+	test("initNpmContext records byte range on npmIgnoreExcludeGlobRule and custom rules", (done) => {
+		const ctx = createNpmContext("publish")
+		const pkgContent = JSON.stringify(
+			{
+				files: ["dist"],
+				main: "dist/index.js",
+				name: "my-pkg",
+				patchedDependencies: { "some-dep": "./patches/some-dep.patch" },
+				version: "1.0.0",
+			},
+			null,
+			2,
+		)
+
+		// oxlint-disable-next-line typescript/no-explicit-any
+		const mockFs: any = {
+			// oxlint-disable-next-line typescript/no-explicit-any
+			readFile: (_p: string, cb: any) => {
+				cb(null, Buffer.from(pkgContent))
+			},
+		}
+
+		initNpmContext(ctx, { cwd: "/pkg", fs: mockFs }, (err) => {
+			expect(err).toBeNull()
+			expect(ctx.npmIgnoreExcludeGlobRule.range).toBeDefined()
+			expect(
+				pkgContent.slice(
+					ctx.npmIgnoreExcludeGlobRule.range![0],
+					ctx.npmIgnoreExcludeGlobRule.range![1],
+				),
+			).toBe('"files"')
+
+			const directRule = ctx.directPathsRule
+			expect(directRule.range).toBeDefined()
+			expect(pkgContent.slice(directRule.range![0], directRule.range![1])).toBe('"main"')
+
+			const patchRule = ctx.patchedDepsRule
+			expect(patchRule.range).toBeDefined()
+			expect(pkgContent.slice(patchRule.range![0], patchRule.range![1])).toBe(
+				'"patchedDependencies"',
+			)
+			done()
+		})
+	})
+
 	test("extractManifestIncludes with object bin field", () => {
 		const dist: Record<string, string> = {}
 		extractManifestIncludes(
