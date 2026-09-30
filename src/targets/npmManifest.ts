@@ -16,6 +16,7 @@ import zeptomatch from "zeptomatch"
 import { PathMap } from "../patterns/matcherContext.js"
 import { extractNpmignore } from "../patterns/npmignore.js"
 import { ruleCompile } from "../patterns/resolveSources.js"
+import { findJsonKeyRange } from "../patterns/source.js"
 import { scan } from "../scan.js"
 import { isWhitespace, trimLeadingDotSlash, join, dirname } from "../unixify.js"
 
@@ -29,6 +30,8 @@ export const symlinkRule = {
 		return dirent.isSymbolicLink() ? "//symlink" : null
 	},
 } satisfies CustomRule as CustomRule
+
+const DIRECT_PATH_FIELDS = ["main", "module", "browser", "bin"]
 
 export function makeDirectPathsRule(directPathsInclude: Record<string, string>): CustomRule {
 	return {
@@ -365,11 +368,13 @@ export function resolveBundledDeps(
 export interface NpmContext {
 	bundledDeps: string[]
 	directPathsInclude: Record<string, string>
+	directPathsRule: CustomRule
 	dist?: PackageJson
 	explicitRootFiles: Set<string>
 	mode: "list" | "publish" | "bundle"
 	npmIgnoreExcludeGlobRule: GlobRule
 	patchedDepsExclude: Set<string>
+	patchedDepsRule: CustomRule
 	rootDeps: Set<string>
 	whitelistedPaths: Set<string>
 	whitelistedRegex: RegExp | null
@@ -377,9 +382,10 @@ export interface NpmContext {
 }
 
 export function createNpmContext(mode: "list" | "publish" | "bundle" = "publish"): NpmContext {
-	return {
+	const ctx: NpmContext = {
 		bundledDeps: [],
 		directPathsInclude: Object.create(null),
+		directPathsRule: null as unknown as CustomRule,
 		dist: undefined,
 		explicitRootFiles: new Set<string>(),
 		mode,
@@ -390,11 +396,15 @@ export function createNpmContext(mode: "list" | "publish" | "bundle" = "publish"
 			list: null as any,
 		},
 		patchedDepsExclude: new Set<string>(),
+		patchedDepsRule: null as unknown as CustomRule,
 		rootDeps: new Set<string>(),
 		whitelistedPaths: new Set<string>(),
 		whitelistedRegex: null,
 		workspaceRegex: null,
 	}
+	ctx.directPathsRule = makeDirectPathsRule(ctx.directPathsInclude)
+	ctx.patchedDepsRule = makePatchedDepsRule(ctx)
+	return ctx
 }
 
 export function isWhitelistedByFiles(ctx: NpmContext, entry: string): boolean {
@@ -551,6 +561,9 @@ export function initNpmContext(
 			return
 		}
 
+		ctx.directPathsRule.range = findJsonKeyRange(content!, DIRECT_PATH_FIELDS)
+		ctx.patchedDepsRule.range = findJsonKeyRange(content!, "patchedDependencies")
+
 		if (parsedDist.dependencies) {
 			for (const dep of Object.keys(parsedDist.dependencies)) ctx.rootDeps.add(dep)
 		}
@@ -592,6 +605,8 @@ export function initNpmContext(
 			if (!ctx.explicitRootFiles.has(".gitignore")) list.push(".gitignore")
 
 			ctx.npmIgnoreExcludeGlobRule.list = list
+			const filesRange = findJsonKeyRange(content!, "files")
+			if (filesRange) ctx.npmIgnoreExcludeGlobRule.range = filesRange
 			ruleCompile(ctx.npmIgnoreExcludeGlobRule, { nocase: true })
 		}
 

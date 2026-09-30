@@ -74,7 +74,7 @@ function processGitignoreLine(
 		}
 		if (endIdx <= start) return rule
 		const resolvedLine = decoder.decode(content.subarray(start, endIdx))
-		if (resolvedLine.length > 0) rule = resolveNegatable(resolvedLine, false, rule)
+		if (resolvedLine.length > 0) rule = resolveNegatable(resolvedLine, false, rule, start, lineEnd)
 		return rule
 	}
 
@@ -142,7 +142,7 @@ function processGitignoreLine(
 	}
 	if (resolvedIsEscaped) resolvedLine += "\\"
 
-	if (resolvedLine.length > 0) rule = resolveNegatable(resolvedLine, false, rule)
+	if (resolvedLine.length > 0) rule = resolveNegatable(resolvedLine, false, rule, start, lineEnd)
 
 	return rule
 }
