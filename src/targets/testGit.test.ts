@@ -502,9 +502,9 @@ describe("Git", () => {
 				expect(ctx.matchedRules.has(buildRule!)).toBe(true)
 			},
 			{ invert: 2, target: makeGit() },
-    )
-  })
-  
+		)
+	})
+
 	test("records range on createTrackedRule from index buffer length", async (done) => {
 		const indexBuf = createGitIndexBuffer(["file.txt"])
 		const gitTarget = makeGit()
