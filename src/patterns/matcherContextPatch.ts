@@ -42,6 +42,15 @@ function mockDirent(name: string, parentPath: string, isDir: boolean): Dirent {
 	} as Dirent
 }
 
+function parseEntryPath(entry: string) {
+	const isDir = entry.endsWith("/")
+	const direntPath = isDir ? entry.slice(0, -1) : entry
+	const parentPath = dirname(direntPath)
+	const lastSlash = direntPath.lastIndexOf("/")
+	const name = lastSlash === -1 ? direntPath : direntPath.slice(lastSlash + 1)
+	return { direntPath, isDir, name, parentPath }
+}
+
 function isExtractorSource(target: { extractors: { path: string }[] }, entry: string): boolean {
 	const { extractors } = target
 	for (let i = 0; i < extractors.length; i++) {
@@ -65,11 +74,8 @@ export async function matcherContextAddPath(
 	const added: string[] = []
 	if (ctx.paths.has(entry)) return added
 
-	const isDir = entry.endsWith("/")
+	const { isDir, direntPath, parentPath, name } = parseEntryPath(entry)
 	if (isDir && entry === "./") return added
-	const direntPath = isDir ? entry.slice(0, -1) : entry
-	const parentPath = dirname(direntPath)
-	const name = direntPath.slice(direntPath.lastIndexOf("/") + 1)
 
 	const { target, fs, cwd, signal, depth: maxDepth } = options
 
@@ -181,8 +187,7 @@ export async function matcherContextRemovePath(
 	}
 
 	const removed: string[] = []
-	const isDir = entry.endsWith("/")
-	const direntPath = isDir ? entry.slice(0, -1) : entry
+	const { isDir, direntPath, parentPath } = parseEntryPath(entry)
 	if (isDir && direntPath === ".") {
 		for (const path of ctx.paths.keys()) removed.push(path)
 		ctx.paths.clear()
@@ -192,7 +197,6 @@ export async function matcherContextRemovePath(
 		ctx.total.set(direntPath, { totalMatchedDirs: 0, totalMatchedFiles: 0 })
 		return removed
 	}
-	const parentPath = dirname(direntPath)
 
 	if (isDir) {
 		let deletedMatchedFiles = 0,

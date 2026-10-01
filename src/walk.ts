@@ -50,8 +50,12 @@ export type WalkTotal = {
 	ignored: boolean
 }
 
-function isMatchExcluded(invert: boolean | 2, match: RuleMatch): boolean {
+export function isMatchExcluded(invert: boolean | 2, match: RuleMatch): boolean {
 	return invert === true ? !match.ignored : invert === 2 ? false : match.ignored
+}
+
+export function isMatchIncluded(match: RuleMatch, invert: boolean | 2): boolean {
+	return !isRuleMatchInvalid(match) && !isMatchExcluded(invert, match)
 }
 
 function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): WalkResult {
@@ -221,6 +225,20 @@ export function walkIncludes(options: WalkOptions): WalkResult | Promise<WalkRes
 	return runIgnoresSync()
 }
 
+export function createSyntheticDirent(name: string, parentPath: string, isDir: boolean): Dirent {
+	return {
+		isBlockDevice: ffalse,
+		isCharacterDevice: ffalse,
+		isDirectory: () => isDir,
+		isFIFO: ffalse,
+		isFile: () => !isDir,
+		isSocket: ffalse,
+		isSymbolicLink: ffalse,
+		name,
+		parentPath,
+	} as Dirent
+}
+
 function patch(
 	ctx: MatcherContext,
 	stream: MatcherStream | undefined,
@@ -237,17 +255,7 @@ function patch(
 		const lastSlash = cleanPath.lastIndexOf("/")
 		const parentPath = lastSlash === -1 ? "." : cleanPath.slice(0, lastSlash)
 		const name = lastSlash === -1 ? cleanPath : cleanPath.slice(lastSlash + 1)
-		const dirDirent = {
-			isBlockDevice: ffalse,
-			isCharacterDevice: ffalse,
-			isDirectory: () => true,
-			isFIFO: ffalse,
-			isFile: ffalse,
-			isSocket: ffalse,
-			isSymbolicLink: ffalse,
-			name,
-			parentPath,
-		} as Dirent
+		const dirDirent = createSyntheticDirent(name, parentPath, true)
 		stream.dispatchEvent(new CustomEvent("dirent", { detail: { dirent: dirDirent, match, path } }))
 		return
 	}
@@ -280,17 +288,7 @@ function patchMerged(
 		const lastSlash = cleanPath.lastIndexOf("/")
 		const parentPath = lastSlash === -1 ? "." : cleanPath.slice(0, lastSlash)
 		const name = lastSlash === -1 ? cleanPath : cleanPath.slice(lastSlash + 1)
-		const dirent = {
-			isBlockDevice: ffalse,
-			isCharacterDevice: ffalse,
-			isDirectory: () => isDir,
-			isFIFO: ffalse,
-			isFile: () => !isDir,
-			isSocket: ffalse,
-			isSymbolicLink: ffalse,
-			name,
-			parentPath,
-		} as Dirent
+		const dirent = createSyntheticDirent(name, parentPath, isDir)
 		stream.dispatchEvent(new CustomEvent("dirent", { detail: { dirent, match, path } }))
 	})
 

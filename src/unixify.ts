@@ -12,8 +12,8 @@ export function unixify(p: string): string {
 	const res = p.indexOf("\\") === -1 ? p : p.replaceAll("\\", "/")
 	let start = 0
 	let end = res.length
-	if (end >= 2 && res.charCodeAt(0) === 46 && res.charCodeAt(1) === 47) start = 2
-	if (end > start + 1 && res.charCodeAt(end - 1) === 47) end--
+	if (res.startsWith("./")) start = 2
+	if (end > start + 1 && res.endsWith("/")) end--
 	if (start === 0 && end === res.length) return res || "."
 	return res.slice(start, end) || "."
 }
@@ -26,7 +26,7 @@ export function unixify(p: string): string {
 export function join(a: string, b: string): string {
 	if (!a || a === ".") return b
 	if (!b || b === ".") return a
-	if (a.charCodeAt(a.length - 1) === 47) return a + b
+	if (a.endsWith("/")) return a + b
 	return a + "/" + b
 }
 
@@ -48,7 +48,7 @@ export function dirname(p: string): string {
  */
 export function strip(p: string): string {
 	const res = unixify(p)
-	if (res.length > 1 && res.charCodeAt(1) === 58) return res.slice(2)
+	if (res.length > 1 && res[1] === ":") return res.slice(2)
 	return res
 }
 
@@ -79,9 +79,8 @@ export function isWhitespace(code: number): boolean {
  * @since 0.12.0
  */
 export function trimLeadingDotSlash(p: string): string {
-	const c0 = p.charCodeAt(0)
-	if (c0 === 47) return p.slice(1)
-	if (c0 === 46 && p.charCodeAt(1) === 47) return p.slice(2)
+	if (p.startsWith("/")) return p.slice(1)
+	if (p.startsWith("./")) return p.slice(2)
 	return p
 }
 
@@ -98,7 +97,4 @@ export function countSlashes(s: string): number {
 	return count
 }
 
-/**
- * Returns false.
- */
 export const ffalse = (): false => false

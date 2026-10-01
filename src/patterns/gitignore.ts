@@ -1,8 +1,8 @@
 import type { ExtractorFn } from "./extractor.js"
 import type { GlobRule } from "./rule.js"
 
+import { compileSourceRules, tryExtract } from "./extractorUtils.js"
 import { PatternSpec, type PatternCompileOptions } from "./patternList.js"
-import { ruleCompile } from "./resolveSources.js"
 import { resolveNegatable, type Source } from "./source.js"
 
 /**
@@ -17,11 +17,7 @@ export function extractGitignore(
 	content: Uint8Array,
 	options?: PatternCompileOptions,
 ): void | Error {
-	try {
-		extractGitignoreRules(source, content, options)
-	} catch (e) {
-		return e as Error
-	}
+	return tryExtract(() => extractGitignoreRules(source, content, options))
 }
 
 extractGitignore satisfies ExtractorFn
@@ -187,9 +183,5 @@ export function extractGitignoreRules(
 		start = end + 1
 	}
 
-	const rlen = source.rules.length
-	for (let i = 0; i < rlen; i++) {
-		const r = source.rules[i]!
-		if ("list" in r && r.compiled === null) ruleCompile(r, compileOpts)
-	}
+	compileSourceRules(source, compileOpts)
 }

@@ -3,7 +3,7 @@ import type { PatternCompileOptions } from "./patternList.js"
 import type { GlobRule } from "./rule.js"
 
 import { isWhitespace } from "../unixify.js"
-import { ruleCompile } from "./resolveSources.js"
+import { compileSourceRules, tryExtract } from "./extractorUtils.js"
 import { resolveNegatable, type Source } from "./source.js"
 
 /**
@@ -16,11 +16,7 @@ export function extractNpmignore(
 	content: Uint8Array,
 	options?: PatternCompileOptions,
 ): void | Error {
-	try {
-		extractNpmignoreRules(source, content, options)
-	} catch (e) {
-		return e as Error
-	}
+	return tryExtract(() => extractNpmignoreRules(source, content, options))
 }
 
 extractNpmignore satisfies ExtractorFn
@@ -69,9 +65,5 @@ export function extractNpmignoreRules(
 
 	if (source.rules.length > 1) source.rules.reverse()
 
-	const rlen = source.rules.length
-	for (let i = 0; i < rlen; i++) {
-		const r = source.rules[i]!
-		if ("list" in r && r.compiled === null) ruleCompile(r, options)
-	}
+	compileSourceRules(source, options)
 }

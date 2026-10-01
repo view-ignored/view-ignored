@@ -38,28 +38,15 @@ interface TargetDef {
 	sets: Record<string, CommandSet>
 }
 
+const splitLines = (out: string) => out.trim().split(/\r?\n/).filter(Boolean)
+
 function parseVsceOutput(out: string): string[] {
+	const skip = ["npm notice", "Executing", "[vsce]", "ERROR", "WARNING", "INFO"]
 	return out
 		.trim()
 		.split(/\r?\n/)
-		.map((line) => line.trim())
-		.filter((line) => {
-			if (!line) return false
-			if (
-				line.startsWith("npm notice") ||
-				line.startsWith("Executing") ||
-				line.startsWith("[vsce]")
-			)
-				return false
-			if (
-				line.includes("DeprecationWarning") ||
-				line.startsWith("ERROR") ||
-				line.startsWith("WARNING") ||
-				line.startsWith("INFO")
-			)
-				return false
-			return true
-		})
+		.map((l) => l.trim())
+		.filter((l) => l && !l.includes("DeprecationWarning") && !skip.some((p) => l.startsWith(p)))
 }
 
 function getScanInvertOption(invertArg?: string, setName?: string): boolean | 2 {
@@ -130,23 +117,23 @@ const TARGETS: Record<string, TargetDef> = {
 		sets: {
 			all: {
 				cmd: "git ls-files --others --exclude-standard --cached",
-				parse: (out) => out.trim().split(/\r?\n/).filter(Boolean),
+				parse: splitLines,
 			},
 			"all-with-ignored": {
 				cmd: "git ls-files --cached --others --ignored --exclude-standard",
-				parse: (out) => out.trim().split(/\r?\n/).filter(Boolean),
+				parse: splitLines,
 			},
 			ignored: {
 				cmd: "git ls-files --ignored --others --exclude-standard",
-				parse: (out) => out.trim().split(/\r?\n/).filter(Boolean),
+				parse: splitLines,
 			},
 			tracked: {
 				cmd: "git ls-files --cached",
-				parse: (out) => out.trim().split(/\r?\n/).filter(Boolean),
+				parse: splitLines,
 			},
 			untracked: {
 				cmd: "git ls-files --others --exclude-standard",
-				parse: (out) => out.trim().split(/\r?\n/).filter(Boolean),
+				parse: splitLines,
 			},
 		},
 	},

@@ -100,8 +100,7 @@ export function patternListCompile(
 
 		let cleaned = pattern
 		if (isRelative) cleaned = cleaned.slice(2)
-		// 47 is char code for '/'
-		if (cleaned.charCodeAt(cleaned.length - 1) === 47) cleaned = cleaned.slice(0, -1)
+		if (cleaned.endsWith("/")) cleaned = cleaned.slice(0, -1)
 		if (isRoot) cleaned = cleaned.slice(1)
 
 		let part = ""

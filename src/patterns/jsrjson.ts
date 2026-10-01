@@ -3,7 +3,7 @@ import type { GlobRule } from "./rule.js"
 
 import stripJsonComments from "strip-json-comments"
 
-import { ruleCompile } from "./resolveSources.js"
+import { compileSourceRules, tryExtract } from "./extractorUtils.js"
 import { scanJsonRuleRanges, resolveNegatable, type Source } from "./source.js"
 
 const decoder = new TextDecoder()
@@ -23,11 +23,7 @@ interface JsrManifest {
  * @since 0.6.0
  */
 export function extractJsrJson(source: Source, content: Uint8Array): void | Error {
-	try {
-		extractJsrJsonRules(source, content)
-	} catch (e) {
-		return e as Error
-	}
+	return tryExtract(() => extractJsrJsonRules(source, content))
 }
 
 extractJsrJson satisfies ExtractorFn
@@ -84,9 +80,5 @@ export function extractJsrJsonRules(source: Source, content: Uint8Array): void {
 		}
 	}
 
-	const rlen = source.rules.length
-	for (let i = 0; i < rlen; i++) {
-		const r = source.rules[i]!
-		if ("list" in r && r.compiled === null) ruleCompile(r, options)
-	}
+	compileSourceRules(source, options)
 }

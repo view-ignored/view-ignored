@@ -16,16 +16,14 @@ export class PathMap extends Map<string, RuleMatch> {
 		if (cleanKey === "" || cleanKey === ".") return undefined
 
 		if (isExplicitDir) {
-			let match = this.dirs.get(cleanKey)
-			if (match === undefined) match = this.dirs.get(cleanKey + "/")
+			const match = this.dirs.get(cleanKey) ?? this.dirs.get(cleanKey + "/")
 			if (match !== undefined) return match
 		}
 
 		for (let dir = dirname(cleanKey); ;) {
 			if (dir === "." || dir === "/" || dir === "") break
 
-			let match = this.dirs.get(dir)
-			if (match === undefined) match = this.dirs.get(dir + "/")
+			const match = this.dirs.get(dir) ?? this.dirs.get(dir + "/")
 			if (match !== undefined) return match
 
 			if (!dir.includes("/")) break

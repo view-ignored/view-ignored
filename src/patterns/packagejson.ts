@@ -2,8 +2,8 @@ import type { Extractor, ExtractorFn } from "./extractor.js"
 import type { GlobRule } from "./rule.js"
 
 import { npmManifestParse } from "../targets/npmManifest.js"
+import { compileSourceRules, tryExtract } from "./extractorUtils.js"
 import { PatternSpec } from "./patternList.js"
-import { ruleCompile } from "./resolveSources.js"
 import { scanJsonRuleRanges, resolveNegatable, type Source } from "./source.js"
 
 const decoder = new TextDecoder()
@@ -16,11 +16,7 @@ const decoder = new TextDecoder()
  * @since 0.6.0
  */
 export function extractPackageJson(source: Source, content: Uint8Array): void | null | Error {
-	try {
-		return extractPackageJsonRules(source, content)
-	} catch (e) {
-		return e as Error
-	}
+	return tryExtract(() => extractPackageJsonRules(source, content))
 }
 
 extractPackageJson satisfies ExtractorFn
@@ -29,13 +25,7 @@ export function makePackageJsonExtractor(
 	mode: "list" | "publish" | "bundle" = "publish",
 ): Extractor {
 	return {
-		extract(source, content) {
-			try {
-				return extractPackageJsonRules(source, content, mode)
-			} catch (e) {
-				return e as Error
-			}
-		},
+		extract: (source, content) => tryExtract(() => extractPackageJsonRules(source, content, mode)),
 		path: "./package.json",
 	}
 }
@@ -77,9 +67,5 @@ export function extractPackageJsonRules(
 		source.rules.unshift(rule)
 	}
 
-	const rlen = source.rules.length
-	for (let i = 0; i < rlen; i++) {
-		const r = source.rules[i]!
-		if ("list" in r && r.compiled === null) ruleCompile(r, options)
-	}
+	compileSourceRules(source, options)
 }
