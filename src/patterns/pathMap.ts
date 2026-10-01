@@ -1,7 +1,5 @@
 import type { RuleMatch } from "./rule.js"
 
-import { dirname } from "../unixify.js"
-
 export class PathMap extends Map<string, RuleMatch> {
 	dirs: Map<string, RuleMatch> = new Map<string, RuleMatch>()
 
@@ -20,16 +18,12 @@ export class PathMap extends Map<string, RuleMatch> {
 			if (match !== undefined) return match
 		}
 
-		for (let dir = dirname(cleanKey); ;) {
-			if (dir === "." || dir === "/" || dir === "") break
-
+		let slashIndex = cleanKey.lastIndexOf("/")
+		while (slashIndex > 0) {
+			const dir = cleanKey.slice(0, slashIndex)
 			const match = this.dirs.get(dir) ?? this.dirs.get(dir + "/")
 			if (match !== undefined) return match
-
-			if (!dir.includes("/")) break
-			const parent = dirname(dir)
-			if (parent === dir) break
-			dir = parent
+			slashIndex = cleanKey.lastIndexOf("/", slashIndex - 1)
 		}
 
 		return undefined

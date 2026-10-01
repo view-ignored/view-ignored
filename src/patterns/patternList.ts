@@ -94,14 +94,18 @@ export function patternListCompile(
 
 	for (let i = 0; i < len; i++) {
 		const pattern = list[i]!
-		const isRoot = pattern.startsWith("/")
-		const isRelative = pattern.startsWith("./")
+		let start = 0
+		let end = pattern.length
+
+		const isRoot = end > 0 && pattern.charCodeAt(0) === 47
+		const isRelative = end >= 2 && pattern.charCodeAt(0) === 46 && pattern.charCodeAt(1) === 47
 		const isAnchored = isRoot || isRelative || options.spec === PatternSpec.packageJsonFiles
 
-		let cleaned = pattern
-		if (isRelative) cleaned = cleaned.slice(2)
-		if (cleaned.endsWith("/")) cleaned = cleaned.slice(0, -1)
-		if (isRoot) cleaned = cleaned.slice(1)
+		if (isRelative) start = 2
+		if (end > start && pattern.charCodeAt(end - 1) === 47) end--
+		if (isRoot && start < end && pattern.charCodeAt(start) === 47) start++
+
+		const cleaned = start === 0 && end === pattern.length ? pattern : pattern.slice(start, end)
 
 		let part = ""
 		let isGlob = false
@@ -128,7 +132,7 @@ export function patternListCompile(
 		patternSources[i] = source
 	}
 
-	const combinedSource = patternSources.join("|")
+	const combinedSource = len === 1 ? patternSources[0]! : patternSources.join("|")
 	const combinedRegex = new RegExp(combinedSource, nocase ? "i" : "")
 
 	const compiledItems = len === 1 ? [] : patternSources.map((s) => new RegExp(s, nocase ? "i" : ""))
