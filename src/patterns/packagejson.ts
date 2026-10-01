@@ -4,7 +4,7 @@ import type { GlobRule } from "./rule.js"
 import { npmManifestParse } from "../targets/npmManifest.js"
 import { PatternSpec } from "./patternList.js"
 import { ruleCompile } from "./resolveSources.js"
-import { resolveNegatable, type Source } from "./source.js"
+import { scanJsonRuleRanges, resolveNegatable, type Source } from "./source.js"
 
 const decoder = new TextDecoder()
 
@@ -65,9 +65,13 @@ export function extractPackageJsonRules(
 	source.inverted = true
 	let rule: GlobRule | undefined
 
+	const ranges = scanJsonRuleRanges(content, "files")
+
+	let patternIdx = 0
 	const options = { nocase: true, spec: PatternSpec.packageJsonFiles }
 	for (const pattern of dist.files) {
-		const nextRule = resolveNegatable(pattern, true, rule)
+		const range = ranges[patternIdx++]
+		const nextRule = resolveNegatable(pattern, true, rule, range?.[0], range?.[1])
 		if (nextRule === rule) continue
 		rule = nextRule
 		source.rules.unshift(rule)

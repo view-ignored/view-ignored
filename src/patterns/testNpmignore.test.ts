@@ -66,4 +66,13 @@ describe("npmignore parsing compliance", () => {
 		expect(rules[0]?.list).toContain("foo")
 		expect(rules[0]?.list).toContain("bar")
 	})
+
+	test("records byte offset range for extracted rules", () => {
+		const content = "  foo  \n  bar  \n !baz "
+		const rules = parse(content)
+		expect(rules).toHaveLength(2)
+		// rules are reversed at the end of npmignore parsing
+		expect(rules[0]?.range).toEqual([17, 21])
+		expect(rules[1]?.range).toEqual([2, 13])
+	})
 })

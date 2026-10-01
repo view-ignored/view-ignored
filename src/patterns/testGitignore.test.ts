@@ -100,6 +100,15 @@ describe("gitignore parsing compliance", () => {
 		expect(rules[0]?.list).toContain("bar")
 	})
 
+	test("records byte offset range for extracted rules", () => {
+		const content = "foo\nbar\n!baz"
+		const rules = parse(content)
+		expect(rules).toHaveLength(2)
+		// rules are unshifted so negation rule (!baz) comes first
+		expect(rules[0]?.range).toEqual([8, 12])
+		expect(rules[1]?.range).toEqual([0, 7])
+	})
+
 	test("multiple backslashes before trailing space", () => {
 		const rules = parse("foo\\\\ ") // escaped backslash, trailing space trimmed
 		expect(rules[0]?.excludes).toBeTrue()

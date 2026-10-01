@@ -39,6 +39,12 @@ export type InternalRules = {
  */
 export type GlobRule = {
 	/**
+	 * 0-indexed start and end byte offsets in the source file buffer.
+	 *
+	 * @since 0.13.0
+	 */
+	range?: [number, number]
+	/**
 	 * Provides ignored or included file and directory patterns.
 	 *
 	 * @see {@link ruleTest} provides the ignoring algorithm.
@@ -65,6 +71,12 @@ export type GlobRule = {
 }
 
 export type CustomRule = {
+	/**
+	 * 0-indexed start and end byte offsets in the source file buffer.
+	 *
+	 * @since 0.13.0
+	 */
+	range?: [number, number]
 	/**
 	 * Applies when `match(path)` returns `string`.
 	 * If `true`, path is ignored.

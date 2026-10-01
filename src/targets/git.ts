@@ -32,6 +32,7 @@ function createTrackedRule(
 	root: string,
 	trackedPaths: Set<string>,
 	trackedDirs: Set<string>,
+	bufLen?: number,
 ): CustomRule {
 	return {
 		excludes: false,
@@ -43,6 +44,7 @@ function createTrackedRule(
 			}
 			return trackedPaths.has(path) ? "//tracked by git" : null
 		},
+		range: bufLen !== undefined ? [0, bufLen] : undefined,
 	}
 }
 
@@ -67,7 +69,7 @@ function loadGitIndex(
 
 		const { paths, dirs } = parseGitIndex(buf)
 		if (paths.size > 0) {
-			internalBefore.splice(1, 0, createTrackedRule(targetRoot, paths, dirs))
+			internalBefore.splice(1, 0, createTrackedRule(targetRoot, paths, dirs, buf.length))
 		}
 
 		done()

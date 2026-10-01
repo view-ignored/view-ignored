@@ -9,6 +9,8 @@ and this project adheres to
 ## [Unreleased]
 
 - Expose matched `Rule` reference on `RuleMatch` (`rule?: Rule`) and collect `matchedRules: Set<Rule>` in `MatcherContext`.
+- Add `range?: [number, number]` byte offset range tracking for `GlobRule` and `CustomRule`.
+- Add `scanJsonRuleRanges` and `findJsonKeyRange` pattern helpers.
 - Parse Git index files (.git/index versions 2, 3, and 4) in Git target to unignore tracked files and directory ancestors.
 - Introduce `PathMap` for `MatcherContext.paths` to support memory-efficient parent directory match fallback via `.dirs`.
 - Refine `wildmatch` pattern prefix/suffix handling and `gitignore` escape sequence parsing.

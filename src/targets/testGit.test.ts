@@ -1,3 +1,5 @@
+import type { CustomRule } from "../patterns/rule.js"
+
 import { test, describe, expect } from "bun:test"
 
 import { isRuleMatchPattern } from "../patterns/rule.js"
@@ -500,6 +502,40 @@ describe("Git", () => {
 				expect(ctx.matchedRules.has(buildRule!)).toBe(true)
 			},
 			{ invert: 2, target: makeGit() },
+    )
+  })
+  
+	test("records range on createTrackedRule from index buffer length", async (done) => {
+		const indexBuf = createGitIndexBuffer(["file.txt"])
+		const gitTarget = makeGit()
+		await testScan(
+			done,
+			{
+				".git": {
+					index: indexBuf,
+				},
+				"file.txt": "",
+			},
+			({ options: scanOpts }) => {
+				const { target } = scanOpts
+				const before = Array.isArray(target.internalRules)
+					? target.internalRules
+					: target.internalRules.before
+				const trackedRule = before.find(
+					(r) =>
+						typeof r === "object" &&
+						"match" in r &&
+						(r as CustomRule).match({
+							// oxlint-disable-next-line typescript/no-explicit-any
+							dirent: { isDirectory: () => false } as any,
+							entry: "file.txt",
+							// oxlint-disable-next-line typescript/no-explicit-any
+						} as any) === "//tracked by git",
+				) as CustomRule | undefined
+				expect(trackedRule).toBeDefined()
+				expect(trackedRule?.range).toEqual([0, indexBuf.length])
+			},
+			{ target: gitTarget },
 		)
 	})
 })
