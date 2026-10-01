@@ -160,22 +160,30 @@ function parseBracket(
  * Converts a wildmatch pattern to regex source string under WM_PATHNAME / gitignore semantics.
  */
 function wildmatchToRegexpSource(pattern: string): string {
-	const isRoot = pattern.startsWith("/")
-	const isRelative = pattern.startsWith("./")
+	let start = 0
+	let end = pattern.length
 
-	let cleaned = pattern
-	if (isRelative) cleaned = cleaned.slice(2)
+	const isRoot = end > 0 && pattern.charCodeAt(0) === 47
+	const isRelative = end >= 2 && pattern.charCodeAt(0) === 46 && pattern.charCodeAt(1) === 47
 
-	// Strip all consecutive leading **/ - leading **/ means match anywhere (unanchored)
+	if (isRelative) start = 2
+
 	let hasLeadingGlobstar = false
-	while (cleaned.startsWith("**/")) {
-		cleaned = cleaned.slice(3)
+	while (
+		end - start >= 3 &&
+		pattern.charCodeAt(start) === 42 &&
+		pattern.charCodeAt(start + 1) === 42 &&
+		pattern.charCodeAt(start + 2) === 47
+	) {
+		start += 3
 		hasLeadingGlobstar = true
 	}
 
-	const hasTrailingSlash = cleaned.endsWith("/")
-	if (hasTrailingSlash) cleaned = cleaned.slice(0, -1)
-	if (isRoot && cleaned.startsWith("/")) cleaned = cleaned.slice(1)
+	const hasTrailingSlash = end > start && pattern.charCodeAt(end - 1) === 47
+	if (hasTrailingSlash) end--
+	if (isRoot && start < end && pattern.charCodeAt(start) === 47) start++
+
+	const cleaned = start === 0 && end === pattern.length ? pattern : pattern.slice(start, end)
 
 	// Standalone ** matches everything
 	if (cleaned === "**" || pattern === "**") return ".*"
@@ -300,7 +308,8 @@ export function wildmatchCompile(
 		patternSources[i] = wildmatchToRegexpSource(list[i]!)
 	}
 
-	const combinedSource = patternSources.map((p) => `(?:${p})`).join("|")
+	const combinedSource =
+		len === 1 ? patternSources[0]! : patternSources.map((p) => `(?:${p})`).join("|")
 	let combinedRegex: RegExp
 	try {
 		combinedRegex = new RegExp(combinedSource, nocase ? "i" : "")
