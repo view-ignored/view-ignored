@@ -5,9 +5,8 @@ import type { Resource, InvalidSource } from "./patterns/resource.js"
 import type { ScanOptions } from "./types.js"
 
 import { resolveSources } from "./patterns/resolveSources.js"
-import { isRuleMatchInvalid } from "./patterns/rule.js"
 import { countSlashes, dirname, ffalse, join } from "./unixify.js"
-import { walkIncludes, type WalkResult, type WalkTotal } from "./walk.js"
+import { isMatchIncluded, walkIncludes, type WalkResult, type WalkTotal } from "./walk.js"
 
 export interface ScanParallelOptions {
 	scanOptions: Required<ScanOptions>
@@ -109,13 +108,7 @@ function processSingleFile(
 
 				if (self && self.match) {
 					let dirMatchedFiles = 0
-					const isIncluded = isRuleMatchInvalid(self.match)
-						? false
-						: invert === true
-							? self.match.ignored
-							: invert === 2
-								? true
-								: !self.match.ignored
+					const isIncluded = isMatchIncluded(self.match, invert)
 
 					if ((entry.isFile() || entry.isSymbolicLink()) && isIncluded) dirMatchedFiles = 1
 
@@ -196,13 +189,7 @@ function processEntries(
 
 		if (!self || !self.match) return finish()
 
-		const isIncluded = isRuleMatchInvalid(self.match)
-			? false
-			: invert === true
-				? self.match.ignored
-				: invert === 2
-					? true
-					: !self.match.ignored
+		const isIncluded = isMatchIncluded(self.match, invert)
 
 		if (self.isDir && isIncluded) dirMatchedDirs++
 		else if ((entry.isFile() || entry.isSymbolicLink()) && isIncluded) dirMatchedFiles++

@@ -22,8 +22,8 @@ function isParentOf(parent: string, child: string): boolean {
 	const cLen = child.length
 	if (pLen >= cLen) return false
 	if (!child.startsWith(parent)) return false
-	if (parent.charCodeAt(pLen - 1) === 47) return true // parent ends with '/'
-	return child.charCodeAt(pLen) === 47 // child has '/' right after parent
+	if (parent.endsWith("/")) return true
+	return child.charCodeAt(pLen) === 47
 }
 
 function getLv(cwd: string, extRoot: string | null): number {
@@ -69,35 +69,25 @@ function findExtendedRoot(
 	const callbackList = [cb]
 	pendingExtendedRootLookups.set(cacheKey, callbackList)
 
+	const notifyPending = (err: Error | null, path: string | null) => {
+		pendingExtendedRootLookups.delete(cacheKey)
+		for (let i = 0, len = callbackList.length; i < len; i++) callbackList[i]!(err, path)
+	}
+
 	let current = cwd
 
 	const next = () => {
-		if (signal?.aborted) {
-			pendingExtendedRootLookups.delete(cacheKey)
-			for (let i = 0, len = callbackList.length; i < len; i++) {
-				callbackList[i]!(signal.reason as Error, null)
-			}
-			return
-		}
-		const pkgPath = join(current, "package.json")
-		fs.readFile(pkgPath, (err, content) => {
-			if (signal?.aborted) {
-				pendingExtendedRootLookups.delete(cacheKey)
-				for (let i = 0, len = callbackList.length; i < len; i++) {
-					callbackList[i]!(signal.reason as Error, null)
-				}
-				return
-			}
+		if (signal?.aborted) return notifyPending(signal.reason as Error, null)
+
+		fs.readFile(join(current, "package.json"), (err, content) => {
+			if (signal?.aborted) return notifyPending(signal.reason as Error, null)
+
 			if (!err && content) {
 				try {
 					const pkg = JSON.parse(content.toString())
 					if (pkg && pkg[extendsRoot] !== undefined) {
 						extendedRootCache.set(cacheKey, current)
-						pendingExtendedRootLookups.delete(cacheKey)
-						for (let i = 0, len = callbackList.length; i < len; i++) {
-							callbackList[i]!(null, current)
-						}
-						return
+						return notifyPending(null, current)
 					}
 				} catch {
 					// Treat invalid JSON as non-existent field
@@ -107,11 +97,7 @@ function findExtendedRoot(
 			const parent = dirname(current)
 			if (parent === current || parent === "/" || parent === ".") {
 				extendedRootCache.set(cacheKey, null)
-				pendingExtendedRootLookups.delete(cacheKey)
-				for (let i = 0, len = callbackList.length; i < len; i++) {
-					callbackList[i]!(null, null)
-				}
-				return
+				return notifyPending(null, null)
 			}
 			current = parent
 			next()
@@ -193,14 +179,7 @@ function launchExtractor(
 	if (entries_ !== undefined) {
 		const slashIdx = cleanPath.indexOf("/")
 		const firstSegment = slashIdx === -1 ? cleanPath : cleanPath.slice(0, slashIdx)
-		let found = false
-		for (let i = 0, len = entries_.length; i < len; i++) {
-			if (entries_[i]!.name === firstSegment) {
-				found = true
-				break
-			}
-		}
-		if (!found) return cb(null, null)
+		if (!entries_.some((e) => e.name === firstSegment)) return cb(null, null)
 	}
 
 	fs.readFile(join(parent, cleanPath), (err, buff) => {

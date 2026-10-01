@@ -278,11 +278,9 @@ export function resolveNegatable(
 	start?: number,
 	end?: number,
 ): GlobRule {
-	const isEscapedBang =
-		pattern.length > 1 && pattern.charCodeAt(0) === 92 && pattern.charCodeAt(1) === 33
 	let negated = false
-	if (isEscapedBang) pattern = pattern.slice(1)
-	else if (pattern.charCodeAt(0) === 33) {
+	if (pattern.startsWith("\\!")) pattern = pattern.slice(1)
+	else if (pattern.startsWith("!")) {
 		negated = true
 		pattern = pattern.slice(1)
 	}

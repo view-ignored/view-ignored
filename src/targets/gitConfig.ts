@@ -16,14 +16,13 @@ export const HOME = (env.HOME || env.USERPROFILE || "").replaceAll("\\", "/")
 export const XDG = (env.XDG_CONFIG_HOME || (HOME ? HOME + "/.config" : "")).replaceAll("\\", "/")
 
 function resolveHome(p: string): string {
-	if (p.charCodeAt(0) === 126 && p.charCodeAt(1) === 47) return join(HOME, p.slice(2))
+	if (p.startsWith("~/")) return join(HOME, p.slice(2))
 	return p
 }
 
 export function resolvePath(base: string, p: string): string {
 	const resolved = resolveHome(p)
-	const c0 = resolved.charCodeAt(0)
-	if (c0 === 47 || resolved.includes(":")) return resolved
+	if (resolved.startsWith("/") || resolved.includes(":")) return resolved
 	const path = trimLeadingDotSlash(resolved)
 	return join(base, path)
 }
@@ -212,7 +211,7 @@ export function getIncludes(parsed: any, gitDir: string | null, branch: string |
 	}
 
 	const sGD = gitDir ? strip(gitDir) : null
-	const gD = sGD ? (sGD.charCodeAt(0) === 47 ? sGD.slice(1) : sGD) : null
+	const gD = sGD ? (sGD.startsWith("/") ? sGD.slice(1) : sGD) : null
 
 	for (let i = 0; i < order.length; i++) {
 		const entry = order[i]!

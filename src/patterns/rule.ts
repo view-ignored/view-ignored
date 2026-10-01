@@ -350,6 +350,14 @@ function cacheTest(rs: null | PatternListCompiled, path: string): string | null 
 	})
 }
 
+function evalRule(
+	rule: GlobRule | CustomRule,
+	entryPath: string,
+	getOpts: () => IgnoresOptions,
+): string | Error | null {
+	return "match" in rule ? rule.match(getOpts()) : cacheTest(rule.compiled!, entryPath)
+}
+
 function getIgnoreOptions(options: RuleTestOptions, src: Resource): IgnoresOptions {
 	return {
 		cwd: options.cwd,
@@ -394,6 +402,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 	}
 
 	let ignoreOpts: IgnoresOptions | null = null
+	const getOpts = () => ignoreOpts || (ignoreOpts = getIgnoreOptions(options, src))
 
 	let currentSrc: Resource = src
 	let hasInverted = false
@@ -405,10 +414,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 		for (let i = 0; i < rlen; i++) {
 			const rule = rules[i]!
 			if (typeof rule === "function") continue
-			const res =
-				"match" in rule
-					? rule.match(ignoreOpts || (ignoreOpts = getIgnoreOptions(options, src)))
-					: cacheTest(rule.compiled!, entry)
+			const res = evalRule(rule, entry, getOpts)
 			if (res === null) continue
 			if (res instanceof Error) {
 				return {
@@ -454,13 +460,12 @@ function ruleTestInternalSync(
 	entryPath: string,
 ): RuleMatch | void {
 	let ignoreOpts: IgnoresOptions | null = null
+	const getOpts = () => ignoreOpts || (ignoreOpts = getIgnoreOptions(options, src))
+
 	for (let i = 0, len = rules.length; i < len; i++) {
 		const rule = rules[i]!
 		if (typeof rule === "function") continue
-		const res =
-			"match" in rule
-				? rule.match(ignoreOpts || (ignoreOpts = getIgnoreOptions(options, src)))
-				: cacheTest(rule.compiled!, entryPath)
+		const res = evalRule(rule, entryPath, getOpts)
 		if (res === null) continue
 		if (res instanceof Error) {
 			return {

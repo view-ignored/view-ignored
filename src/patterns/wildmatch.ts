@@ -173,7 +173,7 @@ function wildmatchToRegexpSource(pattern: string): string {
 		hasLeadingGlobstar = true
 	}
 
-	const hasTrailingSlash = cleaned.length > 0 && cleaned.charCodeAt(cleaned.length - 1) === 47
+	const hasTrailingSlash = cleaned.endsWith("/")
 	if (hasTrailingSlash) cleaned = cleaned.slice(0, -1)
 	if (isRoot && cleaned.startsWith("/")) cleaned = cleaned.slice(1)
 

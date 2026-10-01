@@ -8,8 +8,6 @@ let cachedGitSkipRule: SkipRule | null = null
  * @since 0.13.0
  */
 export function makeGitSkipRule(): SkipRule {
-	return (cachedGitSkipRule ||= ({ dirent }) => {
-		if (dirent.isDirectory() && dirent.name === ".git") return 0
-		return null
-	})
+	return (cachedGitSkipRule ||= ({ dirent }) =>
+		dirent.isDirectory() && dirent.name === ".git" ? 0 : null)
 }
