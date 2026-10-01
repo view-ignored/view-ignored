@@ -31,10 +31,13 @@ describe("SkipRule implementation", () => {
 						ignored: false,
 						kind: 7, // RuleMatchKind.internal
 						pattern: "SkipRule-injected",
+						// oxlint-disable-next-line typescript/no-explicit-any
+						rule: { excludes: false, list: [] } as any,
 					})
 					return {
 						external: new Map(),
 						failed: [],
+						matchedRules: new Set(),
 						paths,
 						total: new Map(),
 					}

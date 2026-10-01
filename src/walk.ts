@@ -8,6 +8,7 @@ import type { ScanOptions } from "./types.js"
 import { PatternSpec } from "./patterns/patternList.js"
 import {
 	isRuleMatchInvalid,
+	isRuleMatchPattern,
 	type RuleMatch,
 	RuleMatchKind,
 	ruleTestSync,
@@ -259,6 +260,10 @@ function patchMerged(
 	stream: MatcherStream | undefined,
 	mergedCtx: MatcherContext,
 ): void {
+	for (const rule of mergedCtx.matchedRules) {
+		ctx.matchedRules.add(rule)
+	}
+
 	if (mergedCtx.paths.dirs) {
 		mergedCtx.paths.dirs.forEach((match, dir) => {
 			ctx.paths.dirs.set(dir, match)
@@ -314,6 +319,8 @@ export function walkPatchResult(
 ): void {
 	const { match, path, parentPath, tooDeep, includeParent, isDir, entry, context } = r
 	const { dirs, invert } = options
+
+	if (isRuleMatchPattern(match)) ctx.matchedRules.add(match.rule)
 
 	if (isDir && match) {
 		const cleanDir = path.endsWith("/") ? path.slice(0, -1) : path

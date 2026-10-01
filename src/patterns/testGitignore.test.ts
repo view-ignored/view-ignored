@@ -1,8 +1,14 @@
-import type { GlobRule } from "./index.js"
-
 import { describe, test, expect } from "bun:test"
 
+import { makeGit } from "../targets/git.js"
 import { extractGitignore, extractGitignoreRules } from "./gitignore.js"
+import {
+	isRuleMatchPattern,
+	ruleCompile,
+	ruleTestSync,
+	type RuleTestOptions,
+	type GlobRule,
+} from "./index.js"
 import { PatternSpec } from "./patternList.js"
 import { type Source } from "./source.js"
 
@@ -134,5 +140,26 @@ describe("gitignore parsing compliance", () => {
 		const badSource = null as unknown as Source
 		const err = extractGitignore(badSource, Buffer.from("foo"))
 		expect(err).toBeInstanceOf(Error)
+	})
+
+	test("ruleTestSync attaches rule reference to RuleMatch", () => {
+		const rule: GlobRule = { compiled: null, excludes: true, list: ["*.txt"] }
+		ruleCompile(rule)
+		const source: Source = { dir: ".", inverted: false, path: ".gitignore", rules: [rule] }
+		const options: RuleTestOptions = {
+			cwd: ".",
+			// oxlint-disable-next-line typescript/no-explicit-any
+			dirent: { isDirectory: () => false, isFile: () => true, name: "foo.txt" } as any,
+			entry: "foo.txt",
+			// oxlint-disable-next-line typescript/no-explicit-any
+			fs: {} as any,
+			parentPath: ".",
+			resource: source,
+			// oxlint-disable-next-line typescript/no-explicit-any
+			signal: null as any,
+			target: makeGit(),
+		}
+		const match = ruleTestSync(options)
+		expect(isRuleMatchPattern(match) ? match.rule : undefined).toBe(rule)
 	})
 })

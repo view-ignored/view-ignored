@@ -2,6 +2,7 @@ import type { CustomRule } from "../patterns/rule.js"
 
 import { test, describe, expect } from "bun:test"
 
+import { isRuleMatchPattern } from "../patterns/rule.js"
 import { testScan } from "../testScan.test.js"
 import { makeGit } from "./git.js"
 
@@ -472,6 +473,35 @@ describe("Git", () => {
 				)
 			},
 			{ target: makeGit() },
+		)
+	})
+
+	test("populates match.rule and ctx.matchedRules during scan", async (done) => {
+		await testScan(
+			done,
+			{
+				".gitignore": "*.log\nbuild/",
+				"app.js": "",
+				"debug.log": "",
+				build: {
+					"out.js": "",
+				},
+			},
+			({ ctx }) => {
+				const logMatch = ctx.paths.get("debug.log")!
+				expect(logMatch.ignored).toBe(true)
+				const logRule = isRuleMatchPattern(logMatch) ? logMatch.rule : undefined
+				expect(logRule).toBeDefined()
+
+				const buildDirMatch = ctx.paths.dirs.get("build")!
+				const buildRule = isRuleMatchPattern(buildDirMatch) ? buildDirMatch.rule : undefined
+				expect(buildRule).toBeDefined()
+
+				expect(ctx.matchedRules.size).toBeGreaterThan(0)
+				expect(ctx.matchedRules.has(logRule!)).toBe(true)
+				expect(ctx.matchedRules.has(buildRule!)).toBe(true)
+			},
+			{ invert: 2, target: makeGit() },
 		)
 	})
 

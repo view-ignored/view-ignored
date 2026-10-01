@@ -3,7 +3,6 @@ import type { Dirent } from "fs"
 import type { ScanOptions } from "../types.js"
 import type { MatcherContext } from "./matcherContext.js"
 import type { Resource } from "./resource.js"
-import type { RuleMatch } from "./rule.js"
 
 import { getOrInsert } from "../mapUtils.js"
 import { type ScanParallelOptions } from "../scanParallel.js"
@@ -18,6 +17,7 @@ import {
 } from "../walk.js"
 import { type IgnoresOptions } from "./ignores.js"
 import { type ResolveSourcesOptions, resolveSources } from "./resolveSources.js"
+import { isRuleMatchPattern, type RuleMatch } from "./rule.js"
 
 const promResolve = (options: ResolveSourcesOptions): Promise<Resource> =>
 	new Promise((res, rej) => resolveSources(options, (err, r) => (err ? rej(err) : res(r))))
@@ -95,6 +95,7 @@ export async function matcherContextAddPath(
 		})
 
 		if (match) {
+			if (isRuleMatchPattern(match)) ctx.matchedRules.add(match.rule)
 			ctx.paths.dirs.set(direntPath, match)
 		}
 
@@ -158,6 +159,8 @@ export async function matcherContextAddPath(
 		target,
 	})
 
+	if (isRuleMatchPattern(match)) ctx.matchedRules.add(match.rule)
+
 	updateTotals(ctx, parentPath, match.ignored ? 0 : 1, 0)
 	if (!match.ignored && !ctx.paths.has(entry)) {
 		ctx.paths.set(entry, match)
@@ -185,6 +188,7 @@ export async function matcherContextRemovePath(
 		ctx.paths.clear()
 		ctx.external.clear()
 		ctx.failed.length = 0
+		ctx.matchedRules.clear()
 		ctx.total.set(direntPath, { totalMatchedDirs: 0, totalMatchedFiles: 0 })
 		return removed
 	}

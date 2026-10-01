@@ -180,6 +180,7 @@ export interface RuleMatchBaseSource<K extends string | number | symbol> extends
  */
 export interface RuleMatchBasePattern<K extends string | number | symbol> extends RuleMatchBase<K> {
 	pattern: unknown
+	rule: Rule
 }
 
 /**
@@ -268,6 +269,27 @@ export function isRuleMatchInvalid(
 	const k = match.kind
 	return (
 		k === RuleMatchKind.invalidSource ||
+		k === RuleMatchKind.invalidExternal ||
+		k === RuleMatchKind.invalidInternal
+	)
+}
+
+/**
+ * Check if a rule match is pattern-based.
+ *
+ * @since 0.13.0
+ */
+export function isRuleMatchPattern(
+	match: RuleMatch,
+): match is
+	| RuleMatchBaseInvalidExternal<RuleMatchKind.invalidExternal>
+	| RuleMatchBaseInvalidPattern<RuleMatchKind.invalidInternal>
+	| RuleMatchBaseExternal<RuleMatchKind.external>
+	| RuleMatchBasePattern<RuleMatchKind.internal> {
+	const k = match.kind
+	return (
+		k === RuleMatchKind.external ||
+		k === RuleMatchKind.internal ||
 		k === RuleMatchKind.invalidExternal ||
 		k === RuleMatchKind.invalidInternal
 	)
@@ -394,6 +416,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 					ignored: false,
 					kind: RuleMatchKind.invalidExternal,
 					pattern: "",
+					rule,
 					source: currentSrc,
 				}
 			}
@@ -402,6 +425,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 				ignored: rule.excludes,
 				kind: RuleMatchKind.external,
 				pattern: res,
+				rule,
 				source: currentSrc,
 			}
 		}
@@ -444,6 +468,7 @@ function ruleTestInternalSync(
 				ignored: false,
 				kind: RuleMatchKind.invalidInternal,
 				pattern: "",
+				rule,
 			}
 		}
 
@@ -451,6 +476,7 @@ function ruleTestInternalSync(
 			ignored: rule.excludes,
 			kind: RuleMatchKind.internal,
 			pattern: res,
+			rule,
 		}
 	}
 }
