@@ -77,13 +77,30 @@ const benchmarkFiles =
 
 function findActualEnd(chunk) {
 	let braceCount = 0
+	let inString = false
+	let escaped = false
 	for (let j = 0; j < chunk.length; j++) {
-		if (chunk[j] === "{") {
-			braceCount++
-		} else if (chunk[j] === "}") {
-			braceCount--
-			if (braceCount === 0) {
-				return j
+		const char = chunk[j]
+		if (escaped) {
+			escaped = false
+			continue
+		}
+		if (char === "\\") {
+			escaped = true
+			continue
+		}
+		if (char === '"') {
+			inString = !inString
+			continue
+		}
+		if (!inString) {
+			if (char === "{") {
+				braceCount++
+			} else if (char === "}") {
+				braceCount--
+				if (braceCount === 0) {
+					return j
+				}
 			}
 		}
 	}
@@ -108,12 +125,18 @@ function combineResults(res1, res2) {
 
 	const combined = JSON.parse(JSON.stringify(res1))
 	for (const group2 of res2) {
-		const matchingGroup1 = combined.find((g1) => g1.name === group2.name)
-		if (!matchingGroup1 || !matchingGroup1.benchmarks) continue
-
 		for (const b2 of group2.benchmarks || []) {
 			const b2Name = b2.name || b2.alias
-			const matchingB1 = matchingGroup1.benchmarks.find((b1) => (b1.name || b1.alias) === b2Name)
+			if (!b2Name) continue
+
+			let matchingB1 = null
+			for (const group1 of combined) {
+				const found = group1.benchmarks?.find((b1) => (b1.name || b1.alias) === b2Name)
+				if (found) {
+					matchingB1 = found
+					break
+				}
+			}
 			if (!matchingB1) continue
 
 			const samples1 = matchingB1.stats?.samples || matchingB1.runs?.[0]?.stats?.samples
@@ -123,6 +146,16 @@ function combineResults(res1, res2) {
 				const mergedSamples = [...samples1, ...samples2]
 				if (matchingB1.stats) matchingB1.stats.samples = mergedSamples
 				else if (matchingB1.runs?.[0]?.stats) matchingB1.runs[0].stats.samples = mergedSamples
+			}
+
+			const heap1 = matchingB1.stats?.heap || matchingB1.runs?.[0]?.stats?.heap
+			const heap2 = b2.stats?.heap || b2.runs?.[0]?.stats?.heap
+			if (heap1 && heap2 && heap2.total > 0 && heap2._ > 0) {
+				heap1.total = (heap1.total || 0) + heap2.total
+				heap1._ = (heap1._ || 0) + heap2._
+				if (heap2.min < heap1.min) heap1.min = heap2.min
+				if (heap2.max > heap1.max) heap1.max = heap2.max
+				heap1.avg = heap1.total / heap1._
 			}
 		}
 	}
@@ -269,7 +302,7 @@ function compareBenchmarks(current, base) {
 			: null
 
 		let baseStats = null
-		let ratioStr = "0%"
+		let ratioStr = ""
 		let emoji = ""
 		let diffPercent = 0
 		let half = 0

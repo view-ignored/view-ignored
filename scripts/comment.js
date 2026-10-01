@@ -32,9 +32,12 @@ const commentHeader = "## Speed Regression Report"
 
 async function main() {
 	// List comments
-	const listRes = await fetch(`${API_URL}/repos/${owner}/${repo}/issues/${pr}/comments`, {
-		headers,
-	})
+	const listRes = await fetch(
+		`${API_URL}/repos/${owner}/${repo}/issues/${pr}/comments?per_page=100`,
+		{
+			headers,
+		},
+	)
 	if (!listRes.ok) {
 		const text = await listRes.text()
 		console.error("Failed to list comments:", text)
