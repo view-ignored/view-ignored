@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Add extglob pattern parsing support for glob pattern compilation and package manifest target extraction.
+- Improve target rules and manifest path handling for Bun and Yarn Classic.
 - Expose matched `Rule` reference on `RuleMatch` (`rule?: Rule`) and collect `matchedRules: Set<Rule>` in `MatcherContext`.
 - Add `range?: [number, number]` byte offset range tracking for `GlobRule` and `CustomRule`.
 - Add `scanJsonRuleRanges` and `findJsonKeyRange` pattern helpers.

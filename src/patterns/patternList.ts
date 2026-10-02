@@ -1,5 +1,6 @@
 import zeptomatch from "zeptomatch"
 
+import { convertExtglobToRegex } from "./extglob.js"
 import { wildmatchCompile } from "./wildmatch.js"
 
 /**
@@ -119,11 +120,21 @@ export function patternListCompile(
 		}
 
 		if (isGlob) {
-			const isMatchRe = zeptomatch.compile(cleaned)
-			part = isMatchRe.source
-			if (part.startsWith("^")) part = part.slice(1)
-			if (part.endsWith("[\\/]?$")) part = part.slice(0, -7)
-			else if (part.endsWith("$")) part = part.slice(0, -1)
+			if (
+				cleaned.includes("!(") ||
+				cleaned.includes("?(") ||
+				cleaned.includes("@(") ||
+				cleaned.includes("+(") ||
+				cleaned.includes("*(")
+			) {
+				part = convertExtglobToRegex(cleaned)
+			} else {
+				const isMatchRe = zeptomatch.compile(cleaned)
+				part = isMatchRe.source
+				if (part.startsWith("^")) part = part.slice(1)
+				if (part.endsWith("[\\/]?$")) part = part.slice(0, -7)
+				else if (part.endsWith("$")) part = part.slice(0, -1)
+			}
 		} else {
 			part = cleaned.replaceAll(REGEX_SPECIAL_CHARS, "\\$&")
 		}

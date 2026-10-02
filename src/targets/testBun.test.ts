@@ -90,4 +90,23 @@ describe("Bun", () => {
 			{ target: makeBun() },
 		)
 	})
+
+	test("does not force-include main when files field is present", async (done) => {
+		await testScan(
+			done,
+			{
+				"README.md": "",
+				"index.js": "main entry",
+				lib: { "util.js": "lib entry" },
+				"package.json": JSON.stringify({
+					files: ["lib"],
+					main: "index.js",
+					name: "bun-test",
+					version: "1.0.0",
+				}),
+			},
+			["README.md", "lib/util.js", "package.json"],
+			{ dirs: false, target: makeBun() },
+		)
+	})
 })

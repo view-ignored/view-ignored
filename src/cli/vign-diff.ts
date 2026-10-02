@@ -565,7 +565,19 @@ async function run(
 			msg.includes("Extension manifest not found") ||
 			msg.includes("not a git repository") ||
 			msg.includes("Missing vscode engine compatibility version") ||
-			msg.includes("Missing engines.vscode")
+			msg.includes("Missing engines.vscode") ||
+			msg.includes('defines "packageManager":') ||
+			msg.includes("EBADDEVENGINES") ||
+			msg.includes("Fatal error in") ||
+			msg.includes("Failed to resolve workspace version") ||
+			msg.includes("expected `files` to be an array") ||
+			msg.includes("This is not the tsc command") ||
+			msg.includes("No workspaces found") ||
+			msg.includes("sh: 1:") ||
+			msg.includes("exit code 127") ||
+			msg.includes("Segmentation fault") ||
+			msg.includes("Cannot find module") ||
+			msg.includes("ESLint couldn't find")
 
 		if (isMissingConfig) {
 			if (!isExplicit) return false

@@ -42,6 +42,37 @@ describe("patternListCompile", () => {
 		expect(patternCacheTest(compiled, "a")).toBeTrue()
 	})
 
+	test("compiles extglob patterns correctly in patternListCompile and convertExtglobToRegex", () => {
+		const ext1 = patternListCompile({ list: ["dist/*.?(m)js"], spec: PatternSpec.packageJsonFiles })
+		expect(patternCacheTest(ext1, "dist/ua-parser.min.js")).toBeTrue()
+		expect(patternCacheTest(ext1, "dist/ua-parser.min.mjs")).toBeTrue()
+
+		const ext2 = patternListCompile({
+			list: ["dist/cjs/**/!(*.tsbuildinfo)"],
+			spec: PatternSpec.packageJsonFiles,
+		})
+		expect(patternCacheTest(ext2, "dist/cjs/index.js")).toBeTrue()
+		expect(patternCacheTest(ext2, "dist/cjs/ajax/index.js")).toBeTrue()
+		expect(patternCacheTest(ext2, "dist/cjs/foo.tsbuildinfo")).toBeFalse()
+		expect(patternCacheTest(ext2, "dist/cjs/ajax/foo.tsbuildinfo")).toBeFalse()
+
+		const ext3 = patternListCompile({
+			list: ["src/@(foo|bar).ts"],
+			spec: PatternSpec.packageJsonFiles,
+		})
+		expect(patternCacheTest(ext3, "src/foo.ts")).toBeTrue()
+		expect(patternCacheTest(ext3, "src/bar.ts")).toBeTrue()
+		expect(patternCacheTest(ext3, "src/baz.ts")).toBeFalse()
+
+		const ext4 = patternListCompile({
+			list: ["*.*(c)[tj]s*"],
+			spec: PatternSpec.packageJsonFiles,
+		})
+		expect(patternCacheTest(ext4, "index.js")).toBeTrue()
+		expect(patternCacheTest(ext4, "index.cjs")).toBeTrue()
+		expect(patternCacheTest(ext4, "index.d.ts")).toBeTrue()
+	})
+
 	test("extractPackageJson error handling", () => {
 		// oxlint-disable-next-line typescript/no-explicit-any
 		const badSource = null as unknown as Source

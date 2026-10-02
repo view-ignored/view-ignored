@@ -18,6 +18,7 @@ import {
 	makeBundledDepsRule,
 	symlinkRule,
 	makeDirectPathsRule,
+	makeExplicitRootFilesRule,
 } from "./npmManifest.js"
 
 let cachedBunExcludesRule: GlobRule | null = null
@@ -32,7 +33,7 @@ let cachedBunIncludesRule: GlobRule | null = null
  * @since 0.12.0
  */
 export function makeBun(mode: "list" | "publish" | "bundle" = "publish"): Target {
-	const ctx = createNpmContext(mode)
+	const ctx = createNpmContext(mode, "bun")
 
 	const extractors: Extractor[] = [
 		makePackageJsonExtractor(mode),
@@ -90,7 +91,7 @@ export function makeBun(mode: "list" | "publish" | "bundle" = "publish"): Target
 
 			// Excludes node_modules from default directory walking when packing.
 			// https://github.com/oven-sh/bun/blob/bbe3f6a2629adf808adbd0da199ae8c94a3c0d47/src/runtime/cli/pack_command.rs#L1314
-			"node_modules",
+			"/node_modules",
 		],
 	})
 
@@ -119,10 +120,11 @@ export function makeBun(mode: "list" | "publish" | "bundle" = "publish"): Target
 		makePackageResolutionRule(ctx),
 		symlinkRule,
 		makePatchedDepsRule(ctx),
-		ctx.npmIgnoreExcludeGlobRule,
-		makeDirectPathsRule(ctx.directPathsInclude),
-		cachedBunExcludesRule,
 		cachedBunIncludesRule,
+		makeDirectPathsRule(ctx.directPathsInclude),
+		ctx.npmIgnoreExcludeGlobRule,
+		cachedBunExcludesRule,
+		makeExplicitRootFilesRule(ctx),
 	]
 
 	return {

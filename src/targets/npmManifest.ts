@@ -14,6 +14,7 @@ import type { Target } from "./target.js"
 
 import zeptomatch from "zeptomatch"
 
+import { convertExtglobToRegex } from "../patterns/extglob.js"
 import { PathMap } from "../patterns/matcherContext.js"
 import { extractNpmignore } from "../patterns/npmignore.js"
 import { ruleCompile } from "../patterns/resolveSources.js"
@@ -33,6 +34,16 @@ export const symlinkRule = {
 } satisfies CustomRule as CustomRule
 
 const DIRECT_PATH_FIELDS = ["main", "module", "browser", "bin"]
+
+export function makeExplicitRootFilesRule(ctx: NpmContext): CustomRule {
+	return {
+		excludes: false,
+		match({ entry }) {
+			if (ctx.explicitRootFiles.has(entry)) return "//explicitly listed in package.json files"
+			return null
+		},
+	} satisfies CustomRule as CustomRule
+}
 
 export function makeDirectPathsRule(directPathsInclude: Record<string, string>): CustomRule {
 	return {
@@ -54,11 +65,11 @@ export interface PackageJson {
 	engines?: Record<string, string>
 	scripts?: Record<string, string>
 	bin?: string | Record<string, string>
-	browser?: string
+	browser?: string | Record<string, string | boolean>
 	dependencies?: Record<string, string>
 	devDependencies?: Record<string, string>
 	files?: string[]
-	main?: string
+	main?: string | boolean
 	module?: string
 	optionalDependencies?: Record<string, string>
 	bundleDependencies?: boolean | string[]
@@ -125,7 +136,7 @@ const SEMVER_REGEX =
 
 function doNpmManifestParse(
 	s: string,
-	mode: "list" | "publish" | "bundle" | "vsce" = "publish",
+	mode: "list" | "publish" | "bundle" | "vsce" | "yarn-classic" = "publish",
 ): PackageJson {
 	const parsed = JSON.parse(s)
 
@@ -154,11 +165,18 @@ function doNpmManifestParse(
 	if ("bundleDependencies" in parsed && "bundledDependencies" in parsed)
 		throw new Error("Manifest cannot contain both 'bundleDependencies' and 'bundledDependencies'")
 
-	const stringFields: (keyof PackageJson)[] = ["browser", "main", "module"]
-	for (const field of stringFields) {
-		if (field in parsed && typeof parsed[field] !== "string")
-			throw new Error(`'${field}' field must be a string`)
-	}
+	if ("module" in parsed && typeof parsed.module !== "string")
+		throw new Error("'module' field must be a string")
+
+	if ("main" in parsed && typeof parsed.main !== "string" && typeof parsed.main !== "boolean")
+		throw new Error("'main' field must be a string or boolean")
+
+	if (
+		"browser" in parsed &&
+		typeof parsed.browser !== "string" &&
+		(typeof parsed.browser !== "object" || parsed.browser === null)
+	)
+		throw new Error("'browser' field must be a string or object")
 
 	if (parsed.engines !== undefined && !isRecordOfStrings(parsed.engines))
 		throw new Error("'engines' field must be an object with string values")
@@ -191,13 +209,34 @@ function doNpmManifestParse(
 
 export function npmManifestParse(
 	s: string,
-	mode: "list" | "publish" | "bundle" | "vsce" = "publish",
+	mode: "list" | "publish" | "bundle" | "vsce" | "yarn-classic" = "publish",
 ): PackageJson {
 	try {
 		return doNpmManifestParse(s, mode)
 	} catch (err) {
 		if (mode === "list" || mode === "bundle") return {} as PackageJson
 		throw err
+	}
+}
+
+function extractExportsTypes(exportsObj: unknown, dist: Record<string, string>): void {
+	if (!exportsObj || typeof exportsObj !== "object") return
+	for (const [key, val] of Object.entries(exportsObj)) {
+		if (typeof val === "string") {
+			if (key === "types" || key === "typings") addDirectPath(val, dist, "exports.types")
+		} else if (typeof val === "object" && val !== null) {
+			extractExportsTypes(val, dist)
+		}
+	}
+}
+
+function extractTypesAndExports(manifest: PackageJson, dist: Record<string, string>): void {
+	// oxlint-disable-next-line typescript/no-explicit-any
+	const m = manifest as any
+	if (typeof m.types === "string") addDirectPath(m.types, dist, "types")
+	if (typeof m.typings === "string") addDirectPath(m.typings, dist, "typings")
+	if (m.exports && typeof m.exports === "object") {
+		extractExportsTypes(m.exports, dist)
 	}
 }
 
@@ -209,9 +248,23 @@ export function npmManifestParse(
  * @since 0.12.0
  */
 export function extractManifestIncludes(manifest: PackageJson, dist: Record<string, string>): void {
-	addDirectPath(manifest.main, dist, "main")
+	if (typeof manifest.main === "string") addDirectPath(manifest.main, dist, "main")
 	addDirectPath(manifest.module, dist, "module")
-	addDirectPath(manifest.browser, dist, "browser")
+
+	// oxlint-disable-next-line typescript/no-explicit-any
+	const m = manifest as any
+	if (typeof m.types === "string") addDirectPath(m.types, dist, "types")
+	if (typeof m.typings === "string") addDirectPath(m.typings, dist, "typings")
+
+	if (typeof manifest.browser === "string") {
+		addDirectPath(manifest.browser, dist, "browser")
+	} else if (typeof manifest.browser === "object" && manifest.browser !== null) {
+		Object.entries(manifest.browser).forEach(([key, browserPath]) => {
+			if (typeof browserPath === "string") {
+				addDirectPath(browserPath, dist, "browser." + key)
+			}
+		})
+	}
 
 	if (typeof manifest.bin === "string") addDirectPath(manifest.bin, dist, "bin")
 	else if (typeof manifest.bin === "object" && manifest.bin !== null) {
@@ -377,12 +430,16 @@ export interface NpmContext {
 	patchedDepsExclude: Set<string>
 	patchedDepsRule: CustomRule
 	rootDeps: Set<string>
+	targetName?: string
 	whitelistedPaths: Set<string>
 	whitelistedRegex: RegExp | null
 	workspaceRegex: RegExp | null
 }
 
-export function createNpmContext(mode: "list" | "publish" | "bundle" = "publish"): NpmContext {
+export function createNpmContext(
+	mode: "list" | "publish" | "bundle" = "publish",
+	targetName?: string,
+): NpmContext {
 	const ctx: NpmContext = {
 		bundledDeps: [],
 		directPathsInclude: Object.create(null),
@@ -399,6 +456,7 @@ export function createNpmContext(mode: "list" | "publish" | "bundle" = "publish"
 		patchedDepsExclude: new Set<string>(),
 		patchedDepsRule: null as unknown as CustomRule,
 		rootDeps: new Set<string>(),
+		targetName,
 		whitelistedPaths: new Set<string>(),
 		whitelistedRegex: null,
 		workspaceRegex: null,
@@ -411,6 +469,9 @@ export function createNpmContext(mode: "list" | "publish" | "bundle" = "publish"
 export function isWhitelistedByFiles(ctx: NpmContext, entry: string): boolean {
 	if (!ctx.dist || !ctx.dist.files) return false
 	if (ctx.whitelistedPaths.has(entry)) return true
+	for (const p of ctx.whitelistedPaths) {
+		if (entry.startsWith(p + "/")) return true
+	}
 	return ctx.whitelistedRegex !== null && ctx.whitelistedRegex.test(entry)
 }
 
@@ -434,12 +495,7 @@ export function makePackageResolutionRule(ctx: NpmContext): SkipRule {
 		const isWorkspace = ctx.workspaceRegex !== null && ctx.workspaceRegex.test(entry)
 		if (!isWorkspace && ctx.rootDeps.size === 0) return null
 
-		if (
-			!isWorkspace &&
-			(entry === "node_modules" ||
-				entry.startsWith("node_modules/") ||
-				entry.includes("/node_modules"))
-		) {
+		if (!isWorkspace && (entry === "node_modules" || entry.startsWith("node_modules/"))) {
 			return 0
 		}
 
@@ -524,6 +580,20 @@ export function makeBundledDepsRule(
 	}
 }
 
+function compileFileGlobSource(file: string): string {
+	const normalized = trimLeadingDotSlash(file)
+	if (
+		normalized.includes("!(") ||
+		normalized.includes("?(") ||
+		normalized.includes("@(") ||
+		normalized.includes("+(") ||
+		normalized.includes("*(")
+	) {
+		return `^(?:${convertExtglobToRegex(normalized)})[\\/]?$`
+	}
+	return zeptomatch.compile(normalized).source
+}
+
 export function initNpmContext(
 	ctx: NpmContext,
 	options: { fs: FsAdapter; cwd: string },
@@ -576,7 +646,23 @@ export function initNpmContext(
 			for (const dep of Object.keys(parsedDist.optionalDependencies)) ctx.rootDeps.add(dep)
 		}
 
-		extractManifestIncludes(parsedDist, ctx.directPathsInclude)
+		if (parsedDist.files && ctx.targetName === "yarn-classic") {
+			if (typeof parsedDist.main === "string")
+				addDirectPath(parsedDist.main, ctx.directPathsInclude, "main")
+			extractTypesAndExports(parsedDist, ctx.directPathsInclude)
+		} else if (parsedDist.files && ctx.targetName === "bun") {
+			// Bun strictly obeys files array when files is present
+		} else {
+			extractManifestIncludes(parsedDist, ctx.directPathsInclude)
+		}
+
+		if (parsedDist.files && ctx.targetName === "yarn-classic") {
+			parsedDist.files = parsedDist.files.filter((f) => {
+				if (!f.startsWith("./")) return true
+				const norm = trimLeadingDotSlash(f)
+				return norm.endsWith("/") || !norm.includes(".")
+			})
+		}
 
 		if (parsedDist.files) {
 			const reSources: string[] = []
@@ -584,7 +670,9 @@ export function initNpmContext(
 				const file = parsedDist.files[i]!
 				const normalized = trimLeadingDotSlash(file)
 				ctx.whitelistedPaths.add(normalized)
-				if (!normalized.includes("/")) ctx.explicitRootFiles.add(normalized)
+				if (!normalized.includes("/") && !/[*?[{]/.test(normalized)) {
+					ctx.explicitRootFiles.add(normalized)
+				}
 
 				let parent = dirname(normalized)
 				while (parent && parent !== "." && parent !== "/") {
@@ -593,7 +681,7 @@ export function initNpmContext(
 				}
 
 				try {
-					reSources.push(zeptomatch.compile(normalized).source)
+					reSources.push(compileFileGlobSource(file))
 				} catch {
 					// ignore invalid globs
 				}
