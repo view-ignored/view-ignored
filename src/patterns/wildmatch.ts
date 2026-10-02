@@ -205,20 +205,6 @@ function wildmatchToRegexpSource(pattern: string): string {
 			continue
 		}
 
-		if (c === "!" && i + 1 < len && cleaned[i + 1] === "(") {
-			const closeParen = cleaned.indexOf(")", i + 2)
-			if (closeParen !== -1) {
-				const inner = cleaned.slice(i + 2, closeParen)
-				const innerSource = inner
-					.replace(REGEX_SPECIAL_CHARS, "\\$&")
-					.replace(/\\\*/g, "[^/]*")
-					.replace(/\\\?/g, "[^/]")
-				res += `(?!(?:${innerSource})$)[^/]+`
-				i = closeParen + 1
-				continue
-			}
-		}
-
 		if (c === "[") {
 			const bracketResult = parseBracket(cleaned, i)
 			if (bracketResult !== null) {
