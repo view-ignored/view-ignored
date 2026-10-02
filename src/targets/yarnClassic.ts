@@ -17,6 +17,7 @@ import {
 	makeBundledDepsRule,
 	symlinkRule,
 	makeDirectPathsRule,
+	makeExplicitRootFilesRule,
 	extractNoCaseNpmignore,
 } from "./npmManifest.js"
 
@@ -33,17 +34,13 @@ let cachedYarnClassicIncludesRule: GlobRule | null = null
  * @since 0.12.0
  */
 export function makeYarnClassic(mode: "list" | "publish" | "bundle" = "publish"): Target {
-	const ctx = createNpmContext(mode)
+	const ctx = createNpmContext(mode, "yarn-classic")
 
 	const extractors: Extractor[] = [
-		makePackageJsonExtractor(mode),
+		makePackageJsonExtractor(mode === "publish" ? "yarn-classic" : mode),
 		{
 			extract: extractNoCaseNpmignore,
 			path: "./.yarnignore",
-		},
-		{
-			extract: extractNoCaseNpmignore,
-			path: ".npmignore",
 		},
 		{
 			extract: extractNoCaseNpmignore,
@@ -110,6 +107,9 @@ export function makeYarnClassic(mode: "list" | "publish" | "bundle" = "publish")
 				// https://github.com/yarnpkg/berry/blob/57081c05a398f25c92df1dc78752f2053576cec0/packages/plugin-pack/sources/packUtils.ts#L9
 				"/package.json",
 				"/readme*",
+				"/read.me*",
+				"/read_me*",
+				"/read-me*",
 				"/license*",
 				"/licence*",
 				"/changes*",
@@ -128,10 +128,11 @@ export function makeYarnClassic(mode: "list" | "publish" | "bundle" = "publish")
 			makePackageResolutionRule(ctx),
 			symlinkRule,
 			makePatchedDepsRule(ctx),
-			ctx.npmIgnoreExcludeGlobRule,
-			makeDirectPathsRule(ctx.directPathsInclude),
-			cachedYarnClassicExcludesRule,
 			cachedYarnClassicIncludesRule,
+			makeDirectPathsRule(ctx.directPathsInclude),
+			ctx.npmIgnoreExcludeGlobRule,
+			cachedYarnClassicExcludesRule,
+			makeExplicitRootFilesRule(ctx),
 		],
 	}
 

@@ -76,7 +76,16 @@ export function parseGitIndex(buffer: Uint8Array): GitIndexEntries {
 		}
 
 		if (!path) continue
+		const mode =
+			((buffer[start + 24]! << 24) |
+				(buffer[start + 25]! << 16) |
+				(buffer[start + 26]! << 8) |
+				buffer[start + 27]!) >>>
+			0
+		const isGitLink = (mode & 0o170000) === 0o160000
+
 		paths.add(path)
+		if (isGitLink) dirs.add(path)
 		addAncestors(dirs, path)
 	}
 

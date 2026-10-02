@@ -22,7 +22,7 @@ export function extractPackageJson(source: Source, content: Uint8Array): void | 
 extractPackageJson satisfies ExtractorFn
 
 export function makePackageJsonExtractor(
-	mode: "list" | "publish" | "bundle" = "publish",
+	mode: "list" | "publish" | "bundle" | "yarn-classic" = "publish",
 ): Extractor {
 	return {
 		extract: (source, content) => tryExtract(() => extractPackageJsonRules(source, content, mode)),
@@ -40,7 +40,7 @@ export const packageJsonExtractor: Extractor = makePackageJsonExtractor("publish
 export function extractPackageJsonRules(
 	source: Source,
 	content: Uint8Array,
-	mode: "list" | "publish" | "bundle" = "publish",
+	mode: "list" | "publish" | "bundle" | "yarn-classic" = "publish",
 ): void | null {
 	let dist: { files?: string[] }
 
@@ -59,8 +59,19 @@ export function extractPackageJsonRules(
 
 	let patternIdx = 0
 	const options = { nocase: true, spec: PatternSpec.packageJsonFiles }
-	for (const pattern of dist.files) {
+	for (let pattern of dist.files) {
 		const range = ranges[patternIdx++]
+		if (mode === "yarn-classic") {
+			if (pattern.startsWith("./")) continue
+			const globIdx = pattern.indexOf("/**/")
+			if (globIdx !== -1) {
+				const slashIdx = pattern.indexOf("/")
+				pattern =
+					slashIdx !== -1 && slashIdx < globIdx
+						? pattern.slice(0, slashIdx)
+						: pattern.slice(0, globIdx)
+			}
+		}
 		const nextRule = resolveNegatable(pattern, true, rule, range?.[0], range?.[1])
 		if (nextRule === rule) continue
 		rule = nextRule

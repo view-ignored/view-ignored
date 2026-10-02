@@ -40,6 +40,7 @@ function createTrackedRule(
 			let path = getRelativePath(root, unixify(options.cwd), options.entry)
 			if (options.dirent.isDirectory()) {
 				if (path.endsWith("/")) path = path.slice(0, -1)
+				if (trackedPaths.has(path)) return "//tracked by git"
 				return trackedDirs.has(path) ? "//tracked by git" : null
 			}
 			return trackedPaths.has(path) ? "//tracked by git" : null

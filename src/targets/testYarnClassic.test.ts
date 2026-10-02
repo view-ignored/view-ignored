@@ -90,4 +90,68 @@ describe("Yarn Classic", () => {
 			}),
 		).toThrow()
 	})
+
+	test("excludes yarn.lock by default even if in files array", async (done) => {
+		await testScan(
+			done,
+			{
+				"README.md": "",
+				"index.js": "",
+				"package.json": JSON.stringify({
+					files: ["index.js", "yarn.lock"],
+					name: "yarn-classic-test",
+					version: "1.0.0",
+				}),
+				"yarn.lock": "lock content",
+			},
+			["README.md", "index.js", "package.json"],
+			{ dirs: false, target: makeYarnClassic() },
+		)
+	})
+
+	test("unconditionally packs README files in subdirectories", async (done) => {
+		await testScan(
+			done,
+			{
+				"package.json": JSON.stringify({
+					files: ["dist"],
+					name: "yarn-classic-test",
+					version: "1.0.0",
+				}),
+				dist: {
+					"README.md": "nested readme",
+					"index.js": "code",
+				},
+			},
+			["dist/README.md", "dist/index.js", "package.json"],
+			{ dirs: false, target: makeYarnClassic() },
+		)
+	})
+
+	test("force-includes main and exports.types when files array is specified", async (done) => {
+		await testScan(
+			done,
+			{
+				"bin.mjs": "cli",
+				"browser.d.ts": "types",
+				"index.js": "main entry",
+				lib: { "util.js": "lib code" },
+				"package.json": JSON.stringify({
+					bin: "bin.mjs",
+					exports: {
+						"./browser": {
+							import: "./browser.mjs",
+							types: "./browser.d.ts",
+						},
+					},
+					files: ["lib"],
+					main: "index.js",
+					name: "yarn-classic-test",
+					version: "1.0.0",
+				}),
+			},
+			["browser.d.ts", "index.js", "lib/util.js", "package.json"],
+			{ dirs: false, target: makeYarnClassic() },
+		)
+	})
 })

@@ -477,4 +477,84 @@ describe("NPM", () => {
 		expect(dist["bin.tool1"]).toBe("bin/tool1.js")
 		expect(dist["bin.tool2"]).toBe("bin/tool2.js")
 	})
+
+	describe("multi-state lifecycle scanning", () => {
+		test("pre-build state: files field referencing missing dist folder", async (done) => {
+			await testScan(
+				done,
+				{
+					"README.md": "readme",
+					"package.json": JSON.stringify({
+						files: ["dist"],
+						name: "pre-build-pkg",
+						version: "1.0.0",
+					}),
+					src: { "index.ts": "code" },
+				},
+				["README.md", "package.json"],
+				{ target: makeNPM() },
+			)
+		})
+
+		test("post-build state: files field referencing populated dist folder", async (done) => {
+			await testScan(
+				done,
+				{
+					dist: { "index.js": "built code" },
+					"README.md": "readme",
+					"package.json": JSON.stringify({
+						files: ["dist"],
+						name: "post-build-pkg",
+						version: "1.0.0",
+					}),
+					src: { "index.ts": "code" },
+				},
+				["README.md", "dist/index.js", "package.json"],
+				{ dirs: false, target: makeNPM() },
+			)
+		})
+
+		test("supports exports object, browser object, and main: false", async (done) => {
+			await testScan(
+				done,
+				{
+					"README.md": "readme",
+					"browser.js": "browser.js",
+					"package.json": JSON.stringify({
+						browser: { "./lib/server.js": "./lib/browser.js" },
+						exports: {
+							".": {
+								import: "./esm/index.js",
+								types: "./types/index.d.ts",
+							},
+						},
+						files: ["browser.js"],
+						main: false,
+						name: "exports-pkg",
+						version: "1.0.0",
+					}),
+				},
+				["README.md", "browser.js", "package.json"],
+				{ dirs: false, target: makeNPM() },
+			)
+		})
+
+		test("preserves test fixture node_modules subdirectories", async (done) => {
+			await testScan(
+				done,
+				{
+					"package.json": packageJsonNoFiles,
+					test: {
+						fixtures: {
+							node_modules: {
+								"mock-dep.js": "fixture",
+							},
+						},
+					},
+				},
+				["package.json", "test/fixtures/node_modules/mock-dep.js"],
+				{ dirs: false, target: makeNPM() },
+			)
+		})
+	})
 })
