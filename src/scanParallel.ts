@@ -5,7 +5,7 @@ import type { Resource, InvalidSource } from "./patterns/resource.js"
 import type { ScanOptions } from "./types.js"
 
 import { resolveSources } from "./patterns/resolveSources.js"
-import { countSlashes, dirname, ffalse, join } from "./unixify.js"
+import { countSlashes, ffalse, join } from "./unixify.js"
 import { isMatchIncluded, walkIncludes, type WalkResult, type WalkTotal } from "./walk.js"
 
 export interface ScanParallelOptions {
@@ -38,11 +38,11 @@ function processSingleFile(
 		return
 	}
 
-	const parentPath = dirname(within)
 	const lastSlash = within.lastIndexOf("/")
+	const parentPath = lastSlash === -1 ? "." : within.slice(0, lastSlash)
 	const name = lastSlash === -1 ? within : within.slice(lastSlash + 1)
 
-	const depth = parentPath !== "." && parentPath !== "" ? 1 + countSlashes(parentPath) : 0
+	const depth = lastSlash === -1 ? 0 : countSlashes(within)
 
 	const entry = {
 		isBlockDevice: typeof stat.isBlockDevice === "function" ? () => stat.isBlockDevice() : ffalse,

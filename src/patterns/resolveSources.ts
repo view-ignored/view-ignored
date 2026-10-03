@@ -7,7 +7,7 @@ import type { Resource } from "./resource.js"
 import type { GlobRule } from "./rule.js"
 import type { Source } from "./source.js"
 
-import { countSlashes, dirname, join, trimLeadingDotSlash } from "../unixify.js"
+import { dirname, join, trimLeadingDotSlash } from "../unixify.js"
 import { patternListCompile } from "./patternList.js"
 
 // Cache for resolved extended roots per cwd and extendsRoot field to avoid redundant filesystem lookups
@@ -24,10 +24,6 @@ function isParentOf(parent: string, child: string): boolean {
 	if (!child.startsWith(parent)) return false
 	if (parent.endsWith("/")) return true
 	return child.charCodeAt(pLen) === 47
-}
-
-function getLv(cwd: string, extRoot: string | null): number {
-	return extRoot && isParentOf(extRoot, cwd) ? countSlashes(cwd) - countSlashes(extRoot) : 0
 }
 
 /**
@@ -272,7 +268,7 @@ function launchDirectoryExtractors(
 
 function resolveSourcesMain(
 	options: ResolveSourcesOptions,
-	maxLevels: number,
+	extRoot: string | null,
 	cb: (err: Error | null, resource: Resource) => void,
 ): void {
 	const { fs, external, cwd, signal, target, resource, dir, entries } = options
@@ -281,9 +277,9 @@ function resolveSourcesMain(
 	const searchDirs: string[] = []
 	const relDirs: string[] = []
 	let current = dir
+	let currAbs = cwd
 	let baseResource: Resource = resource ?? null
 
-	let currentLevels = 0
 	while (true) {
 		if (signal?.aborted) return cb(signal.reason as Error, null)
 
@@ -293,13 +289,18 @@ function resolveSourcesMain(
 			break
 		}
 
-		searchDirs.push(join(cwd, current))
+		if (current.startsWith("..")) {
+			currAbs = dirname(currAbs)
+			searchDirs.push(currAbs)
+		} else {
+			searchDirs.push(join(cwd, current))
+		}
 		relDirs.push(current)
 
-		const canGoHigher = !(current === "." || current.startsWith("..")) || currentLevels < maxLevels
+		const isRelative = !(current === "." || current.startsWith(".."))
+		const canGoHigher = isRelative || (extRoot !== null && isParentOf(extRoot, currAbs))
 		if (!canGoHigher) break
 		current = getParentDir(current)
-		if (current.startsWith("..")) currentLevels++
 	}
 
 	if (root.startsWith("/")) {
@@ -415,20 +416,20 @@ export function resolveSources(
 	const { fs, cwd, target, signal } = options
 
 	if (!target.extendsRoot) {
-		resolveSourcesMain(options, 0, cb)
+		resolveSourcesMain(options, null, cb)
 		return
 	}
 
 	const cacheKey = `${cwd}::${target.extendsRoot}`
 	const cachedExtRoot = extendedRootCache.get(cacheKey)
 	if (cachedExtRoot !== undefined) {
-		resolveSourcesMain(options, getLv(cwd, cachedExtRoot), cb)
+		resolveSourcesMain(options, cachedExtRoot, cb)
 		return
 	}
 
 	findExtendedRoot(fs, cwd, target.extendsRoot, signal, (err, extRoot) => {
 		if (err) return cb(err, null)
 		if (signal?.aborted) return cb(signal.reason as Error, null)
-		resolveSourcesMain(options, getLv(cwd, extRoot), cb)
+		resolveSourcesMain(options, extRoot, cb)
 	})
 }

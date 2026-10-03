@@ -319,6 +319,40 @@ export function findDependencyPackageJson(
 	tryNext()
 }
 
+export function resolveForPack(
+	cwd: string,
+	fs: FsAdapter,
+	cb: (
+		err: Error | null,
+		result: {
+			content: Uint8Array
+			manifest: PackageJson
+			bundledDeps: string[]
+			rootDeps: string[]
+		} | null,
+	) => void,
+	mode: "list" | "publish" | "bundle" | "vsce" | "yarn-classic" = "publish",
+): void {
+	fs.readFile(cwd + "/package.json", (err, content) => {
+		if (err) return cb(err, null)
+		let manifest: PackageJson
+		try {
+			manifest = npmManifestParse(content!.toString(), mode)
+		} catch (e) {
+			return cb(e as Error, null)
+		}
+		const rootDeps: string[] = []
+		if (manifest.dependencies) rootDeps.push(...Object.keys(manifest.dependencies))
+		if (manifest.devDependencies) rootDeps.push(...Object.keys(manifest.devDependencies))
+		if (manifest.optionalDependencies) rootDeps.push(...Object.keys(manifest.optionalDependencies))
+
+		resolveBundledDeps(cwd, fs, manifest, (err, bundledDeps) => {
+			if (err) return cb(err, null)
+			cb(null, { bundledDeps: bundledDeps || [], content: content!, manifest, rootDeps })
+		})
+	})
+}
+
 export function resolveBundledDeps(
 	cwd: string,
 	fs: FsAdapter,
@@ -613,103 +647,94 @@ export function initNpmContext(
 		delete ctx.directPathsInclude[key]
 	}
 
-	fs.readFile(cwd + "/package.json", (err, content) => {
-		if (err) {
-			if (ctx.mode !== "publish") return cb(null)
-			if (err.code === "ENOENT") {
-				cb(new Error("'package.json' not found", { cause: err }))
+	resolveForPack(
+		cwd,
+		fs,
+		(err, resolvedPack) => {
+			if (err) {
+				// oxlint-disable-next-line typescript/no-explicit-any
+				if ((err as any).code === "ENOENT") {
+					if (ctx.mode !== "publish") return cb(null)
+					cb(new Error("'package.json' not found", { cause: err }))
+					return
+				}
+				cb(new Error("Invalid 'package.json'", { cause: err }))
 				return
 			}
-			cb(new Error("Error while initializing NPM-based target", { cause: err }))
-			return
-		}
 
-		let parsedDist: PackageJson
-		try {
-			parsedDist = npmManifestParse(content!.toString(), ctx.mode)
+			const { content, bundledDeps, rootDeps, manifest } = resolvedPack!
+			const parsedDist = manifest
 			ctx.dist = parsedDist
-		} catch (error) {
-			cb(new Error("Invalid 'package.json'", { cause: error }))
-			return
-		}
 
-		ctx.directPathsRule.range = findJsonKeyRange(content!, DIRECT_PATH_FIELDS)
-		ctx.patchedDepsRule.range = findJsonKeyRange(content!, "patchedDependencies")
+			ctx.bundledDeps = bundledDeps
+			for (let i = 0; i < rootDeps.length; i++) ctx.rootDeps.add(rootDeps[i]!)
 
-		if (parsedDist.dependencies) {
-			for (const dep of Object.keys(parsedDist.dependencies)) ctx.rootDeps.add(dep)
-		}
-		if (parsedDist.devDependencies) {
-			for (const dep of Object.keys(parsedDist.devDependencies)) ctx.rootDeps.add(dep)
-		}
-		if (parsedDist.optionalDependencies) {
-			for (const dep of Object.keys(parsedDist.optionalDependencies)) ctx.rootDeps.add(dep)
-		}
+			ctx.directPathsRule.range = findJsonKeyRange(content, DIRECT_PATH_FIELDS)
+			ctx.patchedDepsRule.range = findJsonKeyRange(content, "patchedDependencies")
 
-		if (parsedDist.files && ctx.targetName === "yarn-classic") {
-			if (typeof parsedDist.main === "string")
-				addDirectPath(parsedDist.main, ctx.directPathsInclude, "main")
-			extractTypesAndExports(parsedDist, ctx.directPathsInclude)
-		} else if (parsedDist.files && ctx.targetName === "bun") {
-			// Bun strictly obeys files array when files is present
-		} else {
-			extractManifestIncludes(parsedDist, ctx.directPathsInclude)
-		}
+			if (parsedDist.files && ctx.targetName === "yarn-classic") {
+				if (typeof parsedDist.main === "string")
+					addDirectPath(parsedDist.main, ctx.directPathsInclude, "main")
+				extractTypesAndExports(parsedDist, ctx.directPathsInclude)
+			} else if (parsedDist.files && ctx.targetName === "bun") {
+				// Bun strictly obeys files array when files is present
+			} else {
+				extractManifestIncludes(parsedDist, ctx.directPathsInclude)
+			}
 
-		if (parsedDist.files && ctx.targetName === "yarn-classic") {
-			parsedDist.files = parsedDist.files.filter((f) => {
-				if (!f.startsWith("./")) return true
-				const norm = trimLeadingDotSlash(f)
-				return norm.endsWith("/") || !norm.includes(".")
-			})
-		}
+			if (parsedDist.files && ctx.targetName === "yarn-classic") {
+				parsedDist.files = parsedDist.files.filter((f) => {
+					if (!f.startsWith("./")) return true
+					const norm = trimLeadingDotSlash(f)
+					return norm.endsWith("/") || !norm.includes(".")
+				})
+			}
 
-		if (parsedDist.files) {
-			const reSources: string[] = []
-			for (let i = 0; i < parsedDist.files.length; i++) {
-				const file = parsedDist.files[i]!
-				const normalized = trimLeadingDotSlash(file)
-				ctx.whitelistedPaths.add(normalized)
-				if (!normalized.includes("/") && !/[*?[{]/.test(normalized)) {
-					ctx.explicitRootFiles.add(normalized)
+			if (parsedDist.files) {
+				const reSources: string[] = []
+				for (let i = 0; i < parsedDist.files.length; i++) {
+					const file = parsedDist.files[i]!
+					const normalized = trimLeadingDotSlash(file)
+					ctx.whitelistedPaths.add(normalized)
+					if (!normalized.includes("/") && !/[*?[{]/.test(normalized)) {
+						ctx.explicitRootFiles.add(normalized)
+					}
+
+					let parent = dirname(normalized)
+					while (parent && parent !== "." && parent !== "/") {
+						ctx.whitelistedPaths.add(parent)
+						parent = dirname(parent)
+					}
+
+					try {
+						reSources.push(compileFileGlobSource(file))
+					} catch {
+						// ignore invalid globs
+					}
 				}
+				if (reSources.length > 0) ctx.whitelistedRegex = new RegExp(reSources.join("|"), "i")
 
-				let parent = dirname(normalized)
-				while (parent && parent !== "." && parent !== "/") {
-					ctx.whitelistedPaths.add(parent)
-					parent = dirname(parent)
-				}
+				// Whitelist Mode: exclude ignore files in 'before' to prevent
+				// nested ones from leaking if parent directory is whitelisted.
+				const list: string[] = ["/*/**/.npmignore", "/*/**/.gitignore"]
+				if (!ctx.explicitRootFiles.has(".npmignore")) list.push(".npmignore")
+				if (!ctx.explicitRootFiles.has(".gitignore")) list.push(".gitignore")
 
-				try {
-					reSources.push(compileFileGlobSource(file))
-				} catch {
-					// ignore invalid globs
+				ctx.npmIgnoreExcludeGlobRule.list = list
+				const filesRange = findJsonKeyRange(content, "files")
+				if (filesRange) ctx.npmIgnoreExcludeGlobRule.range = filesRange
+				ruleCompile(ctx.npmIgnoreExcludeGlobRule, { nocase: true })
+			}
+
+			if (parsedDist.patchedDependencies && ctx.mode === "publish") {
+				for (const patchPath of Object.values(parsedDist.patchedDependencies)) {
+					if (typeof patchPath !== "string") continue
+					const normalized = trimLeadingDotSlash(patchPath)
+					if (!normalized || normalized.startsWith("../") || normalized === "..") continue
+					ctx.patchedDepsExclude.add(normalized)
 				}
 			}
-			if (reSources.length > 0) ctx.whitelistedRegex = new RegExp(reSources.join("|"), "i")
 
-			// Whitelist Mode: exclude ignore files in 'before' to prevent
-			// nested ones from leaking if parent directory is whitelisted.
-			const list: string[] = ["/*/**/.npmignore", "/*/**/.gitignore"]
-			if (!ctx.explicitRootFiles.has(".npmignore")) list.push(".npmignore")
-			if (!ctx.explicitRootFiles.has(".gitignore")) list.push(".gitignore")
-
-			ctx.npmIgnoreExcludeGlobRule.list = list
-			const filesRange = findJsonKeyRange(content!, "files")
-			if (filesRange) ctx.npmIgnoreExcludeGlobRule.range = filesRange
-			ruleCompile(ctx.npmIgnoreExcludeGlobRule, { nocase: true })
-		}
-
-		if (parsedDist.patchedDependencies && ctx.mode === "publish") {
-			for (const patchPath of Object.values(parsedDist.patchedDependencies)) {
-				if (typeof patchPath !== "string") continue
-				const normalized = trimLeadingDotSlash(patchPath)
-				if (!normalized || normalized.startsWith("../") || normalized === "..") continue
-				ctx.patchedDepsExclude.add(normalized)
-			}
-		}
-
-		const afterInit = () => {
 			let workspacePatterns: string[] = []
 			if (parsedDist.workspaces) {
 				if (Array.isArray(parsedDist.workspaces)) {
@@ -738,11 +763,7 @@ export function initNpmContext(
 			}
 
 			cb(null)
-		}
-
-		resolveBundledDeps(cwd, fs, parsedDist, (_, resolved) => {
-			ctx.bundledDeps = resolved || []
-			afterInit()
-		})
-	})
+		},
+		ctx.mode,
+	)
 }

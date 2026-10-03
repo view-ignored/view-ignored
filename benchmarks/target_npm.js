@@ -7,6 +7,7 @@ import packlist from "npm-packlist"
 import { scan as browserScan } from "../out/browser.js"
 import { scan } from "../out/index.js"
 import { makeNPM } from "../out/targets/index.js"
+import { resolveForPack } from "../out/targets/npmManifest.js"
 
 // Precache npm target rules to avoid data skewing
 makeNPM()
@@ -87,6 +88,10 @@ barplot(() => {
 
 	if (!vign) {
 		summary(() => {
+			bench("'view-ignored'.resolveForPack", () =>
+				new Promise((resolve) => {
+					resolveForPack(cwd, fs, resolve)
+				})).gc(true)
 			bench("'npmcli/arborist'.loadActual()", async () => {
 				return arborist.loadActual()
 			}).gc(true)

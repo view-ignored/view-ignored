@@ -89,9 +89,9 @@ export function trimLeadingDotSlash(p: string): string {
  *
  * @since 0.13.0
  */
-export function countSlashes(s: string): number {
+export function countSlashes(s: string, start = 0): number {
 	let count = 0
-	for (let i = 0; i < s.length; i++) {
+	for (let i = start; i < s.length; i++) {
 		if (s.charCodeAt(i) === 47) count++
 	}
 	return count
