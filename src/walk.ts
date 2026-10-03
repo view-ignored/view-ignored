@@ -273,15 +273,16 @@ function patchMerged(
 	}
 
 	if (mergedCtx.paths.dirs) {
-		mergedCtx.paths.dirs.forEach((match, dir) => {
-			ctx.paths.dirs.set(dir, match)
-		})
+		for (const dir of mergedCtx.paths.dirs.keys()) {
+			ctx.paths.dirs.set(dir, mergedCtx.paths.dirs.get(dir)!)
+		}
 	}
 
-	mergedCtx.paths.forEach((match, path) => {
-		if (ctx.paths.has(path)) return
+	for (const path of mergedCtx.paths.keys()) {
+		if (ctx.paths.has(path)) continue
+		const match = mergedCtx.paths.get(path)!
 		ctx.paths.set(path, match)
-		if (!stream) return
+		if (!stream) continue
 
 		const isDir = path.endsWith("/")
 		const cleanPath = isDir ? path.slice(0, -1) : path
@@ -290,20 +291,23 @@ function patchMerged(
 		const name = lastSlash === -1 ? cleanPath : cleanPath.slice(lastSlash + 1)
 		const dirent = createSyntheticDirent(name, parentPath, isDir)
 		stream.dispatchEvent(new CustomEvent("dirent", { detail: { dirent, match, path } }))
-	})
+	}
 
-	mergedCtx.external.forEach((r, p) => ctx.external.set(p, r))
+	for (const p of mergedCtx.external.keys()) {
+		ctx.external.set(p, mergedCtx.external.get(p)!)
+	}
 	if (mergedCtx.failed.length > 0) ctx.failed.push(...mergedCtx.failed)
 
-	mergedCtx.total.forEach((t, p) => {
+	for (const p of mergedCtx.total.keys()) {
+		const t = mergedCtx.total.get(p)!
 		const existing = ctx.total.get(p)
 		if (!existing) {
 			ctx.total.set(p, { ...t })
-			return
+			continue
 		}
 		existing.totalMatchedDirs += t.totalMatchedDirs
 		existing.totalMatchedFiles += t.totalMatchedFiles
-	})
+	}
 }
 
 /**
