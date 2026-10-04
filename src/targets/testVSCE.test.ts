@@ -40,6 +40,19 @@ describe("VSCE", () => {
 		)
 	})
 
+	test("does not use .gitignore as ignore rules source", async (done) => {
+		await testScan(
+			done,
+			{
+				".gitignore": "ignored.txt",
+				"ignored.txt": "content",
+				"package.json": packageJson,
+			},
+			["package.json", ".gitignore", "ignored.txt"],
+			{ dirs: false, target: makeVSCE() },
+		)
+	})
+
 	test("ignores nested .vscodeignore and .gitignore files", async (done) => {
 		await testScan(
 			done,

@@ -186,7 +186,7 @@ function launchExtractor(
 
 		const source: Source = {
 			dir,
-			inverted: isDotSlash,
+			inverted: false,
 			path: join(dir, cleanPath),
 			rules: [],
 		}
