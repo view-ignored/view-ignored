@@ -22,10 +22,6 @@ export function makeVSCE(): Target {
 			extract: extractNpmignore,
 			path: "./.vscodeignore",
 		},
-		{
-			extract: extractNpmignore,
-			path: "./.gitignore",
-		},
 	]
 
 	cachedVSCERule ||= ruleCompile({
