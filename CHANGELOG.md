@@ -8,30 +8,30 @@ and this project adheres to
 
 ## [Unreleased]
 
+- BREAKING CHANGE: Remove `skipInternal` option (directory traversal now always operates in non-skipping mode).
+- BREAKING CHANGE: Remove `totalFiles` and `totalDirs` from `Total` and add `totalMatchedDirs`.
+- Parse Git index files (.git/index versions 2, 3, and 4) in Git target to unignore tracked files and directory ancestors.
+- Port glob matcher from `picomatch` to `zeptomatch`.
 - Add extglob pattern parsing support for glob pattern compilation and package manifest target extraction.
-- Improve target rules and manifest path handling for Bun and Yarn Classic.
+- Introduce `PathMap` for `MatcherContext.paths` to support memory-efficient parent directory match fallback via `.dirs`.
 - Expose matched `Rule` reference on `RuleMatch` (`rule?: Rule`) and collect `matchedRules: Set<Rule>` in `MatcherContext`.
 - Add `range?: [number, number]` byte offset range tracking for `GlobRule` and `CustomRule`.
 - Add `scanJsonRuleRanges` and `findJsonKeyRange` pattern helpers.
-- Parse Git index files (.git/index versions 2, 3, and 4) in Git target to unignore tracked files and directory ancestors.
-- Introduce `PathMap` for `MatcherContext.paths` to support memory-efficient parent directory match fallback via `.dirs`.
-- Refine `wildmatch` pattern prefix/suffix handling and `gitignore` escape sequence parsing.
-- Fix `walk.ts` directory pruning to ensure subdirectories are only skipped when explicitly ignored.
-- Export pattern and target types from `src/index.ts` and simplify `FsAdapter` to `Pick<typeof fs>`.
-- Fix Git target ignore file aggregation to preserve and combine rules from both `.git/info/exclude` and global `core.excludesfile`.
 - Add `Source.spec`.
-- Skip traversing explicitly excluded directories per wildmatch pathname spec in directory walker.
-- BREAKING CHANGE: Remove `skipInternal` option (directory traversal now always operates in non-skipping mode).
-- BREAKING CHANGE: Remove `totalFiles` and `totalDirs` from `Total` and add `totalMatchedDirs`.
 - Add `.git` `SkipRule` to all targets to skip `.git` directory traversal.
-- Port glob matcher from `picomatch` to `zeptomatch`.
-- Move `Mopsgamer/view-ignored` to `view-ignored/view-ignored` + all related repos.
+- Export pattern and target types from `src/index.ts` and simplify `FsAdapter` to `Pick<typeof fs>`.
+- Fix `walk.ts` directory pruning to ensure subdirectories are only skipped when explicitly ignored.
+- Skip traversing explicitly excluded directories per wildmatch pathname spec in directory walker.
+- Fix Git target ignore file aggregation to preserve and combine rules from both `.git/info/exclude` and global `core.excludesfile`.
+- Improve target rules and manifest path handling for Bun and Yarn Classic.
 - Remove `packageJsonExtractor` from `VSCE` target so `package.json`'s `files` array is not wrongly used to exclude extension files.
+- Refine `wildmatch` pattern prefix/suffix handling and `gitignore` escape sequence parsing.
+- Parallelize `Git.init` configuration and branch file reading pipeline.
+- Optimize single-pattern list compilation in `patternListCompile` and `wildmatchCompile` by skipping duplicate secondary `RegExp` allocations for 1-pattern rules.
+- Remove stale `WeakMap` caches in `git` target initialization and `gitConfig` parsing to ensure configuration reads always evaluate live disk state.
 - Improve `vign-diff` CLI handling for VSCE target, adding `no-dependencies` command set and stripping CLI status/info output.
 - Align command set resolution and header titles in `vign-diff` CLI for inverted modes (`--invert` and `--invert 2`) across all targets.
-- Optimize single-pattern list compilation in `patternListCompile` and `wildmatchCompile` by skipping duplicate secondary `RegExp` allocations for 1-pattern rules.
-- Parallelize `Git.init` configuration and branch file reading pipeline.
-- Remove stale `WeakMap` caches in `git` target initialization and `gitConfig` parsing to ensure configuration reads always evaluate live disk state.
+- Move `Mopsgamer/view-ignored` to `view-ignored/view-ignored` + all related repos.
 
 ## [0.12.3] - 2026-08-22
 
