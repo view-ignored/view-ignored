@@ -39,6 +39,12 @@ export type InternalRules = {
  */
 export type GlobRule = {
 	/**
+	 * Associated source for the rule.
+	 *
+	 * @since 0.13.1
+	 */
+	source?: Source | null
+	/**
 	 * 0-indexed start and end byte offsets in the source file buffer.
 	 *
 	 * @since 0.13.0
@@ -71,6 +77,12 @@ export type GlobRule = {
 }
 
 export type CustomRule = {
+	/**
+	 * Associated source for the rule.
+	 *
+	 * @since 0.13.1
+	 */
+	source?: Source | null
 	/**
 	 * 0-indexed start and end byte offsets in the source file buffer.
 	 *
@@ -467,13 +479,37 @@ function ruleTestInternalSync(
 		if (typeof rule === "function") continue
 		const res = evalRule(rule, entryPath, getOpts)
 		if (res === null) continue
+
+		const source = "source" in rule && rule.source ? (rule.source as Source) : null
+
 		if (res instanceof Error) {
+			if (source) {
+				return {
+					error: res,
+					ignored: false,
+					kind: RuleMatchKind.invalidExternal,
+					pattern: "",
+					rule,
+					source,
+				}
+			}
+
 			return {
 				error: res,
 				ignored: false,
 				kind: RuleMatchKind.invalidInternal,
 				pattern: "",
 				rule,
+			}
+		}
+
+		if (source) {
+			return {
+				ignored: rule.excludes,
+				kind: RuleMatchKind.external,
+				pattern: res,
+				rule,
+				source,
 			}
 		}
 

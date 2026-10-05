@@ -459,6 +459,7 @@ export interface NpmContext {
 	directPathsRule: CustomRule
 	dist?: PackageJson
 	explicitRootFiles: Set<string>
+	explicitRootFilesRule: CustomRule
 	mode: "list" | "publish" | "bundle"
 	npmIgnoreExcludeGlobRule: GlobRule
 	patchedDepsExclude: Set<string>
@@ -480,6 +481,7 @@ export function createNpmContext(
 		directPathsRule: null as unknown as CustomRule,
 		dist: undefined,
 		explicitRootFiles: new Set<string>(),
+		explicitRootFilesRule: null as unknown as CustomRule,
 		mode,
 		npmIgnoreExcludeGlobRule: {
 			compiled: null,
@@ -497,6 +499,7 @@ export function createNpmContext(
 	}
 	ctx.directPathsRule = makeDirectPathsRule(ctx.directPathsInclude)
 	ctx.patchedDepsRule = makePatchedDepsRule(ctx)
+	ctx.explicitRootFilesRule = makeExplicitRootFilesRule(ctx)
 	return ctx
 }
 
@@ -669,6 +672,22 @@ export function initNpmContext(
 			ctx.bundledDeps = bundledDeps
 			for (let i = 0; i < rootDeps.length; i++) ctx.rootDeps.add(rootDeps[i]!)
 
+			const pkgSource: Source = {
+				dir: ".",
+				inverted: false,
+				path: "package.json",
+				rules: [
+					ctx.directPathsRule,
+					ctx.patchedDepsRule,
+					ctx.npmIgnoreExcludeGlobRule,
+					ctx.explicitRootFilesRule,
+				],
+			}
+			ctx.directPathsRule.source = pkgSource
+			ctx.patchedDepsRule.source = pkgSource
+			ctx.npmIgnoreExcludeGlobRule.source = pkgSource
+			ctx.explicitRootFilesRule.source = pkgSource
+
 			ctx.directPathsRule.range = findJsonKeyRange(content, DIRECT_PATH_FIELDS)
 			ctx.patchedDepsRule.range = findJsonKeyRange(content, "patchedDependencies")
 
@@ -722,7 +741,10 @@ export function initNpmContext(
 
 				ctx.npmIgnoreExcludeGlobRule.list = list
 				const filesRange = findJsonKeyRange(content, "files")
-				if (filesRange) ctx.npmIgnoreExcludeGlobRule.range = filesRange
+				if (filesRange) {
+					ctx.npmIgnoreExcludeGlobRule.range = filesRange
+					ctx.explicitRootFilesRule.range = filesRange
+				}
 				ruleCompile(ctx.npmIgnoreExcludeGlobRule, { nocase: true })
 			}
 

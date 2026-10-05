@@ -8,6 +8,7 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Return `RuleMatchKind.external` with `source` and `range` for file-sourced internal rules.
 - Fix `launchExtractor` in `resolveSources.ts` where root-only extractors with `./` paths (like `./.vscodeignore`) mistakenly enabled `inverted: true` mode.
 - Remove `.gitignore` from VSCE target extractors as VSCE extension packaging strictly uses `.vscodeignore`.
 

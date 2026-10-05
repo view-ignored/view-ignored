@@ -7,6 +7,7 @@ export function compileSourceRules(source: Source, options?: PatternCompileOptio
 	const rlen = source.rules.length
 	for (let i = 0; i < rlen; i++) {
 		const r = source.rules[i]!
+		if (typeof r !== "function") r.source ||= source
 		if ("list" in r && r.compiled === null) ruleCompile(r, options)
 	}
 }

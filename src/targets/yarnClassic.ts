@@ -17,7 +17,6 @@ import {
 	makeBundledDepsRule,
 	symlinkRule,
 	makeDirectPathsRule,
-	makeExplicitRootFilesRule,
 	extractNoCaseNpmignore,
 } from "./npmManifest.js"
 
@@ -132,7 +131,7 @@ export function makeYarnClassic(mode: "list" | "publish" | "bundle" = "publish")
 			makeDirectPathsRule(ctx.directPathsInclude),
 			ctx.npmIgnoreExcludeGlobRule,
 			cachedYarnClassicExcludesRule,
-			makeExplicitRootFilesRule(ctx),
+			ctx.explicitRootFilesRule,
 		],
 	}
 

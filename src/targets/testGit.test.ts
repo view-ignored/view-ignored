@@ -500,6 +500,10 @@ describe("Git", () => {
 				expect(ctx.matchedRules.size).toBeGreaterThan(0)
 				expect(ctx.matchedRules.has(logRule!)).toBe(true)
 				expect(ctx.matchedRules.has(buildRule!)).toBe(true)
+
+				if (isRuleMatchPattern(logMatch) && "source" in logMatch && logMatch.source) {
+					expect(logMatch.source.path).toBe(".gitignore")
+				}
 			},
 			{ invert: 2, target: makeGit() },
 		)

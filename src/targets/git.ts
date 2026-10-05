@@ -33,8 +33,23 @@ function createTrackedRule(
 	trackedPaths: Set<string>,
 	trackedDirs: Set<string>,
 	bufLen?: number,
+	gDir?: string | null,
+	cwd?: string,
 ): CustomRule {
-	return {
+	let sourcePath = ".git/index"
+	let sourceDir = "."
+	if (gDir && cwd) {
+		const indexPath = join(gDir, "index")
+		const relIndex = indexPath.startsWith(cwd)
+			? trimLeadingDotSlash(indexPath.slice(cwd.length))
+			: indexPath
+		if (relIndex) {
+			sourcePath = relIndex
+			sourceDir = dirname(relIndex)
+		}
+	}
+
+	const rule: CustomRule = {
 		excludes: false,
 		match(options) {
 			let path = getRelativePath(root, unixify(options.cwd), options.entry)
@@ -46,7 +61,10 @@ function createTrackedRule(
 			return trackedPaths.has(path) ? "//tracked by git" : null
 		},
 		range: bufLen !== undefined ? [0, bufLen] : undefined,
+		source: null,
 	}
+	rule.source = { dir: sourceDir, inverted: false, path: sourcePath, rules: [rule] }
+	return rule
 }
 
 function loadGitIndex(
@@ -54,6 +72,7 @@ function loadGitIndex(
 	gDir: string | null,
 	targetRoot: string,
 	internalBefore: Rule[],
+	cwd: string,
 	done: () => void,
 ): void {
 	if (!gDir) return done()
@@ -70,7 +89,7 @@ function loadGitIndex(
 
 		const { paths, dirs } = parseGitIndex(buf)
 		if (paths.size > 0) {
-			internalBefore.splice(1, 0, createTrackedRule(targetRoot, paths, dirs, buf.length))
+			internalBefore.splice(1, 0, createTrackedRule(targetRoot, paths, dirs, buf.length, gDir, cwd))
 		}
 
 		done()
@@ -167,7 +186,7 @@ export function makeGit(): Target {
 						excludeRules = rules
 					})
 				}
-				loadGitIndex(fs, gDir, target.root || repoRoot, internal.before, done)
+				loadGitIndex(fs, gDir, target.root || repoRoot, internal.before, nCwd, done)
 			}
 
 			const findG = (cur: string, callback: (g: string | null) => void) => {
