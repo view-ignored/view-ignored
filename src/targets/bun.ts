@@ -18,7 +18,6 @@ import {
 	makeBundledDepsRule,
 	symlinkRule,
 	makeDirectPathsRule,
-	makeExplicitRootFilesRule,
 } from "./npmManifest.js"
 
 let cachedBunExcludesRule: GlobRule | null = null
@@ -124,7 +123,7 @@ export function makeBun(mode: "list" | "publish" | "bundle" = "publish"): Target
 		makeDirectPathsRule(ctx.directPathsInclude),
 		ctx.npmIgnoreExcludeGlobRule,
 		cachedBunExcludesRule,
-		makeExplicitRootFilesRule(ctx),
+		ctx.explicitRootFilesRule,
 	]
 
 	return {

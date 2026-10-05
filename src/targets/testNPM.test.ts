@@ -1,5 +1,6 @@
 import { describe, test, expect } from "bun:test"
 
+import { RuleMatchKind, isRuleMatchPattern } from "../patterns/rule.js"
 import { testScan } from "../testScan.test.js"
 import { makeNPM } from "./npm.js"
 import {
@@ -509,7 +510,17 @@ describe("NPM", () => {
 					}),
 					src: { "index.ts": "code" },
 				},
-				["README.md", "dist/index.js", "package.json"],
+				({ ctx }) => {
+					const distMatch = ctx.paths.get("dist/index.js")
+					expect(distMatch).toBeDefined()
+					expect(distMatch?.kind).toBe(RuleMatchKind.external)
+					if (distMatch && isRuleMatchPattern(distMatch) && "source" in distMatch) {
+						expect(distMatch.source?.path).toBe("package.json")
+						if (typeof distMatch.rule === "object" && "range" in distMatch.rule) {
+							expect(distMatch.rule.range).toBeDefined()
+						}
+					}
+				},
 				{ dirs: false, target: makeNPM() },
 			)
 		})

@@ -192,6 +192,46 @@ describe("patternListCompile", () => {
 		}
 	})
 
+	test("ruleTestSync returns external kind when internal rule has range or source", () => {
+		const mockSource: Source = {
+			dir: ".",
+			inverted: false,
+			path: "package.json",
+			rules: [],
+		}
+
+		const internalRangeRule: CustomRule = {
+			excludes: false,
+			match: () => "//custom range match",
+			range: [0, 10],
+			source: mockSource,
+		}
+
+		// oxlint-disable-next-line typescript/no-explicit-any
+		const internalTarget: any = {
+			internalRules: [internalRangeRule],
+		}
+
+		const match = ruleTestSync({
+			cwd: ".",
+			// oxlint-disable-next-line typescript/no-explicit-any
+			dirent: { isDirectory: () => false, isFile: () => true, name: "index.js" } as any,
+			entry: "index.js",
+			// oxlint-disable-next-line typescript/no-explicit-any
+			fs: {} as any,
+			parentPath: ".",
+			resource: mockSource,
+			signal: null,
+			target: internalTarget,
+		})
+
+		expect(match.kind).toBe(RuleMatchKind.external)
+		if (match.kind === RuleMatchKind.external) {
+			expect(match.source).toBe(mockSource)
+			expect(match.rule).toBe(internalRangeRule)
+		}
+	})
+
 	test("ruleTestSync cacheTest unexpected sub-pattern failure exception", () => {
 		// oxlint-disable-next-line typescript/no-explicit-any
 		const compiled: any = {
