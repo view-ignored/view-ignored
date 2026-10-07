@@ -223,7 +223,7 @@ export function walkIncludes(options: WalkOptions): WalkResult | Promise<WalkRes
 	return runIgnoresSync(options, isDir)
 }
 
-abstract class BaseSyntheticDirent {
+abstract class BaseSyntheticDirent implements Dirent {
 	name: string
 	parentPath: string
 
@@ -271,9 +271,9 @@ class SyntheticFileDirent extends BaseSyntheticDirent {
 }
 
 export function createSyntheticDirent(name: string, parentPath: string, isDir: boolean): Dirent {
-	return (isDir
+	return isDir
 		? new SyntheticDirDirent(name, parentPath)
-		: new SyntheticFileDirent(name, parentPath)) as unknown as Dirent
+		: new SyntheticFileDirent(name, parentPath)
 }
 
 function patch(

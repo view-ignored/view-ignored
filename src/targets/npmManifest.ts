@@ -26,12 +26,12 @@ export function extractNoCaseNpmignore(source: Source, content: Uint8Array): voi
 	return extractNpmignore(source, content, { nocase: true })
 }
 
-export const symlinkRule = {
+export const symlinkRule: CustomRule = {
 	excludes: true,
 	match({ dirent }) {
 		return dirent.isSymbolicLink() ? "//symlink" : null
 	},
-} satisfies CustomRule as CustomRule
+}
 
 const DIRECT_PATH_FIELDS = ["main", "module", "browser", "bin"]
 
@@ -42,7 +42,7 @@ export function makeExplicitRootFilesRule(ctx: NpmContext): CustomRule {
 			if (ctx.explicitRootFiles.has(entry)) return "//explicitly listed in package.json files"
 			return null
 		},
-	} satisfies CustomRule as CustomRule
+	}
 }
 
 export function makeDirectPathsRule(directPathsInclude: Record<string, string>): CustomRule {
@@ -55,7 +55,7 @@ export function makeDirectPathsRule(directPathsInclude: Record<string, string>):
 			}
 			return null
 		},
-	} satisfies CustomRule as CustomRule
+	}
 }
 
 export interface PackageJson {
@@ -475,29 +475,28 @@ export function createNpmContext(
 	mode: "list" | "publish" | "bundle" = "publish",
 	targetName?: string,
 ): NpmContext {
+	const directPathsInclude: Record<string, string> = Object.create(null)
 	const ctx: NpmContext = {
 		bundledDeps: [],
-		directPathsInclude: Object.create(null),
-		directPathsRule: null as unknown as CustomRule,
+		directPathsInclude,
+		directPathsRule: makeDirectPathsRule(directPathsInclude),
 		dist: undefined,
 		explicitRootFiles: new Set<string>(),
-		explicitRootFilesRule: null as unknown as CustomRule,
+		explicitRootFilesRule: null!,
 		mode,
 		npmIgnoreExcludeGlobRule: {
 			compiled: null,
 			excludes: true,
-			// oxlint-disable-next-line typescript/no-explicit-any
-			list: null as any,
+			list: [],
 		},
 		patchedDepsExclude: new Set<string>(),
-		patchedDepsRule: null as unknown as CustomRule,
+		patchedDepsRule: null!,
 		rootDeps: new Set<string>(),
 		targetName,
 		whitelistedPaths: new Set<string>(),
 		whitelistedRegex: null,
 		workspaceRegex: null,
 	}
-	ctx.directPathsRule = makeDirectPathsRule(ctx.directPathsInclude)
 	ctx.patchedDepsRule = makePatchedDepsRule(ctx)
 	ctx.explicitRootFilesRule = makeExplicitRootFilesRule(ctx)
 	return ctx
@@ -519,7 +518,7 @@ export function makePatchedDepsRule(ctx: NpmContext): CustomRule {
 			if (ctx.patchedDepsExclude.has(entry)) return "//patchedDependencies exclusion"
 			return null
 		},
-	} satisfies CustomRule as CustomRule
+	}
 }
 
 export function makePackageResolutionRule(ctx: NpmContext): SkipRule {

@@ -188,7 +188,7 @@ function processEntries(
 		else if ((entry.isFile() || entry.isSymbolicLink()) && isIncluded) dirMatchedFiles++
 
 		if (onResult) onResult(self)
-		else state.results!.push(self)
+		else state.results?.push(self)
 
 		if (self.isDir && self.next === 0) walk(currentRelPath, depth + 1, res)
 		finish()
@@ -240,7 +240,7 @@ export function scanParallel(
 	}
 
 	const removeAbortListener = () => {
-		if (signal) signal.removeEventListener("abort", onAbort)
+		signal?.removeEventListener("abort", onAbort)
 	}
 
 	const handleError = (err: Error) => {
