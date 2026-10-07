@@ -1,12 +1,18 @@
-import type { Dirent, Stats } from "node:fs"
+import type { Dirent } from "node:fs"
 
 import type { MatcherStream } from "./patterns/matcherStream.js"
 import type { Resource, InvalidSource } from "./patterns/resource.js"
 import type { ScanOptions } from "./types.js"
 
 import { resolveSources } from "./patterns/resolveSources.js"
-import { countSlashes, ffalse, join } from "./unixify.js"
-import { isMatchIncluded, walkIncludes, type WalkResult, type WalkTotal } from "./walk.js"
+import { countSlashes, join } from "./unixify.js"
+import {
+	createSyntheticDirent,
+	isMatchIncluded,
+	walkIncludes,
+	type WalkResult,
+	type WalkTotal,
+} from "./walk.js"
 
 export interface ScanParallelOptions {
 	scanOptions: Required<ScanOptions>
@@ -24,7 +30,6 @@ interface ScanState {
 
 function processSingleFile(
 	within: string,
-	stat: Stats,
 	options: ScanParallelOptions,
 	state: ScanState,
 	handleError: (err: Error) => void,
@@ -44,19 +49,7 @@ function processSingleFile(
 
 	const depth = lastSlash === -1 ? 0 : countSlashes(within)
 
-	const entry = {
-		isBlockDevice: typeof stat.isBlockDevice === "function" ? () => stat.isBlockDevice() : ffalse,
-		isCharacterDevice:
-			typeof stat.isCharacterDevice === "function" ? () => stat.isCharacterDevice() : ffalse,
-		isDirectory: () => false,
-		isFIFO: typeof stat.isFIFO === "function" ? () => stat.isFIFO() : ffalse,
-		isFile: typeof stat.isFile === "function" ? () => stat.isFile() : ffalse,
-		isSocket: typeof stat.isSocket === "function" ? () => stat.isSocket() : ffalse,
-		isSymbolicLink:
-			typeof stat.isSymbolicLink === "function" ? () => stat.isSymbolicLink() : ffalse,
-		name,
-		parentPath,
-	} as Dirent
+	const entry = createSyntheticDirent(name, parentPath, false)
 
 	resolveSources(
 		{
@@ -364,7 +357,7 @@ export function scanParallel(
 					taskDone()
 					return
 				}
-				processSingleFile(item, stat as Stats, options, state, handleError, taskDone)
+				processSingleFile(item, options, state, handleError, taskDone)
 			})
 		} else walk(item, initialDepth, undefined)
 	}

@@ -16,7 +16,7 @@ import {
 	type Rule,
 	type InternalRules,
 } from "./patterns/rule.js"
-import { dirname, ffalse } from "./unixify.js"
+import { dirname } from "./unixify.js"
 
 export type WalkOptions = {
 	relPath: string
@@ -29,17 +29,35 @@ export type WalkOptions = {
 	depth: number
 }
 
-export type WalkResult = {
+export class WalkResult {
 	path: string
 	parentPath: string
 	match: RuleMatch
-	includeParent: boolean
-	tooDeep: boolean
-	next: 0 | 1
+	includeParent = false
+	tooDeep = false
+	next: 0 | 1 = 0
 	depth: number
 	isDir: boolean
 	entry: Dirent
-	context: MatcherContext | null | undefined
+	context: MatcherContext | null | undefined = undefined
+
+	constructor(
+		path: string,
+		parentPath: string,
+		match: RuleMatch,
+		depth: number,
+		isDir: boolean,
+		entry: Dirent,
+		tooDeep = false,
+	) {
+		this.path = path
+		this.parentPath = parentPath
+		this.match = match
+		this.depth = depth
+		this.isDir = isDir
+		this.entry = entry
+		this.tooDeep = tooDeep
+	}
 }
 
 export type WalkTotal = {
@@ -58,6 +76,8 @@ export function isMatchIncluded(match: RuleMatch, invert: boolean | 2): boolean 
 	return !isRuleMatchInvalid(match) && !isMatchExcluded(invert, match)
 }
 
+const ruleMatchIgnoredNone: RuleMatch = { ignored: true, kind: RuleMatchKind.none }
+
 function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): WalkResult {
 	const { entry, scanOptions, relPath: path, parentPath, depth } = options
 	const { depth: maxDepth, invert, skipDepth } = scanOptions
@@ -66,18 +86,7 @@ function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): 
 	const isExcluded = isMatchExcluded(invert, match)
 	const direntPath = isDir ? path + "/" : path
 
-	const result: WalkResult = {
-		context: undefined,
-		depth,
-		entry,
-		includeParent: false,
-		isDir,
-		match,
-		next: 0,
-		parentPath,
-		path: direntPath,
-		tooDeep: tooDeepFlag,
-	}
+	const result = new WalkResult(direntPath, parentPath, match, depth, isDir, entry, tooDeepFlag)
 
 	if (isRuleMatchInvalid(match)) return result
 	if (isExcluded) {
@@ -110,18 +119,10 @@ function handleRuleResolvedCtx(
 ): WalkResult {
 	if (resolvedCtx === null) return runIgnoresSync()
 	const { entry, relPath: path, parentPath, depth } = options
-	return {
-		context: resolvedCtx === 0 ? null : resolvedCtx,
-		depth,
-		entry,
-		includeParent: false,
-		isDir: true,
-		match: { ignored: true, kind: 0 },
-		next: 1,
-		parentPath,
-		path: path + "/",
-		tooDeep: false,
-	}
+	const res = new WalkResult(path + "/", parentPath, ruleMatchIgnoredNone, depth, true, entry)
+	res.context = resolvedCtx === 0 ? null : resolvedCtx
+	res.next = 1
+	return res
 }
 
 function throwErrorCallback(err: Error): never {
@@ -187,18 +188,10 @@ function checkRulesList(
 					handleRuleResolvedCtx(resolvedCtx, options, () => runIgnoresSync(options, isDir)),
 				throwErrorCallback,
 			)
-		return {
-			context: res === 0 ? null : (res as MatcherContext),
-			depth,
-			entry,
-			includeParent: false,
-			isDir: true,
-			match: { ignored: true, kind: 0 },
-			next: 1,
-			parentPath,
-			path: path + "/",
-			tooDeep: false,
-		}
+		const walkRes = new WalkResult(path + "/", parentPath, ruleMatchIgnoredNone, depth, true, entry)
+		walkRes.context = res === 0 ? null : (res as MatcherContext)
+		walkRes.next = 1
+		return walkRes
 	}
 	return null
 }
@@ -230,18 +223,57 @@ export function walkIncludes(options: WalkOptions): WalkResult | Promise<WalkRes
 	return runIgnoresSync(options, isDir)
 }
 
+abstract class BaseSyntheticDirent {
+	name: string
+	parentPath: string
+
+	constructor(name: string, parentPath: string) {
+		this.name = name
+		this.parentPath = parentPath
+	}
+
+	isBlockDevice(): boolean {
+		return false
+	}
+	isCharacterDevice(): boolean {
+		return false
+	}
+	isFIFO(): boolean {
+		return false
+	}
+	isSocket(): boolean {
+		return false
+	}
+	isSymbolicLink(): boolean {
+		return false
+	}
+
+	abstract isDirectory(): boolean
+	abstract isFile(): boolean
+}
+
+class SyntheticDirDirent extends BaseSyntheticDirent {
+	isDirectory(): boolean {
+		return true
+	}
+	isFile(): boolean {
+		return false
+	}
+}
+
+class SyntheticFileDirent extends BaseSyntheticDirent {
+	isDirectory(): boolean {
+		return false
+	}
+	isFile(): boolean {
+		return true
+	}
+}
+
 export function createSyntheticDirent(name: string, parentPath: string, isDir: boolean): Dirent {
-	return {
-		isBlockDevice: ffalse,
-		isCharacterDevice: ffalse,
-		isDirectory: () => isDir,
-		isFIFO: ffalse,
-		isFile: () => !isDir,
-		isSocket: ffalse,
-		isSymbolicLink: ffalse,
-		name,
-		parentPath,
-	} as Dirent
+	return (isDir
+		? new SyntheticDirDirent(name, parentPath)
+		: new SyntheticFileDirent(name, parentPath)) as unknown as Dirent
 }
 
 function patch(

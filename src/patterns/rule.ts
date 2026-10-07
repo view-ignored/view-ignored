@@ -402,6 +402,11 @@ function evalRule(
 	return cacheTest(rule.compiled!, entryPath)
 }
 
+const MISSING_SOURCE_MATCH: RuleMatch = Object.freeze({
+	ignored: false,
+	kind: RuleMatchKind.missingSource,
+})
+
 /**
  * Synchronous version of {@link ruleTest}.
  *
@@ -470,7 +475,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 		if (internalMatch) return internalMatch
 	}
 
-	if (src === null) return { ignored: false, kind: RuleMatchKind.missingSource }
+	if (src === null) return MISSING_SOURCE_MATCH
 
 	return (src._noMatchCache ||= {
 		ignored: hasInverted || src.inverted || false,
