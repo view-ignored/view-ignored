@@ -344,6 +344,16 @@ export interface RuleTestOptions extends PatternFinderOptions {
 	 * @since 0.12.0
 	 */
 	dirent: Dirent
+
+	/**
+	 * Remaining max depth.
+	 */
+	depth?: number
+
+	/**
+	 * Scoped within paths.
+	 */
+	within?: string | string[]
 }
 
 function cacheTest(rs: null | PatternListCompiled, path: string): string | null {
@@ -362,26 +372,34 @@ function cacheTest(rs: null | PatternListCompiled, path: string): string | null 
 	})
 }
 
+type IgnoreOptsHolder = { opts: IgnoresOptions | null }
+
 function evalRule(
 	rule: GlobRule | CustomRule,
 	entryPath: string,
-	getOpts: () => IgnoresOptions,
+	options: RuleTestOptions,
+	src: Resource,
+	holder: IgnoreOptsHolder,
 ): string | Error | null {
-	return "match" in rule ? rule.match(getOpts()) : cacheTest(rule.compiled!, entryPath)
-}
-
-function getIgnoreOptions(options: RuleTestOptions, src: Resource): IgnoresOptions {
-	return {
-		cwd: options.cwd,
-		dirent: options.dirent,
-		entry: options.entry,
-		fs: options.fs,
-		lowerEntry: options.lowerEntry,
-		parentPath: options.parentPath,
-		resource: src,
-		signal: options.signal,
-		target: options.target,
+	if ("match" in rule) {
+		if (holder.opts) {
+			holder.opts.resource = src
+		} else {
+			holder.opts = {
+				cwd: options.cwd,
+				dirent: options.dirent,
+				entry: options.entry,
+				fs: options.fs,
+				lowerEntry: options.lowerEntry,
+				parentPath: options.parentPath,
+				resource: src,
+				signal: options.signal,
+				target: options.target,
+			}
+		}
+		return rule.match(holder.opts)
 	}
+	return cacheTest(rule.compiled!, entryPath)
 }
 
 /**
@@ -398,23 +416,19 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 		return { ...src, ignored: true, kind: RuleMatchKind.invalidSource }
 
 	const entry =
-		options.dirent &&
-		typeof options.dirent.isDirectory === "function" &&
-		options.dirent.isDirectory() &&
-		!options.entry.endsWith("/")
+		options.dirent.isDirectory() && !options.entry.endsWith("/")
 			? options.entry + "/"
 			: options.entry
 
 	const { internalRules } = options.target
 	const beforeInternal = Array.isArray(internalRules) ? internalRules : internalRules.before
 
+	const holder: IgnoreOptsHolder = { opts: null }
+
 	if (beforeInternal.length > 0) {
-		const internalMatch = ruleTestInternalSync(beforeInternal, options, src, entry)
+		const internalMatch = ruleTestInternalSync(beforeInternal, options, src, entry, holder)
 		if (internalMatch) return internalMatch
 	}
-
-	let ignoreOpts: IgnoresOptions | null = null
-	const getOpts = () => ignoreOpts || (ignoreOpts = getIgnoreOptions(options, src))
 
 	let currentSrc: Resource = src
 	let hasInverted = false
@@ -426,7 +440,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 		for (let i = 0; i < rlen; i++) {
 			const rule = rules[i]!
 			if (typeof rule === "function") continue
-			const res = evalRule(rule, entry, getOpts)
+			const res = evalRule(rule, entry, options, currentSrc, holder)
 			if (res === null) continue
 			if (res instanceof Error) {
 				return {
@@ -452,7 +466,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 	}
 
 	if (!Array.isArray(internalRules) && internalRules.after.length > 0) {
-		const internalMatch = ruleTestInternalSync(internalRules.after, options, src, entry)
+		const internalMatch = ruleTestInternalSync(internalRules.after, options, src, entry, holder)
 		if (internalMatch) return internalMatch
 	}
 
@@ -470,14 +484,12 @@ function ruleTestInternalSync(
 	options: RuleTestOptions,
 	src: Resource,
 	entryPath: string,
+	holder: IgnoreOptsHolder,
 ): RuleMatch | void {
-	let ignoreOpts: IgnoresOptions | null = null
-	const getOpts = () => ignoreOpts || (ignoreOpts = getIgnoreOptions(options, src))
-
 	for (let i = 0, len = rules.length; i < len; i++) {
 		const rule = rules[i]!
 		if (typeof rule === "function") continue
-		const res = evalRule(rule, entryPath, getOpts)
+		const res = evalRule(rule, entryPath, options, src, holder)
 		if (res === null) continue
 
 		const source = "source" in rule && rule.source ? (rule.source as Source) : null

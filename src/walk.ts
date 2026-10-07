@@ -1,5 +1,6 @@
 import type { Dirent } from "node:fs"
 
+import type { IgnoresOptions } from "./patterns/ignores.js"
 import type { MatcherContext, Total } from "./patterns/matcherContext.js"
 import type { MatcherStream } from "./patterns/matcherStream.js"
 import type { Resource } from "./patterns/resource.js"
@@ -12,7 +13,6 @@ import {
 	type RuleMatch,
 	RuleMatchKind,
 	ruleTestSync,
-	type RuleTestOptions,
 	type Rule,
 	type InternalRules,
 } from "./patterns/rule.js"
@@ -128,17 +128,10 @@ function throwErrorCallback(err: Error): never {
 	throw err
 }
 
-function checkRulesList(
-	list: Rule[] | null | undefined,
-	options: WalkOptions,
-	maxDepth: number,
-	runIgnoresSync: () => WalkResult,
-): WalkResult | Promise<WalkResult> | null {
-	if (!list || list.length === 0) return null
+function runIgnoresSync(options: WalkOptions, isDir: boolean): WalkResult {
 	const { entry, scanOptions, relPath: path, lowerEntry, parentPath, resource, depth } = options
-	const { target, fs, cwd, signal, within } = scanOptions
-
-	const ignoreOptions = {
+	const { target, depth: maxDepth, fs, cwd, signal, within } = scanOptions
+	const match = ruleTestSync({
 		cwd,
 		depth: maxDepth - depth,
 		dirent: entry,
@@ -150,19 +143,48 @@ function checkRulesList(
 		signal,
 		target,
 		within,
-	}
+	})
+	return getWalkResult(match, options, isDir)
+}
+
+function checkRulesList(
+	list: Rule[] | null | undefined,
+	options: WalkOptions,
+	maxDepth: number,
+	isDir: boolean,
+): WalkResult | Promise<WalkResult> | null {
+	if (!list?.length) return null
+	const { entry, scanOptions, relPath: path, lowerEntry, parentPath, resource, depth } = options
+	const { target, fs, cwd, signal, within } = scanOptions
+
+	let ignoreOptions: IgnoresOptions | undefined
 
 	const len = list.length
 	for (let i = 0; i < len; i++) {
 		const rule = list[i]!
 		if (typeof rule !== "function") continue
 
+		ignoreOptions ??= {
+			cwd,
+			depth: maxDepth - depth,
+			dirent: entry,
+			entry: path,
+			fs,
+			lowerEntry,
+			parentPath,
+			resource,
+			signal,
+			target,
+			within,
+		}
+
 		const res = rule(ignoreOptions)
 		if (res === null) continue
 
 		if (res && typeof (res as Promise<unknown>).then === "function")
 			return (res as Promise<MatcherContext | 0 | null>).then(
-				(resolvedCtx) => handleRuleResolvedCtx(resolvedCtx, options, runIgnoresSync),
+				(resolvedCtx) =>
+					handleRuleResolvedCtx(resolvedCtx, options, () => runIgnoresSync(options, isDir)),
 				throwErrorCallback,
 			)
 		return {
@@ -185,44 +207,27 @@ function checkRulesList(
  * @since 0.11.0
  */
 export function walkIncludes(options: WalkOptions): WalkResult | Promise<WalkResult> {
-	const { entry, scanOptions, relPath: path, lowerEntry, parentPath, resource, depth } = options
-	const { target, depth: maxDepth, fs, cwd, signal, within } = scanOptions
+	const { entry, scanOptions } = options
+	const { target, depth: maxDepth } = scanOptions
 
 	const isDir = entry.isDirectory()
 
-	const runIgnoresSync = (): WalkResult => {
-		const match = ruleTestSync({
-			cwd,
-			depth: maxDepth - depth,
-			dirent: entry,
-			entry: path,
-			fs,
-			lowerEntry,
-			parentPath,
-			resource,
-			signal,
-			target,
-			within,
-		} as unknown as RuleTestOptions)
-		return getWalkResult(match, options, isDir)
-	}
-
-	if (!isDir) return runIgnoresSync()
+	if (!isDir) return runIgnoresSync(options, isDir)
 
 	const { internalRules } = target
-	if (!internalRules) return runIgnoresSync()
+	if (!internalRules) return runIgnoresSync(options, isDir)
 
 	const isArr = Array.isArray(internalRules)
 	const list1 = isArr ? (internalRules as Rule[]) : (internalRules as InternalRules).before
 	const list2 = isArr ? null : (internalRules as InternalRules).after
 
-	const res1 = checkRulesList(list1, options, maxDepth, runIgnoresSync)
+	const res1 = checkRulesList(list1, options, maxDepth, isDir)
 	if (res1 !== null) return res1
 
-	const res2 = checkRulesList(list2, options, maxDepth, runIgnoresSync)
+	const res2 = checkRulesList(list2, options, maxDepth, isDir)
 	if (res2 !== null) return res2
 
-	return runIgnoresSync()
+	return runIgnoresSync(options, isDir)
 }
 
 export function createSyntheticDirent(name: string, parentPath: string, isDir: boolean): Dirent {
