@@ -407,6 +407,11 @@ function evalRule(
  *
  * @since 0.11.0
  */
+const MISSING_SOURCE_MATCH: RuleMatch = Object.freeze({
+	ignored: false,
+	kind: RuleMatchKind.missingSource,
+})
+
 export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 	const src = options.resource
 
@@ -470,7 +475,7 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 		if (internalMatch) return internalMatch
 	}
 
-	if (src === null) return { ignored: false, kind: RuleMatchKind.missingSource }
+	if (src === null) return MISSING_SOURCE_MATCH
 
 	return (src._noMatchCache ||= {
 		ignored: hasInverted || src.inverted || false,
