@@ -1,5 +1,3 @@
-import type { Dirent } from "fs"
-
 import type { ScanOptions } from "../types.js"
 import type { MatcherContext } from "./matcherContext.js"
 import type { Resource } from "./resource.js"
@@ -7,13 +5,14 @@ import type { Resource } from "./resource.js"
 import { getOrInsert } from "../mapUtils.js"
 import { type ScanParallelOptions } from "../scanParallel.js"
 import { scanParallel } from "../scanParallel.js"
-import { dirname, ffalse, unixify } from "../unixify.js"
+import { dirname, unixify } from "../unixify.js"
 import {
 	walkPatchResult,
 	walkPatchTotal,
 	propagateTotals,
 	type WalkResult,
 	type WalkTotal,
+	createSyntheticDirent,
 } from "../walk.js"
 import { type IgnoresOptions } from "./ignores.js"
 import { type ResolveSourcesOptions, resolveSources } from "./resolveSources.js"
@@ -27,20 +26,6 @@ const promIgnores = (options: IgnoresOptions): Promise<RuleMatch> =>
 
 const promScanParallel = (options: ScanParallelOptions): Promise<WalkResult[] | null> =>
 	new Promise((res, rej) => scanParallel(options, (err, r) => (err ? rej(err) : res(r))))
-
-function mockDirent(name: string, parentPath: string, isDir: boolean): Dirent {
-	return {
-		isBlockDevice: ffalse,
-		isCharacterDevice: ffalse,
-		isDirectory: () => isDir,
-		isFIFO: ffalse,
-		isFile: () => !isDir,
-		isSocket: ffalse,
-		isSymbolicLink: ffalse,
-		name,
-		parentPath,
-	} as Dirent
-}
 
 function parseEntryPath(entry: string) {
 	const isDir = entry.endsWith("/")
@@ -91,7 +76,7 @@ export async function matcherContextAddPath(
 
 		const match = await promIgnores({
 			cwd,
-			dirent: mockDirent(name, parentPath, true),
+			dirent: createSyntheticDirent(name, parentPath, true),
 			entry: direntPath,
 			fs,
 			parentPath,
@@ -156,7 +141,7 @@ export async function matcherContextAddPath(
 
 	const match = await promIgnores({
 		cwd,
-		dirent: mockDirent(name, parentPath, false),
+		dirent: createSyntheticDirent(name, parentPath, false),
 		entry,
 		fs,
 		parentPath,

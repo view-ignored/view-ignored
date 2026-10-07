@@ -96,5 +96,3 @@ export function countSlashes(s: string, start = 0): number {
 	}
 	return count
 }
-
-export const ffalse = (): false => false

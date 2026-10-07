@@ -402,16 +402,16 @@ function evalRule(
 	return cacheTest(rule.compiled!, entryPath)
 }
 
-/**
- * Synchronous version of {@link ruleTest}.
- *
- * @since 0.11.0
- */
 const MISSING_SOURCE_MATCH: RuleMatch = Object.freeze({
 	ignored: false,
 	kind: RuleMatchKind.missingSource,
 })
 
+/**
+ * Synchronous version of {@link ruleTest}.
+ *
+ * @since 0.11.0
+ */
 export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 	const src = options.resource
 
