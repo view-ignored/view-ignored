@@ -51,8 +51,9 @@ function findExtendedRoot(
 	if (signal?.aborted) return cb(signal.reason as Error, null)
 
 	const cacheKey = `${cwd}::${extendsRoot}`
-	if (extendedRootCache.has(cacheKey)) {
-		cb(null, extendedRootCache.get(cacheKey)!)
+	const cachedPath = extendedRootCache.get(cacheKey)
+	if (cachedPath !== undefined) {
+		cb(null, cachedPath)
 		return
 	}
 
