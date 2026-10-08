@@ -9,6 +9,7 @@ and this project adheres to
 ## [Unreleased]
 
 - Optimize matching performance and memory by eliminating closure and option allocations during synchronous rule evaluation and dirent walking.
+- Optimize JSON property key matching in `scanJsonRuleRanges` and `findJsonKeyRange` via fast byte-level comparisons on package manifest buffers.
 
 ## [0.13.1] - 2026-10-05
 
