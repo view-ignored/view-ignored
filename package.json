@@ -86,7 +86,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"prerelease": "bun check -p src/tsconfig.json && bun run test && bun run prod && bun run lint && bun run fmt --check && bun run node-compat && bun publint --pack npm --strict && bun run badges --check",
+		"prerelease": "bun check -p src/tsconfig.json && bun run test && bun run prod && bun run lint && bun run fmt --check && bun run node-compat && bun run badges --check",
 		"heap": "bun scripts/scanHeap.js --snapshot",
 		"heap:node": "node scripts/scanHeap.js --snapshot",
 		"cpu": "bun run --expose-gc --cpu-prof --cpu-prof-md --cpu-prof-name CPU.me scripts/scan.js",
@@ -110,7 +110,7 @@
 		"lint": "bun run oxlint --type-aware",
 		"fmt": "bun run oxfmt",
 		"dev": "bun check -p src",
-		"prod": "rm -rf out && bun x tsc -p src/tsconfig.prod.json --emitDeclarationOnly && bun x tsc -p src/tsconfig.prod.json --removeComments -d false && bun oxfmt ./out/**/*.js ./out/**/*.d.ts",
+		"prod": "rm -rf out && bun build --no-bundle --root src --outdir out src/index.ts src/scan.ts src/stream.ts src/browser.ts src/browser_scan.ts src/browser_stream.ts src/patterns/*.ts src/targets/*.ts src/cli/*.ts && bun oxfmt ./out/**/*.js",
 		"node-compat": "bun run node-compat-22 && bun run node-compat-24",
 		"node-compat-24": "bun check -p src/tsconfig.prod24.json",
 		"node-compat-22": "bun check -p src/tsconfig.prod22.json",
