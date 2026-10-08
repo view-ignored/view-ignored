@@ -8,7 +8,6 @@
 [![engine node 22 or later](https://npmx.dev/api/registry/badge/engines/view-ignored)](https://npmx.dev/package/view-ignored)
 [![updated](https://npmx.dev/api/registry/badge/updated/view-ignored)](https://npmx.dev/package/view-ignored)<br/>
 [![coverage](https://codecov.io/gh/view-ignored/view-ignored/graph/badge.svg?token=O5I06Y2A86)](https://codecov.io/gh/view-ignored/view-ignored)
-![typescript v5.7 or later](https://img.shields.io/badge/ts->=5.7-salad?repo=view-ignored/view-ignored)
 [![speed-fast](https://img.shields.io/badge/speed-fast-salad?repo=view-ignored/view-ignored.svg)](https://github.com/view-ignored/view-ignored/tree/main/benchmarks)
 [![npm-packlist-tests](https://img.shields.io/badge/npm--packlist-68%2F68-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-npm-packlist/)
 [![wildmatch-tests](https://img.shields.io/badge/wildmatch-346%2F346-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/git-wildmatch.ts)
