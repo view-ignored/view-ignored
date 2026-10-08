@@ -121,7 +121,7 @@ export async function testScan(
 	}
 
 	const adapter = createAdapter(vol)
-	const o = { cwd: cwd, fs: adapter, ...options } as ScanBrowserOptions
+	const o = { cwd, fs: adapter, ...options } as ScanBrowserOptions
 
 	if (typeof test === "function") {
 		let ctx: MatcherContext
@@ -245,7 +245,7 @@ export async function testStream(
 	const cwd = process.cwd() + "/test"
 	const vol = Volume.fromNestedJSON(tree, cwd)
 	const adapter = createAdapter(vol)
-	const o = { cwd: cwd, fs: adapter, ...options } as ScanBrowserOptions
+	const o = { cwd, fs: adapter, ...options } as ScanBrowserOptions
 
 	if (typeof test === "function") {
 		const stream = scanStream(o)

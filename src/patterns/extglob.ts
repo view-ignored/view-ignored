@@ -55,11 +55,10 @@ export function convertExtglobToRegex(pattern: string): string {
 			const closeIdx = pattern.indexOf("]", i + 1)
 			if (closeIdx !== -1) {
 				const inner = pattern.slice(i + 1, closeIdx)
-				if (inner.startsWith("!") || inner.startsWith("^")) {
-					res += "[^" + inner.slice(1) + "]"
-				} else {
-					res += "[" + inner + "]"
-				}
+				res +=
+					inner.startsWith("!") || inner.startsWith("^")
+						? "[^" + inner.slice(1) + "]"
+						: "[" + inner + "]"
 				i = closeIdx + 1
 				continue
 			}

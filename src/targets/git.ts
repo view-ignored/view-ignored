@@ -133,8 +133,8 @@ export function makeGit(): Target {
 			) => {
 				const { core } = conf
 				const ignorecase = core
-					? core["ignorecase"] === true ||
-						(typeof core["ignorecase"] === "string" && core["ignorecase"].toLowerCase() === "true")
+					? core.ignorecase === true ||
+						(typeof core.ignorecase === "string" && core.ignorecase.toLowerCase() === "true")
 					: false
 
 				if (ignorecase) {
@@ -142,7 +142,7 @@ export function makeGit(): Target {
 						extractGitignore(source, content, { nocase: true })
 				}
 
-				const ex = core ? core["excludesfile"] : null
+				const ex = core ? core.excludesfile : null
 				const repoRoot = gDir ? dirname(gDir) : nCwd
 				const p = ex ? resolvePath(repoRoot, ex) : resolvePath(repoRoot, globalIgnore)
 
@@ -153,8 +153,10 @@ export function makeGit(): Target {
 				let pending = 1 + (excludePath ? 1 : 0) + (gDir ? 1 : 0)
 				const done = () => {
 					if (--pending === 0) {
-						if (excludeRules && globalRules) internal.after = excludeRules.concat(globalRules)
-						else internal.after = excludeRules || globalRules || []
+						internal.after =
+							excludeRules && globalRules
+								? excludeRules.concat(globalRules)
+								: excludeRules || globalRules || []
 						cb(null)
 					}
 				}

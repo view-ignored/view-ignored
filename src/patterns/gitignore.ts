@@ -122,13 +122,7 @@ function processGitignoreLine(
 	for (let m = 0; m < rawLine.length; m++) {
 		const rc = rawLine[m]!
 		if (resolvedIsEscaped) {
-			if (rc === " " || rc === "#") {
-				resolvedLine += rc
-			} else if (rc === "\\") {
-				resolvedLine += "\\"
-			} else {
-				resolvedLine += "\\" + rc
-			}
+			resolvedLine += rc === " " || rc === "#" || rc === "\\" ? rc : "\\" + rc
 			resolvedIsEscaped = false
 		} else if (rc === "\\") {
 			resolvedIsEscaped = true

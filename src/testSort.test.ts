@@ -61,8 +61,8 @@ function shiftPath(p: string): ShiftResult {
 	const other = p.slice(Math.max(0, slashIndex + 1))
 	const r: ShiftResult = {
 		isLast: next == "",
-		next: next,
-		other: other,
+		next,
+		other,
 	}
 	if (slashIndex < 0) {
 		r.next = r.other

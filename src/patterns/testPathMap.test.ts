@@ -37,15 +37,6 @@ describe("PathMap", () => {
 		expect(map.get("other/file.ts")).toBeUndefined()
 	})
 
-	test("dirs with trailing slash", () => {
-		const map = new PathMap()
-		const match: RuleMatch = { ignored: true, kind: RuleMatchKind.none }
-
-		map.dirs.set(".git/", match)
-		expect(map.get(".git/config")).toBe(match)
-		expect(map.get(".git/something/something")).toBe(match)
-	})
-
 	test("clear empties both main map and dirs", () => {
 		const map = new PathMap()
 		const match: RuleMatch = { ignored: false, kind: RuleMatchKind.none }

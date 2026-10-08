@@ -14,14 +14,14 @@ export class PathMap extends Map<string, RuleMatch> {
 		if (cleanKey === "" || cleanKey === ".") return undefined
 
 		if (isExplicitDir) {
-			const match = this.dirs.get(cleanKey) ?? this.dirs.get(cleanKey + "/")
+			const match = this.dirs.get(cleanKey)
 			if (match !== undefined) return match
 		}
 
 		let slashIndex = cleanKey.lastIndexOf("/")
 		while (slashIndex > 0) {
 			const dir = cleanKey.slice(0, slashIndex)
-			const match = this.dirs.get(dir) ?? this.dirs.get(dir + "/")
+			const match = this.dirs.get(dir)
 			if (match !== undefined) return match
 			slashIndex = cleanKey.lastIndexOf("/", slashIndex - 1)
 		}

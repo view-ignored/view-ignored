@@ -85,10 +85,8 @@ export async function matcherContextAddPath(
 			target,
 		})
 
-		if (match) {
-			if (isRuleMatchPattern(match)) ctx.matchedRules.add(match.rule)
-			ctx.paths.dirs.set(direntPath, match)
-		}
+		if (isRuleMatchPattern(match)) ctx.matchedRules.add(match.rule)
+		ctx.paths.dirs.set(direntPath, match)
 
 		if (!match.ignored && options.dirs && !ctx.paths.has(entry)) {
 			ctx.paths.set(entry, match)

@@ -202,7 +202,7 @@ export function getIncludes(parsed: any, gitDir: string | null, branch: string |
 	const order = parsed.__order
 	const res: string[] = []
 	if (!order) {
-		const inc = parsed["include"]
+		const inc = parsed.include
 		if (inc?.path) {
 			if (Array.isArray(inc.path)) res.push(...inc.path)
 			else res.push(inc.path)

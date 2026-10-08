@@ -95,9 +95,9 @@ function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): 
 			match.ignored &&
 			match.kind !== RuleMatchKind.noMatch &&
 			(match.kind !== RuleMatchKind.external || match.source?.spec === PatternSpec.gitignore)
-		)
+		) {
 			result.next = 1
-
+		}
 		return result
 	}
 	if (tooDeepFlag) {
@@ -372,7 +372,9 @@ export function walkPatchResult(
 	if (context) patchMerged(ctx, stream, context)
 	const shouldPatch = dirs || (!isDir && (entry.isFile() || entry.isSymbolicLink()))
 	if (isExcluded) {
-		if (isRuleMatchInvalid(match) && stream && shouldPatch) patch(ctx, stream, path, entry, match)
+		if (isRuleMatchInvalid(match) && stream && shouldPatch) {
+			patch(ctx, stream, path, entry, match)
+		}
 		return
 	}
 	if (!tooDeep && shouldPatch) patch(ctx, stream, path, entry, match)

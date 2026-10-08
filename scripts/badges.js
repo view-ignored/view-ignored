@@ -134,15 +134,9 @@ function updateBadge() {
 	}
 
 	// Replace or insert ignore badge
-	if (ignoreRegex.test(readmeContent)) {
-		readmeContent = readmeContent.replace(ignoreRegex, newIgnoreBadge)
-	} else {
-		// Insert ignore badge right after wildmatch badge
-		readmeContent = readmeContent.replace(
-			newWildmatchBadge,
-			`${newWildmatchBadge}\n${newIgnoreBadge}`,
-		)
-	}
+	readmeContent = ignoreRegex.test(readmeContent)
+		? readmeContent.replace(ignoreRegex, newIgnoreBadge)
+		: readmeContent.replace(newWildmatchBadge, `${newWildmatchBadge}\n${newIgnoreBadge}`)
 
 	writeFileSync(README_PATH, readmeContent, "utf8")
 	console.log(`Successfully updated ${README_PATH} with:`)

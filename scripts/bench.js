@@ -386,28 +386,14 @@ function compareBenchmarks(current, base) {
 }
 
 function getVisualLength(str) {
-	const stripped = str.replace(/\x1b\[\d+m/g, "")
-	let length = 0
-	for (const char of stripped) {
-		const codePoint = char.codePointAt(0)
-		if (codePoint && (codePoint > 0xffff || codePoint === 0x26a1)) {
-			length += 2
-		} else {
-			length += 1
-		}
-	}
-	return length
+	return getStringLength(str.replace(/\x1b\[\d+m/g, ""))
 }
 
 function getStringLength(str) {
 	let length = 0
 	for (const char of str) {
 		const codePoint = char.codePointAt(0)
-		if (codePoint && (codePoint > 0xffff || codePoint === 0x26a1)) {
-			length += 2
-		} else {
-			length += 1
-		}
+		length += codePoint && (codePoint > 0xffff || codePoint === 0x26a1) ? 2 : 1
 	}
 	return length
 }
