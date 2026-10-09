@@ -28,15 +28,11 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-symlink"
 						name: "history",
 						version: "1.0.0",
 					}),
-					tests: {
-						"test.js": "please do not include me",
-					},
+					tests: { "test.js": "please do not include me" },
 				},
 				"package.json": JSON.stringify({
 					bundleDependencies: ["history"],
-					dependencies: {
-						history: "1.0.0",
-					},
+					dependencies: { history: "1.0.0" },
 					main: "elf.js",
 					name: "test-package",
 					version: "3.1.4",
@@ -49,10 +45,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-symlink"
 				"package.json",
 			],
 			{ target: makeNPM(), dirs: false },
-			{
-				"node_modules/history": "../history",
-				"history/lib/linky": "../tests",
-			},
+			{ "node_modules/history": "../history", "history/lib/linky": "../tests" },
 		)
 	})
 })

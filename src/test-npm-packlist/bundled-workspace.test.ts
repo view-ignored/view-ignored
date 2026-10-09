@@ -13,10 +13,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-workspac
 			{
 				"package.json": JSON.stringify({
 					bundleDependencies: ["foo", "bar"],
-					dependencies: {
-						bar: "1.0.0",
-						foo: "1.0.0",
-					},
+					dependencies: { bar: "1.0.0", foo: "1.0.0" },
 					name: "root",
 					version: "1.0.0",
 					workspaces: ["workspaces/*"],
@@ -25,17 +22,11 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-workspac
 				workspaces: {
 					bar: {
 						"index.js": "console.log('bar')",
-						"package.json": JSON.stringify({
-							name: "bar",
-							version: "1.0.0",
-						}),
+						"package.json": JSON.stringify({ name: "bar", version: "1.0.0" }),
 					},
 					foo: {
 						"index.js": "console.log('foo')",
-						"package.json": JSON.stringify({
-							name: "foo",
-							version: "1.0.0",
-						}),
+						"package.json": JSON.stringify({ name: "foo", version: "1.0.0" }),
 					},
 				},
 			},
@@ -47,10 +38,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-workspac
 				"package.json",
 			],
 			{ target: makeNPM(), dirs: false },
-			{
-				"node_modules/bar": "../workspaces/bar",
-				"node_modules/foo": "../workspaces/foo",
-			},
+			{ "node_modules/bar": "../workspaces/bar", "node_modules/foo": "../workspaces/foo" },
 		)
 	})
 })

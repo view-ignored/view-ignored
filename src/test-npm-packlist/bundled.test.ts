@@ -21,18 +21,12 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled", () => 
 				node_modules: {
 					history: {
 						"index.js": elfJS,
-						"package.json": JSON.stringify({
-							main: "index.js",
-							name: "history",
-							version: "1.0.0",
-						}),
+						"package.json": JSON.stringify({ main: "index.js", name: "history", version: "1.0.0" }),
 					},
 				},
 				"package.json": JSON.stringify({
 					bundleDependencies: ["history"],
-					dependencies: {
-						history: "1.0.0",
-					},
+					dependencies: { history: "1.0.0" },
 					main: "elf.js",
 					name: "test-package",
 					version: "3.1.4",
@@ -57,18 +51,12 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled", () => 
 				node_modules: {
 					history: {
 						"index.js": elfJS,
-						"package.json": JSON.stringify({
-							main: "index.js",
-							name: "history",
-							version: "1.0.0",
-						}),
+						"package.json": JSON.stringify({ main: "index.js", name: "history", version: "1.0.0" }),
 					},
 				},
 				"package.json": JSON.stringify({
 					bundledDependencies: ["history"],
-					dependencies: {
-						history: "1.0.0",
-					},
+					dependencies: { history: "1.0.0" },
 					main: "elf.js",
 					name: "test-package",
 					version: "3.1.4",

@@ -37,22 +37,12 @@ export function makeYarnClassic(mode: "list" | "publish" | "bundle" = "publish")
 
 	const extractors: Extractor[] = [
 		makePackageJsonExtractor(mode === "publish" ? "yarn-classic" : mode),
-		{
-			extract: extractNoCaseNpmignore,
-			path: "./.yarnignore",
-		},
-		{
-			extract: extractNoCaseNpmignore,
-			path: ".gitignore",
-		},
+		{ extract: extractNoCaseNpmignore, path: "./.yarnignore" },
+		{ extract: extractNoCaseNpmignore, path: ".gitignore" },
 	]
 
 	cachedYarnClassicAfterExcludesRule ||= ruleCompile(
-		{
-			compiled: null,
-			excludes: true,
-			list: [".npmignore", ".gitignore"],
-		},
+		{ compiled: null, excludes: true, list: [".npmignore", ".gitignore"] },
 		{ nocase: true },
 	)
 

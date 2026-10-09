@@ -60,21 +60,11 @@ barplot(() => {
 			}).gc(true)
 		if (!igw)
 			bench("'view-ignored'.scan(NPM, inverted)", async () => {
-				return scan({
-					cwd,
-					fs,
-					invert: true,
-					target: makeNPM(),
-				})
+				return scan({ cwd, fs, invert: true, target: makeNPM() })
 			}).gc(true)
 		if (!igw)
 			bench("'view-ignored'.browserScan(NPM, inverted)", async () => {
-				return browserScan({
-					cwd,
-					fs,
-					invert: true,
-					target: makeNPM(),
-				})
+				return browserScan({ cwd, fs, invert: true, target: makeNPM() })
 			}).gc(true)
 		if (!vign)
 			bench("'npm-packlist'(preparedArbTree)", async () => {
@@ -99,9 +89,7 @@ barplot(() => {
 	}
 })
 
-const stats = await run({
-	format: process.argv.includes("--json") ? "json" : "mitata",
-})
+const stats = await run({ format: process.argv.includes("--json") ? "json" : "mitata" })
 
 if (process.argv.includes("--json")) {
 	process.stdout.write(JSON.stringify(stats))

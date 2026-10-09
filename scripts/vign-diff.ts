@@ -115,26 +115,14 @@ const TARGETS: Record<string, TargetDef> = {
 		defaultSet: "all",
 		make: makeGit,
 		sets: {
-			all: {
-				cmd: "git ls-files --others --exclude-standard --cached",
-				parse: splitLines,
-			},
+			all: { cmd: "git ls-files --others --exclude-standard --cached", parse: splitLines },
 			"all-with-ignored": {
 				cmd: "git ls-files --cached --others --ignored --exclude-standard",
 				parse: splitLines,
 			},
-			ignored: {
-				cmd: "git ls-files --ignored --others --exclude-standard",
-				parse: splitLines,
-			},
-			tracked: {
-				cmd: "git ls-files --cached",
-				parse: splitLines,
-			},
-			untracked: {
-				cmd: "git ls-files --others --exclude-standard",
-				parse: splitLines,
-			},
+			ignored: { cmd: "git ls-files --ignored --others --exclude-standard", parse: splitLines },
+			tracked: { cmd: "git ls-files --cached", parse: splitLines },
+			untracked: { cmd: "git ls-files --others --exclude-standard", parse: splitLines },
 		},
 	},
 	jsr: {
@@ -196,14 +184,8 @@ const TARGETS: Record<string, TargetDef> = {
 		defaultSet: "default",
 		make: makeVSCE,
 		sets: {
-			default: {
-				cmd: "vsce ls",
-				parse: parseVsceOutput,
-			},
-			"no-dependencies": {
-				cmd: "vsce ls --no-dependencies",
-				parse: parseVsceOutput,
-			},
+			default: { cmd: "vsce ls", parse: parseVsceOutput },
+			"no-dependencies": { cmd: "vsce ls --no-dependencies", parse: parseVsceOutput },
 		},
 	},
 	yarn: {
@@ -383,9 +365,7 @@ let cachedYarnVersion: string | null | undefined
 function getYarnVersion(): string | null {
 	if (cachedYarnVersion !== undefined) return cachedYarnVersion
 	try {
-		cachedYarnVersion = execSync("yarn --version", {
-			stdio: ["ignore", "pipe", "ignore"],
-		})
+		cachedYarnVersion = execSync("yarn --version", { stdio: ["ignore", "pipe", "ignore"] })
 			.toString()
 			.trim()
 	} catch {
@@ -542,10 +522,7 @@ async function run(
 			env.PATH = `${binPath}${sep}${process.env.PATH || ""}`
 		}
 
-		const out = execSync(`${cmdToRun} 2>&1`, {
-			env,
-			stdio: ["ignore", "pipe", "pipe"],
-		}).toString()
+		const out = execSync(`${cmdToRun} 2>&1`, { env, stdio: ["ignore", "pipe", "pipe"] }).toString()
 		systemFiles = parseFn(out).map((f) => unixify(f))
 	} catch (err: unknown) {
 		let msg = err instanceof Error ? err.message : String(err)

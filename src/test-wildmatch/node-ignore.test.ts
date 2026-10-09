@@ -82,11 +82,7 @@ thumbs.db
 
 function createAdapter(vol: Volume): FsAdapter {
 	const fs = createFsFromVolume(vol) as any
-	return {
-		readFile: fs.readFile.bind(fs),
-		readdir: fs.readdir.bind(fs),
-		stat: fs.stat.bind(fs),
-	}
+	return { readFile: fs.readFile.bind(fs), readdir: fs.readdir.bind(fs), stat: fs.stat.bind(fs) }
 }
 
 function buildTree(paths: string[]): any {

@@ -17,25 +17,15 @@ module.exports = elf =>
 			{
 				"elf.js": elfJS,
 				node_modules: {
-					"@ignore": {
-						scoped: {
-							"index.js": "console.log('i do not want to be bundled')",
-						},
-					},
+					"@ignore": { scoped: { "index.js": "console.log('i do not want to be bundled')" } },
 					"@npmwombat": {
-						no: {
-							"wombat.js": "console.log('no bundle please')",
-						},
-						scoped: {
-							"index.js": "console.log('hello wombat')",
-						},
+						no: { "wombat.js": "console.log('no bundle please')" },
+						scoped: { "index.js": "console.log('hello wombat')" },
 					},
 				},
 				"package.json": JSON.stringify({
 					bundledDependencies: ["@npmwombat/scoped"],
-					dependencies: {
-						"@npmwombat/scoped": "1.0.0",
-					},
+					dependencies: { "@npmwombat/scoped": "1.0.0" },
 					main: "elf.js",
 					name: "test-package-scoped",
 					version: "3.1.4",

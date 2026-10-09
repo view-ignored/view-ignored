@@ -81,7 +81,7 @@ export interface PackageJson {
 function isValidNpmName(name: string): boolean {
 	const len = name.length
 	if (
-		len === 0 ||
+		!len ||
 		len > 214 ||
 		isWhitespace(name.charCodeAt(0)) ||
 		isWhitespace(name.charCodeAt(len - 1))
@@ -90,8 +90,8 @@ function isValidNpmName(name: string): boolean {
 
 	if (name.startsWith("@")) {
 		const slashIdx = name.indexOf("/", 1)
-		if (slashIdx === -1 || slashIdx === 1 || slashIdx === len - 1) return false
-		if (name.indexOf("/", slashIdx + 1) !== -1) return false
+		if (slashIdx <= 1 || slashIdx === len - 1 || name.indexOf("/", slashIdx + 1) !== -1)
+			return false
 		return (
 			isValidNameComponent(name.slice(1, slashIdx)) &&
 			isValidNameComponent(name.slice(slashIdx + 1))
@@ -103,11 +103,10 @@ function isValidNpmName(name: string): boolean {
 const VSCE_NAME_REGEX = /^[a-z0-9][a-z0-9-]*$/i
 
 function isValidNameComponent(part: string): boolean {
-	const len = part.length
-	if (len === 0) return false
+	if (!part) return false
 	const c0 = part.charCodeAt(0)
 	if (c0 === 46 || c0 === 95) return false
-	for (let i = 0; i < len; i++) {
+	for (let i = 0; i < part.length; i++) {
 		const c = part.charCodeAt(i)
 		if ((c >= 97 && c <= 122) || (c >= 48 && c <= 57) || c === 45 || c === 46 || c === 95) continue
 		return false
@@ -117,7 +116,7 @@ function isValidNameComponent(part: string): boolean {
 
 function isRecordOfStrings(value: unknown): value is Record<string, string> {
 	if (!value || typeof value !== "object" || Array.isArray(value)) return false
-	for (const k in value) {
+	for (const k in value as Record<string, unknown>) {
 		if (typeof (value as Record<string, unknown>)[k] !== "string") return false
 	}
 	return true
@@ -157,7 +156,6 @@ function doNpmManifestParse(
 		} else if (!isValidNpmName(parsed.name))
 			throw new Error(`'${parsed.name}' is not a valid npm package name`)
 
-		// Strict SemVer verification
 		if (!SEMVER_REGEX.test(parsed.version))
 			throw new Error(`'${parsed.version}' is not a valid SemVer version (expected format: X.Y.Z)`)
 	}
@@ -178,30 +176,27 @@ function doNpmManifestParse(
 	)
 		throw new Error("'browser' field must be a string or object")
 
-	if (parsed.engines !== undefined && !isRecordOfStrings(parsed.engines))
-		throw new Error("'engines' field must be an object with string values")
-	if (parsed.scripts !== undefined && !isRecordOfStrings(parsed.scripts))
-		throw new Error("'scripts' field must be an object with string values")
-	if (parsed.dependencies !== undefined && !isRecordOfStrings(parsed.dependencies))
-		throw new Error("'dependencies' field must be an object with string values")
-	if (parsed.devDependencies !== undefined && !isRecordOfStrings(parsed.devDependencies))
-		throw new Error("'devDependencies' field must be an object with string values")
-	if (parsed.optionalDependencies !== undefined && !isRecordOfStrings(parsed.optionalDependencies))
-		throw new Error("'optionalDependencies' field must be an object with string values")
+	for (const f of [
+		"engines",
+		"scripts",
+		"dependencies",
+		"devDependencies",
+		"optionalDependencies",
+	] as const) {
+		if (parsed[f] !== undefined && !isRecordOfStrings(parsed[f]))
+			throw new Error(`'${f}' field must be an object with string values`)
+	}
 
 	if ("files" in parsed && !isArrayOfStrings(parsed.files))
 		throw new Error("'files' field must be an array of strings")
 
-	const bundleFields: (keyof PackageJson)[] = ["bundleDependencies", "bundledDependencies"]
-	for (const field of bundleFields) {
+	for (const field of ["bundleDependencies", "bundledDependencies"] as const) {
 		if (field in parsed && typeof parsed[field] !== "boolean" && !isArrayOfStrings(parsed[field]))
 			throw new Error(`'${field}' field must be a boolean or an array of strings`)
 	}
 
-	if ("bin" in parsed) {
-		const binValue = parsed.bin
-		const isValidBin = typeof binValue === "string" || isRecordOfStrings(binValue)
-		if (!isValidBin) throw new Error("'bin' field must be a string or an object with string values")
+	if ("bin" in parsed && typeof parsed.bin !== "string" && !isRecordOfStrings(parsed.bin)) {
+		throw new Error("'bin' field must be a string or an object with string values")
 	}
 
 	return parsed as PackageJson
@@ -224,19 +219,32 @@ function extractExportsTypes(exportsObj: unknown, dist: Record<string, string>):
 	for (const [key, val] of Object.entries(exportsObj)) {
 		if (typeof val === "string") {
 			if (key === "types" || key === "typings") addDirectPath(val, dist, "exports.types")
-		} else if (typeof val === "object" && val !== null) {
+		} else if (val && typeof val === "object") {
 			extractExportsTypes(val, dist)
 		}
 	}
 }
 
 function extractTypesAndExports(manifest: PackageJson, dist: Record<string, string>): void {
-	// oxlint-disable-next-line typescript/no-explicit-any
-	const m = manifest as any
-	if (typeof m.types === "string") addDirectPath(m.types, dist, "types")
-	if (typeof m.typings === "string") addDirectPath(m.typings, dist, "typings")
+	const m = manifest as unknown as Record<string, unknown>
+	addDirectPath(m.types, dist, "types")
+	addDirectPath(m.typings, dist, "typings")
 	if (m.exports && typeof m.exports === "object") {
 		extractExportsTypes(m.exports, dist)
+	}
+}
+
+function addPropPath(
+	manifest: Record<string, unknown>,
+	prop: string,
+	dist: Record<string, string>,
+) {
+	const val = manifest[prop]
+	if (typeof val === "string") addDirectPath(val, dist, prop)
+	else if (val && typeof val === "object") {
+		for (const [k, v] of Object.entries(val)) {
+			if (typeof v === "string") addDirectPath(v, dist, prop + "." + k)
+		}
 	}
 }
 
@@ -248,33 +256,17 @@ function extractTypesAndExports(manifest: PackageJson, dist: Record<string, stri
  * @since 0.12.0
  */
 export function extractManifestIncludes(manifest: PackageJson, dist: Record<string, string>): void {
-	if (typeof manifest.main === "string") addDirectPath(manifest.main, dist, "main")
+	addDirectPath(manifest.main, dist, "main")
 	addDirectPath(manifest.module, dist, "module")
 
-	// oxlint-disable-next-line typescript/no-explicit-any
-	const m = manifest as any
-	if (typeof m.types === "string") addDirectPath(m.types, dist, "types")
-	if (typeof m.typings === "string") addDirectPath(m.typings, dist, "typings")
-
-	if (typeof manifest.browser === "string") {
-		addDirectPath(manifest.browser, dist, "browser")
-	} else if (typeof manifest.browser === "object" && manifest.browser !== null) {
-		Object.entries(manifest.browser).forEach(([key, browserPath]) => {
-			if (typeof browserPath === "string") {
-				addDirectPath(browserPath, dist, "browser." + key)
-			}
-		})
-	}
-
-	if (typeof manifest.bin === "string") addDirectPath(manifest.bin, dist, "bin")
-	else if (typeof manifest.bin === "object" && manifest.bin !== null) {
-		Object.entries(manifest.bin).forEach(([key, binPath]) => {
-			addDirectPath(binPath, dist, "bin." + key)
-		})
-	}
+	const m = manifest as unknown as Record<string, unknown>
+	addDirectPath(m.types, dist, "types")
+	addDirectPath(m.typings, dist, "typings")
+	addPropPath(m, "browser", dist)
+	addPropPath(m, "bin", dist)
 }
 
-function addDirectPath(p: string | undefined, dist: Record<string, string>, key: string) {
+function addDirectPath(p: unknown, dist: Record<string, string>, key: string) {
 	if (typeof p !== "string") return
 	const normalized = trimLeadingDotSlash(p)
 	if (normalized && !normalized.startsWith("../") && normalized !== "..") dist[key] = normalized
@@ -301,19 +293,11 @@ export function findDependencyPackageJson(
 
 	let idx = 0
 	const tryNext = () => {
-		if (idx >= candidates.length) {
-			resolveCb(null, null)
-			return
-		}
-		const cand = candidates[idx]!
-		idx++
-		const absPath = join(cwd, cand)
-		fs.readFile(absPath, (err, fileContent) => {
-			if (!err && fileContent) {
-				resolveCb(fileContent.toString(), cand)
-			} else {
-				tryNext()
-			}
+		if (idx >= candidates.length) return resolveCb(null, null)
+		const cand = candidates[idx++]!
+		fs.readFile(join(cwd, cand), (err, fileContent) => {
+			if (!err && fileContent) resolveCb(fileContent.toString(), cand)
+			else tryNext()
 		})
 	}
 	tryNext()
@@ -364,31 +348,22 @@ export function resolveBundledDeps(
 			? manifest.bundleDependencies
 			: manifest.bundledDependencies
 
-	if (!bundleDepsField) {
-		cb(null, [])
-		return
-	}
+	if (!bundleDepsField) return cb(null, [])
 
 	let initialBundledDeps: string[] = []
+	const deps = manifest.dependencies
+	const optDeps = manifest.optionalDependencies
 	if (bundleDepsField === true) {
-		if (manifest.dependencies) initialBundledDeps.push(...Object.keys(manifest.dependencies))
-		if (manifest.optionalDependencies)
-			initialBundledDeps.push(...Object.keys(manifest.optionalDependencies))
+		if (deps) initialBundledDeps.push(...Object.keys(deps))
+		if (optDeps) initialBundledDeps.push(...Object.keys(optDeps))
 	} else if (Array.isArray(bundleDepsField)) {
-		const deps = manifest.dependencies
-		const optDeps = manifest.optionalDependencies
-		for (let i = 0; i < bundleDepsField.length; i++) {
-			const dep = bundleDepsField[i]!
-			if ((deps && deps[dep] !== undefined) || (optDeps && optDeps[dep] !== undefined))
-				initialBundledDeps.push(dep)
-		}
+		initialBundledDeps = bundleDepsField.filter(
+			(d) => (deps && d in deps) || (optDeps && d in optDeps),
+		)
 	}
 
 	let pendingInitial = initialBundledDeps.length
-	if (pendingInitial === 0) {
-		cb(null, [])
-		return
-	}
+	if (pendingInitial === 0) return cb(null, [])
 
 	const resolvedBundledDeps = new Set<string>()
 	const visited = new Set<string>()
@@ -396,59 +371,39 @@ export function resolveBundledDeps(
 	const resolveTransitive = (importerRelPath: string, depName: string, done: () => void) => {
 		resolvedBundledDeps.add(depName)
 		const visitKey = importerRelPath + "::" + depName
-		if (visited.has(visitKey)) {
-			done()
-			return
-		}
+		if (visited.has(visitKey)) return done()
 		visited.add(visitKey)
 
 		findDependencyPackageJson(cwd, fs, importerRelPath, depName, (content, foundRelPath) => {
-			if (!content || !foundRelPath) {
-				done()
-				return
-			}
+			if (!content || !foundRelPath) return done()
 
 			let pkg: PackageJson
 			try {
 				pkg = JSON.parse(content)
 			} catch {
-				done()
-				return
+				return done()
 			}
 
-			const deps = pkg.dependencies
-			const optDeps = pkg.optionalDependencies
+			const subDeps = pkg.dependencies
+			const subOptDeps = pkg.optionalDependencies
 			let pending =
-				(deps ? Object.keys(deps).length : 0) + (optDeps ? Object.keys(optDeps).length : 0)
+				(subDeps ? Object.keys(subDeps).length : 0) +
+				(subOptDeps ? Object.keys(subOptDeps).length : 0)
 
-			if (pending === 0) {
-				done()
-				return
-			}
+			if (pending === 0) return done()
 
 			const subDir = dirname(foundRelPath)
 			const onSubDone = () => {
-				pending--
-				if (pending === 0) done()
+				if (--pending === 0) done()
 			}
-			if (deps) {
-				for (const subDep in deps) {
-					resolveTransitive(subDir, subDep, onSubDone)
-				}
-			}
-			if (optDeps) {
-				for (const subDep in optDeps) {
-					resolveTransitive(subDir, subDep, onSubDone)
-				}
-			}
+			if (subDeps) for (const subDep in subDeps) resolveTransitive(subDir, subDep, onSubDone)
+			if (subOptDeps) for (const subDep in subOptDeps) resolveTransitive(subDir, subDep, onSubDone)
 		})
 	}
 
 	for (const dep of initialBundledDeps) {
 		resolveTransitive(".", dep, () => {
-			pendingInitial--
-			if (pendingInitial !== 0) return
-			cb(null, Array.from(resolvedBundledDeps))
+			if (--pendingInitial === 0) cb(null, Array.from(resolvedBundledDeps))
 		})
 	}
 }
@@ -484,11 +439,7 @@ export function createNpmContext(
 		explicitRootFiles: new Set<string>(),
 		explicitRootFilesRule: null!,
 		mode,
-		npmIgnoreExcludeGlobRule: {
-			compiled: null,
-			excludes: true,
-			list: [],
-		},
+		npmIgnoreExcludeGlobRule: { compiled: null, excludes: true, list: [] },
 		patchedDepsExclude: new Set<string>(),
 		patchedDepsRule: null!,
 		rootDeps: new Set<string>(),
@@ -503,7 +454,7 @@ export function createNpmContext(
 }
 
 export function isWhitelistedByFiles(ctx: NpmContext, entry: string): boolean {
-	if (!ctx.dist || !ctx.dist.files) return false
+	if (!ctx.dist?.files) return false
 	if (ctx.whitelistedPaths.has(entry)) return true
 	for (const p of ctx.whitelistedPaths) {
 		if (entry.startsWith(p + "/")) return true
@@ -525,35 +476,25 @@ export function makePackageResolutionRule(ctx: NpmContext): SkipRule {
 	return (options: IgnoresOptions) => {
 		const { entry } = options
 		if (!entry || entry === "." || !options.dirent.isDirectory()) return null
-
 		if (isWhitelistedByFiles(ctx, entry)) return null
 
 		const isWorkspace = ctx.workspaceRegex !== null && ctx.workspaceRegex.test(entry)
 		if (!isWorkspace && ctx.rootDeps.size === 0) return null
-
-		if (!isWorkspace && (entry === "node_modules" || entry.startsWith("node_modules/"))) {
-			return 0
-		}
+		if (!isWorkspace && (entry === "node_modules" || entry.startsWith("node_modules/"))) return 0
 
 		const pkgPath = join(options.cwd, entry + "/package.json")
 		return new Promise<MatcherContext | 0 | null>((resolve) => {
 			options.fs.readFile(pkgPath, (err, content) => {
-				if (err || !content) {
-					resolve(null)
-					return
-				}
+				if (err || !content) return resolve(null)
 				try {
 					const pkg = JSON.parse(content.toString())
 					if (
 						pkg &&
 						(isWorkspace || (typeof pkg.name === "string" && ctx.rootDeps.has(pkg.name)))
 					) {
-						resolve(0)
-						return
+						return resolve(0)
 					}
-				} catch {
-					// ignore parse error
-				}
+				} catch {}
 				resolve(null)
 			})
 		})
@@ -573,7 +514,6 @@ export function makeBundledDepsRule(
 		if (!matchedWithin) return null
 
 		const remainingDepth = (options.depth ?? Infinity) - 2
-
 		if (remainingDepth < 0 || ctx.bundledDeps.length === 0) return 0
 
 		const mergedCtx = {
@@ -589,10 +529,7 @@ export function makeBundledDepsRule(
 			const absDepPath = join(options.cwd, depPath)
 			return new Promise<void>((resolve) => {
 				options.fs.stat(absDepPath, (_, stats?: Stats) => {
-					if (!stats || !stats.isDirectory()) {
-						resolve()
-						return
-					}
+					if (!stats?.isDirectory()) return resolve()
 					scan({
 						cwd: absDepPath,
 						depth: remainingDepth,
@@ -601,9 +538,7 @@ export function makeBundledDepsRule(
 						target: makeTarget("bundle"),
 					}).then(
 						(subCtx) => {
-							for (const [p, m] of subCtx.paths) {
-								mergedCtx.paths.set(depPath + "/" + p, m)
-							}
+							for (const [p, m] of subCtx.paths) mergedCtx.paths.set(depPath + "/" + p, m)
 							resolve()
 						},
 						() => resolve(),
@@ -645,23 +580,18 @@ export function initNpmContext(
 	ctx.explicitRootFiles.clear()
 	ctx.patchedDepsExclude.clear()
 	ctx.npmIgnoreExcludeGlobRule.list = []
-	for (const key in ctx.directPathsInclude) {
-		delete ctx.directPathsInclude[key]
-	}
+	for (const key in ctx.directPathsInclude) delete ctx.directPathsInclude[key]
 
 	resolveForPack(
 		cwd,
 		fs,
 		(err, resolvedPack) => {
 			if (err) {
-				// oxlint-disable-next-line typescript/no-explicit-any
-				if ((err as any).code === "ENOENT") {
+				if ((err as unknown as NodeJS.ErrnoException).code === "ENOENT") {
 					if (ctx.mode !== "publish") return cb(null)
-					cb(new Error("'package.json' not found", { cause: err }))
-					return
+					return cb(new Error("'package.json' not found", { cause: err }))
 				}
-				cb(new Error("Invalid 'package.json'", { cause: err }))
-				return
+				return cb(new Error("Invalid 'package.json'", { cause: err }))
 			}
 
 			const { content, bundledDeps, rootDeps, manifest } = resolvedPack!
@@ -682,10 +612,7 @@ export function initNpmContext(
 					ctx.explicitRootFilesRule,
 				],
 			}
-			ctx.directPathsRule.source = pkgSource
-			ctx.patchedDepsRule.source = pkgSource
-			ctx.npmIgnoreExcludeGlobRule.source = pkgSource
-			ctx.explicitRootFilesRule.source = pkgSource
+			for (const r of pkgSource.rules) (r as GlobRule).source = pkgSource
 
 			ctx.directPathsRule.range = findJsonKeyRange(content, DIRECT_PATH_FIELDS)
 			ctx.patchedDepsRule.range = findJsonKeyRange(content, "patchedDependencies")
@@ -726,14 +653,10 @@ export function initNpmContext(
 
 					try {
 						reSources.push(compileFileGlobSource(file))
-					} catch {
-						// ignore invalid globs
-					}
+					} catch {}
 				}
 				if (reSources.length > 0) ctx.whitelistedRegex = new RegExp(reSources.join("|"), "i")
 
-				// Whitelist Mode: exclude ignore files in 'before' to prevent
-				// nested ones from leaking if parent directory is whitelisted.
 				const list: string[] = ["/*/**/.npmignore", "/*/**/.gitignore"]
 				if (!ctx.explicitRootFiles.has(".npmignore")) list.push(".npmignore")
 				if (!ctx.explicitRootFiles.has(".gitignore")) list.push(".gitignore")
@@ -776,9 +699,7 @@ export function initNpmContext(
 					if (cleaned.endsWith("/")) cleaned = cleaned.slice(0, -1)
 					try {
 						reSources.push(zeptomatch.compile(cleaned).source)
-					} catch {
-						// ignore invalid globs
-					}
+					} catch {}
 				}
 				if (reSources.length > 0) ctx.workspaceRegex = new RegExp(reSources.join("|"), "i")
 			}

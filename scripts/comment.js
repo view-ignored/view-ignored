@@ -34,9 +34,7 @@ async function main() {
 	// List comments
 	const listRes = await fetch(
 		`${API_URL}/repos/${owner}/${repo}/issues/${pr}/comments?per_page=100`,
-		{
-			headers,
-		},
+		{ headers },
 	)
 	if (!listRes.ok) {
 		const text = await listRes.text()
@@ -67,11 +65,7 @@ async function main() {
 		console.log("Updating existing comment...")
 		const updateRes = await fetch(
 			`${API_URL}/repos/${owner}/${repo}/issues/comments/${botComment.id}`,
-			{
-				body: JSON.stringify({ body: fullBody }),
-				headers,
-				method: "PATCH",
-			},
+			{ body: JSON.stringify({ body: fullBody }), headers, method: "PATCH" },
 		)
 		if (!updateRes.ok) {
 			const text = await updateRes.text()

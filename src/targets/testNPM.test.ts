@@ -12,10 +12,7 @@ import {
 	type PackageJson,
 } from "./npmManifest.js"
 
-const packageJsonNoFiles = JSON.stringify({
-	name: "me",
-	version: "0.0.1",
-})
+const packageJsonNoFiles = JSON.stringify({ name: "me", version: "0.0.1" })
 
 describe("NPM", () => {
 	test("empty for empty", async (done) => {
@@ -36,11 +33,7 @@ describe("NPM", () => {
 	test("keeps for empty source", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "",
-				filekeep: "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "", filekeep: "", "package.json": packageJsonNoFiles },
 			["filekeep", "package.json"],
 			{ target: makeNPM() },
 		)
@@ -49,11 +42,7 @@ describe("NPM", () => {
 	test("ignores file", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "file",
-				file: "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "file", file: "", "package.json": packageJsonNoFiles },
 			["package.json"],
 			{ target: makeNPM() },
 		)
@@ -76,12 +65,7 @@ describe("NPM", () => {
 	test("ignores files with pattern", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "*.js",
-				"bar.js": "",
-				"foo.js": "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "*.js", "bar.js": "", "foo.js": "", "package.json": packageJsonNoFiles },
 			["package.json"],
 			{ target: makeNPM() },
 		)
@@ -93,10 +77,7 @@ describe("NPM", () => {
 			{
 				".npmignore": "src/",
 				"package.json": packageJsonNoFiles,
-				src: {
-					"helper.js": "",
-					"main.js": "",
-				},
+				src: { "helper.js": "", "main.js": "" },
 			},
 			["package.json"],
 			{ target: makeNPM() },
@@ -106,12 +87,7 @@ describe("NPM", () => {
 	test("does not ignore files not matching pattern", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "*.js",
-				"bar.js": "",
-				"foo.txt": "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "*.js", "bar.js": "", "foo.txt": "", "package.json": packageJsonNoFiles },
 			["foo.txt", "package.json"],
 			{ target: makeNPM() },
 		)
@@ -137,19 +113,11 @@ describe("NPM", () => {
 				file: "1",
 				"index.js": "('src')",
 				"index.ts": "('src')",
-				"package.json": JSON.stringify({
-					files: ["index.ts"],
-					name: "root",
-					version: "0.0.1",
-				}),
+				"package.json": JSON.stringify({ files: ["index.ts"], name: "root", version: "0.0.1" }),
 				packages: {
 					a: {
 						"index.js": "('a')",
-						"package.json": JSON.stringify({
-							files: ["index.js"],
-							name: "a",
-							version: "0.0.1",
-						}),
+						"package.json": JSON.stringify({ files: ["index.js"], name: "a", version: "0.0.1" }),
 					},
 				},
 			},
@@ -199,10 +167,7 @@ describe("NPM", () => {
 	test("bundle mode skips root default excludes", async (done) => {
 		await testScan(
 			done,
-			{
-				"package-lock.json": "{}",
-				"package.json": packageJsonNoFiles,
-			},
+			{ "package-lock.json": "{}", "package.json": packageJsonNoFiles },
 			["package.json", "package-lock.json"],
 			{ target: makeNPM("bundle") },
 		)
@@ -211,10 +176,7 @@ describe("NPM", () => {
 	test("list mode parses files correctly", async (done) => {
 		await testScan(
 			done,
-			{
-				"README.md": "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ "README.md": "", "package.json": packageJsonNoFiles },
 			["README.md", "package.json"],
 			{ target: makeNPM("list") },
 		)
@@ -225,12 +187,7 @@ describe("NPM", () => {
 			done,
 			{
 				"README.md": "root readme",
-				demo: {
-					git: {
-						"README.md": "nested readme",
-					},
-					"runkit.js": "demo script",
-				},
+				demo: { git: { "README.md": "nested readme" }, "runkit.js": "demo script" },
 				"package.json": JSON.stringify({
 					files: ["README.md", "demo/runkit.js"],
 					name: "test-pkg",
@@ -268,83 +225,43 @@ describe("NPM", () => {
 			).toThrow("cannot contain both")
 
 			expect(() =>
-				npmManifestParse(
-					JSON.stringify({
-						engines: "invalid",
-						name: "pkg",
-						version: "1.0.0",
-					}),
-				),
+				npmManifestParse(JSON.stringify({ engines: "invalid", name: "pkg", version: "1.0.0" })),
 			).toThrow("'engines' field must be an object")
 
 			expect(() =>
-				npmManifestParse(
-					JSON.stringify({
-						name: "pkg",
-						scripts: { test: 123 },
-						version: "1.0.0",
-					}),
-				),
+				npmManifestParse(JSON.stringify({ name: "pkg", scripts: { test: 123 }, version: "1.0.0" })),
 			).toThrow("'scripts' field must be an object with string values")
 
 			expect(() =>
 				npmManifestParse(
-					JSON.stringify({
-						dependencies: { dep: 123 },
-						name: "pkg",
-						version: "1.0.0",
-					}),
+					JSON.stringify({ dependencies: { dep: 123 }, name: "pkg", version: "1.0.0" }),
 				),
 			).toThrow("'dependencies' field must be an object with string values")
 
 			expect(() =>
 				npmManifestParse(
-					JSON.stringify({
-						devDependencies: { dep: 123 },
-						name: "pkg",
-						version: "1.0.0",
-					}),
+					JSON.stringify({ devDependencies: { dep: 123 }, name: "pkg", version: "1.0.0" }),
 				),
 			).toThrow("'devDependencies' field must be an object with string values")
 
 			expect(() =>
 				npmManifestParse(
-					JSON.stringify({
-						name: "pkg",
-						optionalDependencies: { dep: 123 },
-						version: "1.0.0",
-					}),
+					JSON.stringify({ name: "pkg", optionalDependencies: { dep: 123 }, version: "1.0.0" }),
 				),
 			).toThrow("'optionalDependencies' field must be an object with string values")
 
 			expect(() =>
-				npmManifestParse(
-					JSON.stringify({
-						files: "invalid",
-						name: "pkg",
-						version: "1.0.0",
-					}),
-				),
+				npmManifestParse(JSON.stringify({ files: "invalid", name: "pkg", version: "1.0.0" })),
 			).toThrow("'files' field must be an array of strings")
 
 			expect(() =>
 				npmManifestParse(
-					JSON.stringify({
-						bundleDependencies: "invalid",
-						name: "pkg",
-						version: "1.0.0",
-					}),
+					JSON.stringify({ bundleDependencies: "invalid", name: "pkg", version: "1.0.0" }),
 				),
 			).toThrow("'bundleDependencies' field must be a boolean or an array of strings")
 
 			expect(() =>
-				npmManifestParse(
-					JSON.stringify({
-						bin: 123,
-						name: "pkg",
-						version: "1.0.0",
-					}),
-				),
+				npmManifestParse(JSON.stringify({ bin: 123, name: "pkg", version: "1.0.0" })),
 			).toThrow("'bin' field must be a string or an object with string values")
 
 			expect(npmManifestParse("invalid json", "list")).toEqual({} as PackageJson)
@@ -366,10 +283,7 @@ describe("NPM", () => {
 		}
 
 		// oxlint-disable-next-line typescript/no-explicit-any
-		const manifest: any = {
-			bundleDependencies: ["dep-a"],
-			dependencies: { "dep-a": "^1.0.0" },
-		}
+		const manifest: any = { bundleDependencies: ["dep-a"], dependencies: { "dep-a": "^1.0.0" } }
 
 		resolveBundledDeps("/root", mockFs, manifest, (err, deps) => {
 			expect(err).toBeNull()
@@ -533,12 +447,7 @@ describe("NPM", () => {
 					"browser.js": "browser.js",
 					"package.json": JSON.stringify({
 						browser: { "./lib/server.js": "./lib/browser.js" },
-						exports: {
-							".": {
-								import: "./esm/index.js",
-								types: "./types/index.d.ts",
-							},
-						},
+						exports: { ".": { import: "./esm/index.js", types: "./types/index.d.ts" } },
 						files: ["browser.js"],
 						main: false,
 						name: "exports-pkg",
@@ -555,13 +464,7 @@ describe("NPM", () => {
 				done,
 				{
 					"package.json": packageJsonNoFiles,
-					test: {
-						fixtures: {
-							node_modules: {
-								"mock-dep.js": "fixture",
-							},
-						},
-					},
+					test: { fixtures: { node_modules: { "mock-dep.js": "fixture" } } },
 				},
 				["package.json", "test/fixtures/node_modules/mock-dep.js"],
 				{ dirs: false, target: makeNPM() },

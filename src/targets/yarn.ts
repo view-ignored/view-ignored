@@ -36,14 +36,8 @@ export function makeYarn(mode: "list" | "publish" | "bundle" = "publish"): Targe
 
 	const extractors: Extractor[] = [
 		makePackageJsonExtractor(mode),
-		{
-			extract: extractNoCaseNpmignore,
-			path: ".npmignore",
-		},
-		{
-			extract: extractNoCaseNpmignore,
-			path: ".gitignore",
-		},
+		{ extract: extractNoCaseNpmignore, path: ".npmignore" },
+		{ extract: extractNoCaseNpmignore, path: ".gitignore" },
 	]
 
 	cachedYarnExcludesRule ||= ruleCompile({

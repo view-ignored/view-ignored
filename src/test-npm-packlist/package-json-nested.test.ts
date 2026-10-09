@@ -20,10 +20,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist package-json-nes
 						version: "1.2.3",
 					}),
 				},
-				"package.json": JSON.stringify({
-					name: "test-package",
-					version: "1.2.3",
-				}),
+				"package.json": JSON.stringify({ name: "test-package", version: "1.2.3" }),
 			},
 			["nest/foo.js", "nest/index.js", "nest/package.json", "package.json"],
 			{ target: makeNPM(), dirs: false },

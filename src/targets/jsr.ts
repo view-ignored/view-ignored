@@ -18,14 +18,8 @@ let cachedJSRRule: GlobRule | null = null
  */
 export function makeJSR(): Target {
 	const extractors: Extractor[] = [
-		{
-			extract: extractJsrJson,
-			path: "jsr.json",
-		},
-		{
-			extract: extractJsrJson,
-			path: "jsr.jsonc",
-		},
+		{ extract: extractJsrJson, path: "jsr.json" },
+		{ extract: extractJsrJson, path: "jsr.jsonc" },
 	]
 
 	cachedJSRRule ||= ruleCompile({

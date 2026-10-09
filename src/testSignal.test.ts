@@ -71,12 +71,7 @@ describe("signal option", () => {
 			},
 		} as unknown as FsAdapter
 
-		const promise = scan({
-			cwd: "/root",
-			fs: mockFs,
-			signal: controller.signal,
-			target: makeGit(),
-		})
+		const promise = scan({ cwd: "/root", fs: mockFs, signal: controller.signal, target: makeGit() })
 
 		// Abort mid-scan after 20ms while readdir is pending
 		setTimeout(() => {

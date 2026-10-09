@@ -15,22 +15,12 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 				{
 					dist: {
 						bar: "",
-						baz: {
-							boo: "",
-							"boo.src": "",
-						},
-						foo: {
-							"foo.result": "",
-							"foo.src": "",
-						},
+						baz: { boo: "", "boo.src": "" },
+						foo: { "foo.result": "", "foo.src": "" },
 					},
 					foo: "",
-					incldir: {
-						yesinclude: "",
-					},
-					otherdir: {
-						donotinclude: "",
-					},
+					incldir: { yesinclude: "" },
+					otherdir: { donotinclude: "" },
 					"package.json": JSON.stringify({
 						files: [
 							"somedir",
@@ -46,9 +36,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 						name: "test-package",
 						version: "1.0.0",
 					}),
-					somedir: {
-						donotinclude: "",
-					},
+					somedir: { donotinclude: "" },
 				},
 				[
 					"dist/bar",

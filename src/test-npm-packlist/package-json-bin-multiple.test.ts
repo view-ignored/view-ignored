@@ -23,14 +23,9 @@ module.exports = elf =>
 				__bin_bar: bin,
 				__bin_foo: bin,
 				dummy: "ignore this",
-				lib: {
-					"elf.js": elfJS,
-				},
+				lib: { "elf.js": elfJS },
 				"package.json": JSON.stringify({
-					bin: {
-						bar: "__bin_bar",
-						foo: "__bin_foo",
-					},
+					bin: { bar: "__bin_bar", foo: "__bin_foo" },
 					files: ["lib"],
 					name: "test-package",
 					version: "1.6.2",

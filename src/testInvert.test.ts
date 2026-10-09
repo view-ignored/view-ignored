@@ -3,11 +3,7 @@ import { describe, test, expect } from "bun:test"
 import { makeGit } from "./targets/git.js"
 import { testScan, testStream } from "./testScan.test.js"
 
-const dir = {
-	".gitignore": "ignored.txt",
-	"ignored.txt": "content",
-	"included.txt": "content",
-}
+const dir = { ".gitignore": "ignored.txt", "ignored.txt": "content", "included.txt": "content" }
 
 describe("Invert logic", () => {
 	test("invert: false (default) should return only included files with ignored: false", async (done) => {
@@ -20,9 +16,7 @@ describe("Invert logic", () => {
 				expect(ctx.paths.get("included.txt")?.ignored).toBe(false)
 				expect(ctx.paths.get(".gitignore")?.ignored).toBe(false)
 			},
-			{
-				target: makeGit(),
-			},
+			{ target: makeGit() },
 		)
 	})
 
@@ -77,10 +71,7 @@ describe("Invert logic", () => {
 				expect(match?.source).toBeDefined()
 				expect(match?.source?.path).toBe("sub/a/.gitignore")
 			},
-			{
-				invert: true,
-				target: makeGit(),
-			},
+			{ invert: true, target: makeGit() },
 		)
 	})
 })

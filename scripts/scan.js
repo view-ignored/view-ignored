@@ -19,9 +19,7 @@ if (!targetMaker) {
 
 console.log(`Scanning "${process.cwd()}" with target: ${targetName}`)
 const start = performance.now()
-const ctx = await scan({
-	target: targetMaker(),
-})
+const ctx = await scan({ target: targetMaker() })
 const end = performance.now()
 
 if (printPaths) {

@@ -43,11 +43,7 @@ function cmpMixed(a: string, b: string): number {
 	return a.localeCompare(b, undefined, { ignorePunctuation: false })
 }
 
-type ShiftResult = {
-	next: string
-	other: string
-	isLast: boolean
-}
+type ShiftResult = { next: string; other: string; isLast: boolean }
 
 /**
  * @example
@@ -59,11 +55,7 @@ function shiftPath(p: string): ShiftResult {
 	const slashIndex = p.search(/[/\\]/)
 	const next = p.slice(0, Math.max(0, slashIndex))
 	const other = p.slice(Math.max(0, slashIndex + 1))
-	const r: ShiftResult = {
-		isLast: next == "",
-		next,
-		other,
-	}
+	const r: ShiftResult = { isLast: next == "", next, other }
 	if (slashIndex < 0) {
 		r.next = r.other
 	}

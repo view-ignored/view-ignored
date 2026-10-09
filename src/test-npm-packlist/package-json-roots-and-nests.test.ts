@@ -31,24 +31,15 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 					},
 					"main.js": "main",
 					node_modules: {
-						"@foo": {
-							bar: {
-								".DS_Store": "not this tho",
-							},
-						},
-						foo: {
-							"package-lock.json": "include",
-						},
+						"@foo": { bar: { ".DS_Store": "not this tho" } },
+						foo: { "package-lock.json": "include" },
 					},
 					"package-lock.json": "sw",
 					"package.json": JSON.stringify({
 						bin: "bin.js",
 						browser: "browser.js",
 						bundleDependencies: ["foo", "@foo/bar"],
-						dependencies: {
-							"@foo/bar": "1.0.0",
-							foo: "1.0.0",
-						},
+						dependencies: { "@foo/bar": "1.0.0", foo: "1.0.0" },
 						main: "main.js",
 						name: "test-package",
 						version: "1.0.0",

@@ -27,15 +27,11 @@
 		"eslint/func-names": ["error", "always"],
 		"check-access": "error"
 	},
-	"categories": {
-		"perf": "error"
-	},
+	"categories": { "perf": "error" },
 	"overrides": [
 		{
 			"files": ["src/test-npm-packlist/**/*.ts", "src/targets/**/*.test.ts"],
-			"rules": {
-				"sort-keys": "off"
-			}
+			"rules": { "sort-keys": "off" }
 		}
 	]
 }

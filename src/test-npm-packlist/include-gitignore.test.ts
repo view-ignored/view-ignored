@@ -17,37 +17,16 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist include-gitignor
 			done,
 			{
 				".DS_Store": "do not include me",
-				".git": {
-					gitstub: "won't fool git, also won't be included",
-				},
+				".git": { gitstub: "won't fool git, also won't be included" },
 				".npmignore": ".npmignore\ndummy\npackage.json",
 				".npmrc": "packaged=false",
-				build: {
-					"config.gypi": "i_wont_be_included='with any luck'",
-					"npm-debug.log": "0 lol\n",
-				},
-				deps: {
-					foo: {
-						config: {
-							"config.gypi": "i_will_be_included='with any luck'",
-						},
-					},
-				},
+				build: { "config.gypi": "i_wont_be_included='with any luck'", "npm-debug.log": "0 lol\n" },
+				deps: { foo: { config: { "config.gypi": "i_will_be_included='with any luck'" } } },
 				dummy: "foo",
 				"elf.js": elfJS,
-				node_modules: {
-					history: {
-						"README.md": "please don't include me",
-					},
-				},
-				"package.json": JSON.stringify({
-					main: "elf.js",
-					name: "test-package",
-					version: "3.1.4",
-				}),
-				z: {
-					".gitignore": "!.gitignore",
-				},
+				node_modules: { history: { "README.md": "please don't include me" } },
+				"package.json": JSON.stringify({ main: "elf.js", name: "test-package", version: "3.1.4" }),
+				z: { ".gitignore": "!.gitignore" },
 			},
 			["z/.gitignore", "deps/foo/config/config.gypi", "elf.js", "package.json"],
 			{ target: makeNPM(), dirs: false },

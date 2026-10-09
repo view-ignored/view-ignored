@@ -7,9 +7,7 @@ describe("NPM target with within option", () => {
 	const testTree = {
 		"package.json": JSON.stringify({
 			bundleDependencies: ["history"],
-			dependencies: {
-				history: "1.0.0",
-			},
+			dependencies: { history: "1.0.0" },
 			name: "root",
 			version: "1.0.0",
 		}),
@@ -18,14 +16,8 @@ describe("NPM target with within option", () => {
 			node_modules: {
 				history: {
 					"index.js": "console.log('history')",
-					nested: {
-						"nested.js": "console.log('nested')",
-					},
-					"package.json": JSON.stringify({
-						main: "index.js",
-						name: "history",
-						version: "1.0.0",
-					}),
+					nested: { "nested.js": "console.log('nested')" },
+					"package.json": JSON.stringify({ main: "index.js", name: "history", version: "1.0.0" }),
 				},
 			},
 		},
@@ -41,10 +33,7 @@ describe("NPM target with within option", () => {
 				expect(ctx.paths.has("sub/node_modules/history/nested/nested.js")).toBeTrue()
 				expect(ctx.paths.has("sub/file.js")).toBeTrue()
 			},
-			{
-				target: makeNPM(),
-				within: "sub",
-			},
+			{ target: makeNPM(), within: "sub" },
 		)
 	})
 
@@ -59,11 +48,7 @@ describe("NPM target with within option", () => {
 				expect(ctx.paths.has("sub/node_modules/history/package.json")).toBeFalse()
 				expect(ctx.paths.has("sub/node_modules/history/nested/nested.js")).toBeFalse()
 			},
-			{
-				depth: 1,
-				target: makeNPM(),
-				within: "sub",
-			},
+			{ depth: 1, target: makeNPM(), within: "sub" },
 		)
 	})
 
@@ -78,11 +63,7 @@ describe("NPM target with within option", () => {
 				expect(ctx.paths.has("sub/node_modules/history/package.json")).toBeFalse()
 				expect(ctx.paths.has("sub/node_modules/history/nested/nested.js")).toBeFalse()
 			},
-			{
-				depth: 0,
-				target: makeNPM(),
-				within: "sub",
-			},
+			{ depth: 0, target: makeNPM(), within: "sub" },
 		)
 	})
 
@@ -98,11 +79,7 @@ describe("NPM target with within option", () => {
 				// sub/node_modules/history/nested/nested.js has depth 3, so it must be excluded when depth is 2
 				expect(ctx.paths.has("sub/node_modules/history/nested/nested.js")).toBeFalse()
 			},
-			{
-				depth: 2,
-				target: makeNPM(),
-				within: "sub",
-			},
+			{ depth: 2, target: makeNPM(), within: "sub" },
 		)
 	})
 })

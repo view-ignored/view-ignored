@@ -523,18 +523,9 @@ if (values.now) {
 		results: [
 			{
 				benchmarks: [
-					{
-						name: "test1",
-						runs: [{ stats: { samples: [100, 110, 120] } }],
-					},
-					{
-						name: "test-speedup",
-						runs: [{ stats: { samples: [50, 55, 60] } }],
-					},
-					{
-						name: "test-slowdown",
-						runs: [{ stats: { samples: [200, 210, 220] } }],
-					},
+					{ name: "test1", runs: [{ stats: { samples: [100, 110, 120] } }] },
+					{ name: "test-speedup", runs: [{ stats: { samples: [50, 55, 60] } }] },
+					{ name: "test-slowdown", runs: [{ stats: { samples: [200, 210, 220] } }] },
 				],
 			},
 		],
@@ -546,18 +537,9 @@ if (values.now) {
 			results: [
 				{
 					benchmarks: [
-						{
-							name: "test1",
-							runs: [{ stats: { samples: [100, 110, 120] } }],
-						},
-						{
-							name: "test-speedup",
-							runs: [{ stats: { samples: [100, 110, 120] } }],
-						},
-						{
-							name: "test-slowdown",
-							runs: [{ stats: { samples: [100, 110, 120] } }],
-						},
+						{ name: "test1", runs: [{ stats: { samples: [100, 110, 120] } }] },
+						{ name: "test-speedup", runs: [{ stats: { samples: [100, 110, 120] } }] },
+						{ name: "test-slowdown", runs: [{ stats: { samples: [100, 110, 120] } }] },
 					],
 				},
 			],

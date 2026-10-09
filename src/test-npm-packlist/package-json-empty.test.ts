@@ -16,30 +16,15 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist package-json-emp
 		await testScan(
 			done,
 			{
-				".git": {
-					gitstub: "won't fool git, also won't be included",
-				},
+				".git": { gitstub: "won't fool git, also won't be included" },
 				".npmignore": "!.npmignore\n!dummy\npackage.json\n!index.js\n",
 				".npmrc": "packaged=false",
-				build: {
-					"config.gypi": "i_wont_be_included='with any luck'",
-					"npm-debug.log": "0 lol\n",
-				},
-				deps: {
-					foo: {
-						config: {
-							"config.gypi": "i_wont_be_included='with any luck'",
-						},
-					},
-				},
+				build: { "config.gypi": "i_wont_be_included='with any luck'", "npm-debug.log": "0 lol\n" },
+				deps: { foo: { config: { "config.gypi": "i_wont_be_included='with any luck'" } } },
 				dummy: "foo",
 				"elf.js": elfJS,
 				"index.js": elfJS,
-				node_modules: {
-					history: {
-						"README.md": "please don't include me",
-					},
-				},
+				node_modules: { history: { "README.md": "please don't include me" } },
 				"package.json": JSON.stringify({
 					files: [],
 					main: "elf.js",

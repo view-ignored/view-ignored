@@ -11,48 +11,19 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist nested-lock-and-
 		await testScan(
 			done,
 			{
-				"bun.lock": JSON.stringify({
-					include: false,
-					lock: "file",
-				}),
-				"bun.lockb": JSON.stringify({
-					include: false,
-					lock: "file",
-				}),
-				core: {
-					"include-me.txt": "please include me",
-				},
+				"bun.lock": JSON.stringify({ include: false, lock: "file" }),
+				"bun.lockb": JSON.stringify({ include: false, lock: "file" }),
+				core: { "include-me.txt": "please include me" },
 				lib: {
-					"bun.lock": JSON.stringify({
-						include: true,
-						lock: "file",
-					}),
-					"bun.lockb": JSON.stringify({
-						include: true,
-						lock: "file",
-					}),
+					"bun.lock": JSON.stringify({ include: true, lock: "file" }),
+					"bun.lockb": JSON.stringify({ include: true, lock: "file" }),
 					core: "no longer excluded dump file",
-					"package-lock.json": JSON.stringify({
-						include: true,
-						lock: "file",
-					}),
-					"yarn.lock": JSON.stringify({
-						include: true,
-						lock: "file",
-					}),
+					"package-lock.json": JSON.stringify({ include: true, lock: "file" }),
+					"yarn.lock": JSON.stringify({ include: true, lock: "file" }),
 				},
-				"package-lock.json": JSON.stringify({
-					include: false,
-					lock: true,
-				}),
-				"package.json": JSON.stringify({
-					name: "test-package",
-					version: "1.2.3",
-				}),
-				"yarn.lock": JSON.stringify({
-					include: false,
-					lock: "file",
-				}),
+				"package-lock.json": JSON.stringify({ include: false, lock: true }),
+				"package.json": JSON.stringify({ name: "test-package", version: "1.2.3" }),
+				"yarn.lock": JSON.stringify({ include: false, lock: "file" }),
 			},
 			[
 				"lib/core",

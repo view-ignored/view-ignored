@@ -58,14 +58,7 @@ describe("PathMap", () => {
 	test("SkipRule for .git directory enables paths.get('.git/something/something') => ignored", async () => {
 		const vol = Volume.fromNestedJSON(
 			{
-				".git": {
-					config: "core",
-					objects: {
-						pack: {
-							"pack-123.pack": "binary",
-						},
-					},
-				},
+				".git": { config: "core", objects: { pack: { "pack-123.pack": "binary" } } },
 				"index.js": "console.log('hello')",
 			},
 			"/test-repo",

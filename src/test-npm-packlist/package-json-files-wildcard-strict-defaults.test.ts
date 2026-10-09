@@ -13,10 +13,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 			await testScan(
 				done,
 				{
-					".git": {
-						HEAD: "ref: refs/heads/main\n",
-						config: "[core]\n",
-					},
+					".git": { HEAD: "ref: refs/heads/main\n", config: "[core]\n" },
 					".npmrc": "always-auth=true\n",
 					"README.md": "# wildcard files test\n",
 					node_modules: {

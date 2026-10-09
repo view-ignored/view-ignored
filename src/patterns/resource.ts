@@ -13,7 +13,4 @@ export type Resource = Source | InvalidSource | null
  * @since 0.11.0
  */
 
-export type InvalidSource = {
-	source: Source
-	error: Error
-}
+export type InvalidSource = { source: Source; error: Error }

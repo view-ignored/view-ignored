@@ -70,8 +70,5 @@ async function npmTotalFiles(): Promise<{ total: number; files: string[] }> {
 	if (!match || !match[1]) {
 		throw new Error("Could not find total files in npm pack output")
 	}
-	return {
-		files,
-		total: parseInt(match[1], 10),
-	}
+	return { files, total: parseInt(match[1], 10) }
 }

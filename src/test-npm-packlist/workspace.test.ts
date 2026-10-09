@@ -71,10 +71,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist workspace", () =
 			},
 		}
 
-		await testScan(done, tree, ["root.js", "package.json"], {
-			target: makeNPM(),
-			dirs: false,
-		})
+		await testScan(done, tree, ["root.js", "package.json"], { target: makeNPM(), dirs: false })
 	})
 
 	test(".gitignore is discarded if .npmignore exists outside of tree", async (done) => {
@@ -116,11 +113,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist workspace", () =
 			done,
 			tree,
 			["dont-ignore-me", "dont-ignore-me-either", "child.js", "package.json"],
-			{
-				target: makeNPM(),
-				dirs: false,
-				cwd: process.cwd() + "/test/workspaces/foo",
-			},
+			{ target: makeNPM(), dirs: false, cwd: process.cwd() + "/test/workspaces/foo" },
 		)
 	})
 })

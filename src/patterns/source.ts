@@ -88,8 +88,7 @@ function matchesKey(
 }
 
 function bytesEqual(content: Uint8Array, offset: number, str: string): boolean {
-	const len = str.length
-	for (let i = 0; i < len; i++) {
+	for (let i = 0; i < str.length; i++) {
 		const b = content[offset + i]!
 		const c = str.charCodeAt(i)
 		if (b >= 128 || c >= 128 || b !== c) return false
@@ -129,8 +128,7 @@ function matchesKeyFast(
 
 	if (!key) key = decoder.decode(content.subarray(sStart + 1, sEnd - 1))
 	stack[depth] = key
-	const curPath = stack.slice(1, depth + 1).join(".")
-	return matchesKey(key, curPath, targetKey)
+	return matchesKey(key, stack.slice(1, depth + 1).join("."), targetKey)
 }
 
 /**
@@ -163,31 +161,27 @@ export function scanJsonRuleRanges(
 		}
 
 		if (state === State.String) {
-			if (b === 92 /* \ */) {
-				state = State.Escape
-				continue
-			}
-			if (b === 34 /* " */) {
+			if (b === 92) state = State.Escape
+			else if (b === 34) {
 				state = State.Normal
 				sEnd = i + 1
-				if (!inArr) {
-					key = ""
-					continue
+				if (!inArr) key = ""
+				else {
+					ranges.push([sStart, sEnd])
+					cb?.(sStart, sEnd)
 				}
-				ranges.push([sStart, sEnd])
-				if (cb) cb(sStart, sEnd)
 			}
 			continue
 		}
 
-		if (b === 47 /* / */) {
+		if (b === 47) {
 			const n = content[i + 1]
-			if (n === 47 /* / */) {
+			if (n === 47) {
 				i += 2
-				while (i < len && content[i] !== 10 /* \n */) i++
+				while (i < len && content[i] !== 10) i++
 				continue
 			}
-			if (n === 42 /* * */) {
+			if (n === 42) {
 				i += 2
 				while (i < len - 1 && !(content[i] === 42 && content[i + 1] === 47)) i++
 				i++
@@ -196,33 +190,31 @@ export function scanJsonRuleRanges(
 		}
 
 		if (expectingArr) {
-			if (b === 91 /* [ */) {
+			if (b === 91) {
 				inArr = true
 				expectingArr = false
-			} else if (b !== 32 && (b < 9 || b > 13) && b !== 47 /* / */) {
-				expectingArr = false
-			}
+			} else if (b !== 32 && (b < 9 || b > 13) && b !== 47) expectingArr = false
 		}
 
 		switch (b) {
-			case 34: // "
+			case 34:
 				state = State.String
 				sStart = i
 				break
-			case 58: // :
+			case 58:
 				if (sEnd > sStart) {
 					expectingArr = matchesKeyFast(content, sStart, sEnd, key, depth, stack, targetKey)
 					sStart = -1
 					sEnd = -1
 				}
 				break
-			case 93: // ]
+			case 93:
 				inArr = false
 				break
-			case 123: // {
+			case 123:
 				depth++
 				break
-			case 125: // }
+			case 125:
 				stack.length = depth
 				if (depth > 0) depth--
 				break
@@ -247,7 +239,6 @@ export function findJsonKeyRange(
 	let key = ""
 	let depth = 0
 	const stack: string[] = []
-
 	const len = content.length
 
 	for (let i = 0; i < len; i++) {
@@ -259,22 +250,22 @@ export function findJsonKeyRange(
 		}
 
 		if (state === State.String) {
-			if (b === 92 /* \ */) state = State.Escape
-			else if (b === 34 /* " */) {
+			if (b === 92) state = State.Escape
+			else if (b === 34) {
 				state = State.Normal
 				sEnd = i + 1
 			}
 			continue
 		}
 
-		if (b === 47 /* / */) {
+		if (b === 47) {
 			const n = content[i + 1]
-			if (n === 47 /* / */) {
+			if (n === 47) {
 				i += 2
-				while (i < len && content[i] !== 10 /* \n */) i++
+				while (i < len && content[i] !== 10) i++
 				continue
 			}
-			if (n === 42 /* * */) {
+			if (n === 42) {
 				i += 2
 				while (i < len - 1 && !(content[i] === 42 && content[i + 1] === 47)) i++
 				i++
@@ -283,23 +274,22 @@ export function findJsonKeyRange(
 		}
 
 		switch (b) {
-			case 58: // :
+			case 58:
 				if (sEnd > sStart) {
-					if (matchesKeyFast(content, sStart, sEnd, key, depth, stack, targetKey)) {
+					if (matchesKeyFast(content, sStart, sEnd, key, depth, stack, targetKey))
 						return [sStart, sEnd]
-					}
 					sStart = -1
 					sEnd = -1
 				}
 				break
-			case 34: // "
+			case 34:
 				state = State.String
 				sStart = i
 				break
-			case 123: // {
+			case 123:
 				depth++
 				break
-			case 125: // }
+			case 125:
 				stack.length = depth
 				if (depth > 0) depth--
 				break

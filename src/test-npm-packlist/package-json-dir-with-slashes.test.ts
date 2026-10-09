@@ -20,10 +20,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 						"tre.js": "tre",
 						"two.js": "two",
 					},
-					lib2: {
-						".DS_Store": "a store of ds",
-						"fiv.js": "fiv",
-					},
+					lib2: { ".DS_Store": "a store of ds", "fiv.js": "fiv" },
 					lib3: "not a dir",
 					"package.json": JSON.stringify({
 						files: ["/lib", "./lib2", "./lib3/*"],

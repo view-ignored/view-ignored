@@ -1,9 +1,7 @@
 import { npmManifestParse, type PackageJson } from "./npmManifest.js"
 
 export interface VsceManifest extends PackageJson {
-	engines: {
-		vscode: string
-	}
+	engines: { vscode: string }
 }
 
 // Regex source for validating the vscode engine compatibility version format.

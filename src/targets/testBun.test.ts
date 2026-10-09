@@ -3,10 +3,7 @@ import { describe, test, expect } from "bun:test"
 import { testScan } from "../testScan.test.js"
 import { makeBun } from "./bun.js"
 
-const packageJson = JSON.stringify({
-	name: "bun-test",
-	version: "1.0.0",
-})
+const packageJson = JSON.stringify({ name: "bun-test", version: "1.0.0" })
 
 describe("Bun", () => {
 	test("includes package.json and README by default", async (done) => {
@@ -62,10 +59,7 @@ describe("Bun", () => {
 	test("list mode parses files correctly", async (done) => {
 		await testScan(
 			done,
-			{
-				"README.md": "",
-				"package.json": packageJson,
-			},
+			{ "README.md": "", "package.json": packageJson },
 			["README.md", "package.json"],
 			{ target: makeBun("list") },
 		)
@@ -79,11 +73,7 @@ describe("Bun", () => {
 				"README.md": "",
 				"index.js": "",
 				license: "",
-				"package.json": JSON.stringify({
-					files: ["index.js"],
-					name: "bun-test",
-					version: "1.0.0",
-				}),
+				"package.json": JSON.stringify({ files: ["index.js"], name: "bun-test", version: "1.0.0" }),
 				"readme.md": "",
 			},
 			["LICENSE", "README.md", "index.js", "package.json"],

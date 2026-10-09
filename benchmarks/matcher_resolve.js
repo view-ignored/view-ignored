@@ -36,33 +36,15 @@ barplot(() => {
 		bench("resolveSources (uncached, root)", async () => {
 			external.clear()
 			return new Promise((resolve, reject) => {
-				resolveSources(
-					{
-						cwd,
-						dir: ".",
-						external,
-						fs,
-						signal: null,
-						target,
-					},
-					(err, res) => (err ? reject(err) : resolve(res)),
+				resolveSources({ cwd, dir: ".", external, fs, signal: null, target }, (err, res) =>
+					err ? reject(err) : resolve(res),
 				)
 			})
 		})
 
 		bench("resolveSources (cached, root)", (state) => {
 			for (const _ of state) {
-				resolveSources(
-					{
-						cwd,
-						dir: ".",
-						external,
-						fs,
-						signal: null,
-						target,
-					},
-					() => {},
-				)
+				resolveSources({ cwd, dir: ".", external, fs, signal: null, target }, () => {})
 			}
 		})
 
@@ -70,14 +52,7 @@ barplot(() => {
 			external.clear()
 			return new Promise((resolve, reject) => {
 				resolveSources(
-					{
-						cwd,
-						dir: "src/patterns",
-						external,
-						fs,
-						signal: null,
-						target,
-					},
+					{ cwd, dir: "src/patterns", external, fs, signal: null, target },
 					(err, res) => (err ? reject(err) : resolve(res)),
 				)
 			})
@@ -85,25 +60,13 @@ barplot(() => {
 
 		bench("resolveSources (cached, deep)", (state) => {
 			for (const _ of state) {
-				resolveSources(
-					{
-						cwd,
-						dir: "src/patterns",
-						external,
-						fs,
-						signal: null,
-						target,
-					},
-					() => {},
-				)
+				resolveSources({ cwd, dir: "src/patterns", external, fs, signal: null, target }, () => {})
 			}
 		})
 	})
 })
 
-const stats = await run({
-	format: process.argv.includes("--json") ? "json" : "mitata",
-})
+const stats = await run({ format: process.argv.includes("--json") ? "json" : "mitata" })
 
 if (process.argv.includes("--json")) {
 	process.stdout.write(JSON.stringify(stats))

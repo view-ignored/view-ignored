@@ -43,11 +43,7 @@ describe("VSCE", () => {
 	test("does not use .gitignore as ignore rules source", async (done) => {
 		await testScan(
 			done,
-			{
-				".gitignore": "ignored.txt",
-				"ignored.txt": "content",
-				"package.json": packageJson,
-			},
+			{ ".gitignore": "ignored.txt", "ignored.txt": "content", "package.json": packageJson },
 			["package.json", ".gitignore", "ignored.txt"],
 			{ dirs: false, target: makeVSCE() },
 		)
@@ -58,11 +54,7 @@ describe("VSCE", () => {
 			done,
 			{
 				"package.json": packageJson,
-				sub: {
-					".gitignore": "file.txt",
-					".vscodeignore": "file.txt",
-					"file.txt": "hello",
-				},
+				sub: { ".gitignore": "file.txt", ".vscodeignore": "file.txt", "file.txt": "hello" },
 			},
 			["package.json", "sub/.gitignore", "sub/.vscodeignore", "sub/file.txt"],
 			{ dirs: false, target: makeVSCE() },

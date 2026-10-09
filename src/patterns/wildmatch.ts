@@ -48,7 +48,7 @@ function parseBracket(
 	startIdx: number,
 ): { source: string; nextIdx: number } | null {
 	const len = pattern.length
-	let i = startIdx + 1 // skip opening '['
+	let i = startIdx + 1
 
 	if (i >= len) return null
 
@@ -60,11 +60,9 @@ function parseBracket(
 
 	if (i >= len) return null
 
-	// Finding the closing ']'
-	// ']' can be literal if it's the first character in the set (after [ or [! / [^)
 	let closeIdx = -1
 	let scan = i
-	if (scan < len && pattern[scan] === "]") scan++ // skip literal ] at start of set
+	if (scan < len && pattern[scan] === "]") scan++
 
 	while (scan < len) {
 		if (pattern[scan] === "\\") {
@@ -74,11 +72,7 @@ function parseBracket(
 		if (pattern[scan] === "[" && pattern[scan + 1] === ":") {
 			const posixEnd = pattern.indexOf(":]", scan + 2)
 			if (posixEnd !== -1) {
-				const className = pattern.slice(scan + 2, posixEnd)
-				if (!(className in POSIX_CLASSES)) {
-					// Invalid POSIX class name makes the bracket expression invalid
-					return null
-				}
+				if (!(pattern.slice(scan + 2, posixEnd) in POSIX_CLASSES)) return null
 				scan = posixEnd + 2
 				continue
 			}
@@ -92,12 +86,10 @@ function parseBracket(
 
 	if (closeIdx === -1) return null
 
-	// Parse contents between i and closeIdx
 	let classBody = ""
 	let pos = i
 
 	while (pos < closeIdx) {
-		// Check for POSIX class [:class:]
 		if (pattern[pos] === "[" && pattern[pos + 1] === ":" && closeIdx - pos >= 4) {
 			const endPosix = pattern.indexOf(":]", pos + 2)
 			if (endPosix !== -1 && endPosix < closeIdx) {
@@ -121,28 +113,18 @@ function parseBracket(
 		}
 
 		if (c === "-") {
-			const isAtStart = pos === i
-			const isAtEnd = pos === closeIdx - 1
-			if (isAtStart || isAtEnd) {
+			if (pos === i || pos === closeIdx - 1) {
 				classBody += "\\-"
 			} else {
-				const prevChar = pattern.charCodeAt(pos - 1)
-				const nextChar = pattern.charCodeAt(pos + 1)
-				if (prevChar > nextChar) return null
+				if (pattern.charCodeAt(pos - 1) > pattern.charCodeAt(pos + 1)) return null
 				classBody += "-"
 			}
 			pos++
 			continue
 		}
 
-		if (c === "]") {
-			classBody += "\\]"
-			pos++
-			continue
-		}
-
-		if (c === "^") {
-			classBody += "\\^"
+		if (c === "]" || c === "^") {
+			classBody += "\\" + c
 			pos++
 			continue
 		}
@@ -151,9 +133,7 @@ function parseBracket(
 		pos++
 	}
 
-	// In WM_PATHNAME, negated character sets must explicitly exclude /
-	const source = negated ? `[^/${classBody}]` : `[${classBody}]`
-	return { nextIdx: closeIdx + 1, source }
+	return { nextIdx: closeIdx + 1, source: negated ? `[^/${classBody}]` : `[${classBody}]` }
 }
 
 /**
@@ -184,11 +164,8 @@ function wildmatchToRegexpSource(pattern: string): string {
 	if (isRoot && start < end && pattern.charCodeAt(start) === 47) start++
 
 	const cleaned = start === 0 && end === pattern.length ? pattern : pattern.slice(start, end)
-
-	// Standalone ** matches everything
 	if (cleaned === "**" || pattern === "**") return ".*"
 
-	// Anchored if starts with '/' or './' or has a slash anywhere in middle (unless unanchored by leading **/)
 	const isAnchored = (isRoot || isRelative || cleaned.includes("/")) && !hasLeadingGlobstar
 
 	let res = ""
@@ -229,18 +206,12 @@ function wildmatchToRegexpSource(pattern: string): string {
 		}
 
 		if (c === "/") {
-			// Check if followed by **
 			if (i + 2 < len && cleaned[i + 1] === "*" && cleaned[i + 2] === "*") {
 				const isAtEnd = i + 3 === len
 				const isSlashAfter = i + 3 < len && cleaned[i + 3] === "/"
-				if (isSlashAfter) {
-					res += "(?:/[^/]+)*"
-					i += 3 // consume '/**'
-					continue
-				}
-				if (isAtEnd) {
-					res += "(?:/.*)"
-					i += 3 // consume '/**'
+				if (isSlashAfter || isAtEnd) {
+					res += isSlashAfter ? "(?:/[^/]+)*" : "(?:/.*)"
+					i += 3
 					continue
 				}
 			}
@@ -250,23 +221,14 @@ function wildmatchToRegexpSource(pattern: string): string {
 		}
 
 		if (c === "*") {
-			// Check for globstar **
 			if (i + 1 < len && cleaned[i + 1] === "*") {
 				const isSlashBefore = i > 0 && cleaned[i - 1] === "/"
 				const isSlashAfter = i + 2 < len && cleaned[i + 2] === "/"
 				const isAtEnd = i + 2 === len
 
-				if (isSlashBefore && isSlashAfter) {
-					// /**/
-					res += "(?:/[^/]+)*"
-					i += 3 // consume '**/'
-					continue
-				}
-
-				if (isSlashBefore && isAtEnd) {
-					// /**
-					res += "(?:/.*)"
-					i += 2 // consume '**'
+				if (isSlashBefore && (isSlashAfter || isAtEnd)) {
+					res += isSlashAfter ? "(?:/[^/]+)*" : "(?:/.*)"
+					i += isSlashAfter ? 3 : 2
 					continue
 				}
 
@@ -284,9 +246,7 @@ function wildmatchToRegexpSource(pattern: string): string {
 		i++
 	}
 
-	let prefix = "(?:^|\\/)"
-	if (hasLeadingGlobstar) prefix = "(?:^|.*\\/)"
-	else if (isAnchored) prefix = "^"
+	const prefix = hasLeadingGlobstar ? "(?:^|.*\\/)" : isAnchored ? "^" : "(?:^|\\/)"
 	const suffix = hasTrailingSlash ? "\\/" : "(?:\\/|$)"
 	return prefix + res + suffix
 }
@@ -304,9 +264,7 @@ export function wildmatchCompile(
 	if (len === 0) throw new TypeError("Empty pattern is useless and wastes memory")
 
 	const patternSources: string[] = new Array(len)
-	for (let i = 0; i < len; i++) {
-		patternSources[i] = wildmatchToRegexpSource(list[i]!)
-	}
+	for (let i = 0; i < len; i++) patternSources[i] = wildmatchToRegexpSource(list[i]!)
 
 	const combinedSource =
 		len === 1 ? patternSources[0]! : patternSources.map((p) => `(?:${p})`).join("|")
@@ -314,15 +272,10 @@ export function wildmatchCompile(
 	try {
 		combinedRegex = new RegExp(combinedSource, nocase ? "i" : "")
 	} catch {
-		// Fallback for invalid combined pattern sources
 		combinedRegex = /(?!)/
 	}
 
 	const compiledItems = len === 1 ? [] : patternSources.map((s) => new RegExp(s, nocase ? "i" : ""))
 
-	return {
-		compiledItems,
-		list,
-		re: combinedRegex,
-	}
+	return { compiledItems, list, re: combinedRegex }
 }

@@ -13,17 +13,11 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 			await testScan(
 				done,
 				{
-					".git": {
-						HEAD: "empty",
-					},
+					".git": { HEAD: "empty" },
 					".npmrc": "secrets=true",
 					"glorp.txt": "",
 					"index.js": "",
-					node_modules: {
-						foo: {
-							"index.js": "",
-						},
-					},
+					node_modules: { foo: { "index.js": "" } },
 					"package-lock.json": "{}",
 					"package.json": JSON.stringify({
 						files: ["*"],
@@ -31,10 +25,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 						version: "1.0.0",
 					}),
 					"pnpm-lock.yaml": "{}",
-					subdir: {
-						".npmrc": "sneaky=true",
-						"other.js": "",
-					},
+					subdir: { ".npmrc": "sneaky=true", "other.js": "" },
 					"yarn.lock": "{}",
 				},
 				["index.js", "subdir/other.js", "package.json", "glorp.txt"],
@@ -46,9 +37,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 			await testScan(
 				done,
 				{
-					bar: {
-						"bar.js": "",
-					},
+					bar: { "bar.js": "" },
 					"bar.js": "",
 					"glorp.txt": "",
 					"package.json": JSON.stringify({

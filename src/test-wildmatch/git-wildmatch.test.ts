@@ -12,11 +12,7 @@ import { makeGit } from "../targets/git.js"
 
 function createAdapter(vol: Volume): FsAdapter {
 	const fs = createFsFromVolume(vol) as any
-	return {
-		readFile: fs.readFile.bind(fs),
-		readdir: fs.readdir.bind(fs),
-		stat: fs.stat.bind(fs),
-	}
+	return { readFile: fs.readFile.bind(fs), readdir: fs.readdir.bind(fs), stat: fs.stat.bind(fs) }
 }
 
 function buildTree(paths: string[]): any {
@@ -4381,9 +4377,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4409,9 +4403,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4437,9 +4429,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4465,9 +4455,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4493,9 +4481,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4521,9 +4507,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4549,9 +4533,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4577,9 +4559,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4605,9 +4585,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foobar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4633,9 +4611,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["aaaaaaabababab"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4661,9 +4637,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo*"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4689,9 +4663,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foobar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4717,9 +4689,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ball"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4745,9 +4715,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ten"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4773,9 +4741,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ten"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4801,9 +4767,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ten"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4829,9 +4793,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ten"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4857,9 +4819,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ten"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4885,9 +4845,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ton"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4913,9 +4871,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ton"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4941,9 +4897,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a]b"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4969,9 +4923,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a-b"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -4997,9 +4949,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a]b"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5025,9 +4975,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["aab"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5053,9 +5001,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["aab"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5081,9 +5027,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5109,9 +5053,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/baz/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5137,9 +5079,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/baz/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5165,9 +5105,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foobazbar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5193,9 +5131,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/baz/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5221,9 +5157,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/baz/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5249,9 +5183,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/b/a/z/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5277,9 +5209,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/b/a/z/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5305,9 +5235,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5333,9 +5261,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5361,9 +5287,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5389,9 +5313,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5417,9 +5339,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5445,9 +5365,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5473,9 +5391,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo-bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5501,9 +5417,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5529,9 +5443,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["XXX/foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5557,9 +5469,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["bar/baz/foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5585,9 +5495,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["bar/baz/foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5613,9 +5521,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar/baz"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5641,9 +5547,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["deep/foo/bar/baz"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5669,9 +5573,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["deep/foo/bar/baz/"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5697,9 +5599,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["deep/foo/bar/baz/"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5725,9 +5625,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["deep/foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5753,9 +5651,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["deep/foo/bar/"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5781,9 +5677,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar/baz"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5809,9 +5703,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar/baz/x"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5837,9 +5729,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["deep/foo/bar/baz/x"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5865,9 +5755,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["deep/foo/bar/baz/x"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5893,9 +5781,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["acrt"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5921,9 +5807,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["acrt"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5949,9 +5833,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -5977,9 +5859,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6005,9 +5885,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6033,9 +5911,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["@foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6061,9 +5937,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6089,9 +5963,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["[ab]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6117,9 +5989,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["[ab]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6145,9 +6015,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["[ab]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6173,9 +6041,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["[ab]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6201,9 +6067,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["[ab]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6229,9 +6093,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["[ab]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6257,9 +6119,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["?a?b"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6285,9 +6145,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["abc"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6313,9 +6171,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar/baz/to"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6341,9 +6197,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a1B"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6369,9 +6223,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6397,9 +6249,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["A"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6425,9 +6275,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["1"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6453,9 +6301,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["1"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6481,9 +6327,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = [" "]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6509,9 +6353,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["5"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6537,9 +6379,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["f"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6565,9 +6405,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["D"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6594,9 +6432,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["_"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6622,9 +6458,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["5"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6650,9 +6484,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["b"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6678,9 +6510,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["y"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6706,9 +6536,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["q"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6734,9 +6562,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6762,9 +6588,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6790,9 +6614,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["["]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6818,9 +6640,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6846,9 +6666,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6874,9 +6692,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ab"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6902,9 +6718,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a[]b"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6930,9 +6744,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ab["]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6958,9 +6770,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ab"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -6986,9 +6796,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ab"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7014,9 +6822,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7042,9 +6848,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7070,9 +6874,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7098,9 +6900,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7126,9 +6926,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["5"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7154,9 +6952,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = [" "]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7182,9 +6978,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["$"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7210,9 +7004,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7238,9 +7030,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["0"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7266,9 +7056,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7294,9 +7082,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7322,9 +7108,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["j"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7350,9 +7134,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7378,9 +7160,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7406,9 +7186,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["["]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7434,9 +7212,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["^"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7462,9 +7238,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["^"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7490,9 +7264,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["["]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7518,9 +7290,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["^"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7546,9 +7316,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-b]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7574,9 +7342,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["G"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7602,9 +7368,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["aaabbb"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7630,9 +7394,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["aabcaa"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7658,9 +7420,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = [","]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7686,9 +7446,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = [","]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7714,9 +7472,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7742,9 +7498,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["+"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7770,9 +7524,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-.]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7798,9 +7550,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["2"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7826,9 +7576,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["3"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7854,9 +7602,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["4"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7882,9 +7628,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["["]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7910,9 +7654,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["]"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7938,9 +7680,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7966,9 +7706,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-adobe-courier-bold-o-normal--12-120-75-75-m-70-iso8859-1"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -7994,9 +7732,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-adobe-courier-bold-o-normal--12-120-75-75-X-70-iso8859-1"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8022,9 +7758,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["-adobe-courier-bold-o-normal--12-120-75-75-/-70-iso8859-1"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8050,9 +7784,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["XXX/adobe/courier/bold/o/normal//12/120/75/75/m/70/iso8859/1"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8080,9 +7812,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["XXX/adobe/courier/bold/o/normal//12/120/75/75/X/70/iso8859/1"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8110,9 +7840,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txt"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8138,9 +7866,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txtz"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8166,9 +7892,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8194,9 +7918,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8222,9 +7944,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8250,9 +7970,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bb/aa/rr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8278,9 +7996,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bb/aa/rr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8306,9 +8022,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["abcXdefXghi"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8334,9 +8048,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ab/cXd/efXg/hi"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8362,9 +8074,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ab/cXd/efXg/hi"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8390,9 +8100,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ab/cXd/efXg/hi"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8418,9 +8126,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8446,9 +8152,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8474,9 +8178,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8502,9 +8204,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8530,9 +8230,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8558,9 +8256,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8586,9 +8282,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8614,9 +8308,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8642,9 +8334,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8670,9 +8360,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8698,9 +8386,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bba/arr"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8726,9 +8412,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8754,9 +8438,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8782,9 +8464,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["foo/bar"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8810,9 +8490,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["ab/cXd/efXg/hi"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8838,9 +8516,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8866,9 +8542,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["A"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8894,9 +8568,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["A"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8922,9 +8594,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8950,9 +8620,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -8978,9 +8646,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["A"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -9006,9 +8672,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["A"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -9034,9 +8698,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -9062,9 +8724,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["A"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -9090,9 +8750,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -9118,9 +8776,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["A"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -9146,9 +8802,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["a"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -9174,9 +8828,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["z"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)
@@ -9202,9 +8854,7 @@ describe.skipIf(process.env.TEST_WILDMATCH == "0")("git wildmatch compatibility 
 		const allPaths = ["Z"]
 		const tree = buildTree(allPaths)
 		tree[".gitignore"] = gitignoreContent
-		tree[".git"] = {
-			config: "[core]\n\tignorecase = true",
-		}
+		tree[".git"] = { config: "[core]\n\tignorecase = true" }
 
 		const vol = Volume.fromNestedJSON(tree, "/workspace")
 		const adapter = createAdapter(vol)

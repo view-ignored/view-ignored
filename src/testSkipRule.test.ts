@@ -9,14 +9,10 @@ import { testScan } from "./testScan.test.js"
 describe("SkipRule implementation", () => {
 	const tree = {
 		node_modules: {
-			nested: {
-				"ignored-nested.js": "nested",
-			},
+			nested: { "ignored-nested.js": "nested" },
 			"real-file.js": "console.log('real')",
 		},
-		src: {
-			"index.ts": "import 'foo'",
-		},
+		src: { "index.ts": "import 'foo'" },
 	}
 
 	const makeCustomTarget = (): Target => {

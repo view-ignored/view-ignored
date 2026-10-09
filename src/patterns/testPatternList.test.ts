@@ -64,10 +64,7 @@ describe("patternListCompile", () => {
 		expect(patternCacheTest(ext3, "src/bar.ts")).toBeTrue()
 		expect(patternCacheTest(ext3, "src/baz.ts")).toBeFalse()
 
-		const ext4 = patternListCompile({
-			list: ["*.*(c)[tj]s*"],
-			spec: PatternSpec.packageJsonFiles,
-		})
+		const ext4 = patternListCompile({ list: ["*.*(c)[tj]s*"], spec: PatternSpec.packageJsonFiles })
 		expect(patternCacheTest(ext4, "index.js")).toBeTrue()
 		expect(patternCacheTest(ext4, "index.cjs")).toBeTrue()
 		expect(patternCacheTest(ext4, "index.d.ts")).toBeTrue()
@@ -139,9 +136,7 @@ describe("patternListCompile", () => {
 		}
 
 		// oxlint-disable-next-line typescript/no-explicit-any
-		const externalTarget: any = {
-			internalRules: [],
-		}
+		const externalTarget: any = { internalRules: [] }
 
 		const mockSource: Source = {
 			dir: ".",
@@ -169,9 +164,7 @@ describe("patternListCompile", () => {
 		}
 
 		// oxlint-disable-next-line typescript/no-explicit-any
-		const internalTarget: any = {
-			internalRules: [customErrorRule],
-		}
+		const internalTarget: any = { internalRules: [customErrorRule] }
 
 		const matchInternal = ruleTestSync({
 			cwd: ".",
@@ -193,12 +186,7 @@ describe("patternListCompile", () => {
 	})
 
 	test("ruleTestSync returns external kind when internal rule has range or source", () => {
-		const mockSource: Source = {
-			dir: ".",
-			inverted: false,
-			path: "package.json",
-			rules: [],
-		}
+		const mockSource: Source = { dir: ".", inverted: false, path: "package.json", rules: [] }
 
 		const internalRangeRule: CustomRule = {
 			excludes: false,
@@ -208,9 +196,7 @@ describe("patternListCompile", () => {
 		}
 
 		// oxlint-disable-next-line typescript/no-explicit-any
-		const internalTarget: any = {
-			internalRules: [internalRangeRule],
-		}
+		const internalTarget: any = { internalRules: [internalRangeRule] }
 
 		const match = ruleTestSync({
 			cwd: ".",
@@ -367,10 +353,7 @@ describe("patternListCompile", () => {
 		}
 
 		// oxlint-disable-next-line typescript/no-explicit-any
-		const mockTarget: any = {
-			extractors: [{ extract: () => {}, path: ".gitignore" }],
-			root: ".",
-		}
+		const mockTarget: any = { extractors: [{ extract: () => {}, path: ".gitignore" }], root: "." }
 
 		resolveSources(
 			{

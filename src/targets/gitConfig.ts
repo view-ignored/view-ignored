@@ -16,36 +16,29 @@ export const HOME = (env.HOME || env.USERPROFILE || "").replaceAll("\\", "/")
 export const XDG = (env.XDG_CONFIG_HOME || (HOME ? HOME + "/.config" : "")).replaceAll("\\", "/")
 
 function resolveHome(p: string): string {
-	if (p.startsWith("~/")) return join(HOME, p.slice(2))
-	return p
+	return p.startsWith("~/") ? join(HOME, p.slice(2)) : p
 }
 
 export function resolvePath(base: string, p: string): string {
 	const resolved = resolveHome(p)
 	if (resolved.startsWith("/") || resolved.includes(":")) return resolved
-	const path = trimLeadingDotSlash(resolved)
-	return join(base, path)
+	return join(base, trimLeadingDotSlash(resolved))
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
 export function mergeConfig(target: any, source: any): void {
 	for (const k in source) {
 		const v = source[k]
-		if (!v || typeof v !== "object" || Array.isArray(v)) {
-			target[k] = v
-			continue
-		}
-		mergeConfig((target[k] ||= {}), v)
+		if (!v || typeof v !== "object" || Array.isArray(v)) target[k] = v
+		else mergeConfig((target[k] ||= {}), v)
 	}
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
 function handlePathKey(
-	// oxlint-disable-next-line typescript/no-explicit-any
 	section: any,
 	sectionName: string | null,
 	key: string,
-	// oxlint-disable-next-line typescript/no-explicit-any
 	val: any,
 	order: string[],
 ): void {
@@ -68,36 +61,33 @@ export function parseGit(text: string): any {
 	while (i < len) {
 		const c = text.charCodeAt(i)
 
-		switch (c) {
-			case 32: // whitespace
-			case 9: // tab
-				i++
-				continue
-			case 35: // comment
-			case 59:
-				while (++i < len && text.charCodeAt(i) !== 10);
-				continue
-			case 91: // section header
-				let s = ++i
-				while (i < len && text.charCodeAt(i) !== 93) i++
-				let e = i
-				while (s < e && text.charCodeAt(s) <= 32) s++
-				while (e > s && text.charCodeAt(e - 1) <= 32) e--
+		if (c === 32 || c === 9) {
+			i++
+			continue
+		}
+		if (c === 35 || c === 59) {
+			while (++i < len && text.charCodeAt(i) !== 10);
+			continue
+		}
+		if (c === 91) {
+			let s = ++i
+			while (i < len && text.charCodeAt(i) !== 93) i++
+			let e = i
+			while (s < e && text.charCodeAt(s) <= 32) s++
+			while (e > s && text.charCodeAt(e - 1) <= 32) e--
 
-				let name = text.slice(s, e)
-				const sp = name.indexOf(" ")
-				if (sp !== -1) {
-					let sub = name.slice(sp + 1).trim()
-					if (sub.startsWith('"') && sub.endsWith('"')) sub = sub.slice(1, -1)
-					name = name.slice(0, sp).toLowerCase() + ' "' + sub + '"'
-				} else {
-					name = name.toLowerCase()
-				}
+			let name = text.slice(s, e)
+			const sp = name.indexOf(" ")
+			if (sp !== -1) {
+				let sub = name.slice(sp + 1).trim()
+				if (sub.startsWith('"') && sub.endsWith('"')) sub = sub.slice(1, -1)
+				name = name.slice(0, sp).toLowerCase() + ' "' + sub + '"'
+			} else name = name.toLowerCase()
 
-				while (++i < len && text.charCodeAt(i) !== 10);
-				sectionName = name
-				section = obj[sectionName] ||= {}
-				continue
+			while (++i < len && text.charCodeAt(i) !== 10);
+			sectionName = name
+			section = obj[sectionName] ||= {}
+			continue
 		}
 
 		if (section) {
@@ -126,8 +116,10 @@ export function parseGit(text: string): any {
 				i++
 
 			let val: string | boolean = text.slice(vS, i).trim()
-			if (typeof val === "string" && val.startsWith('"') && val.endsWith('"'))
-				val = unescapeGitValue(val.slice(1, -1))
+			if (typeof val === "string" && val.startsWith('"') && val.endsWith('"')) {
+				const unesc = val.slice(1, -1)
+				val = unesc.includes("\\") ? unesc.replace(/\\(.)/g, "$1") : unesc
+			}
 
 			if (key) {
 				if (key === "path") handlePathKey(section, sectionName, "path", val, order)
@@ -143,10 +135,6 @@ export function parseGit(text: string): any {
 	return obj
 }
 
-function unescapeGitValue(val: string): string {
-	return val.includes("\\") ? val.replace(/\\(.)/g, "$1") : val
-}
-
 // oxlint-disable-next-line typescript/no-explicit-any
 const patternCacheMap = new Map<string, any>()
 
@@ -154,7 +142,6 @@ function testPattern(pat: string, str: string, mode: MatchMode = MatchMode.norma
 	const key = pat + (mode & MatchMode.unsensitive ? "/i" : "")
 	let c = patternCacheMap.get(key)
 	if (!c) {
-		// oxlint-disable-next-line typescript/no-explicit-any
 		c = patternListCompile({ list: [pat], nocase: !!(mode & MatchMode.unsensitive) })
 		patternCacheMap.set(key, c)
 	}
@@ -177,23 +164,16 @@ function hasConfig(obj: any, cond: string): boolean {
 	// oxlint-disable-next-line typescript/no-explicit-any
 	let cur: any = obj
 	if (parts.length === 2) {
-		const k = parts[1]!.toLowerCase()
-		cur = cur[section]?.[k]
+		cur = cur[section]?.[parts[1]!.toLowerCase()]
 	} else {
 		const sub = parts.slice(1, -1).join(".")
-		const k = parts[parts.length - 1]!.toLowerCase()
-		cur = cur[section + ' "' + sub + '"']?.[k]
+		cur = cur[section + ' "' + sub + '"']?.[parts[parts.length - 1]!.toLowerCase()]
 	}
 
 	if (cur === undefined) return false
 	if (val === null) return true
 
-	if (Array.isArray(cur)) {
-		for (let i = 0; i < cur.length; i++) {
-			if (cur[i] === val || String(cur[i]) === val) return true
-		}
-		return false
-	}
+	if (Array.isArray(cur)) return cur.some((item) => item === val || String(item) === val)
 	return cur === val || String(cur) === val
 }
 

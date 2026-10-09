@@ -32,9 +32,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-scoped",
 				},
 				"package.json": JSON.stringify({
 					bundleDependencies: ["@npmwombat/history"],
-					dependencies: {
-						"@npmwombat/history": "1.0.0",
-					},
+					dependencies: { "@npmwombat/history": "1.0.0" },
 					main: "elf.js",
 					name: "test-package",
 					version: "3.1.4",

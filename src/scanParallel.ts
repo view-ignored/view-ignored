@@ -38,17 +38,12 @@ function processSingleFile(
 	const { scanOptions, external, failed, onResult, stream } = options
 	const { invert, signal } = scanOptions
 
-	if (state.errorOccurred || signal?.aborted) {
-		taskDone()
-		return
-	}
+	if (state.errorOccurred || signal?.aborted) return taskDone()
 
 	const lastSlash = within.lastIndexOf("/")
 	const parentPath = lastSlash === -1 ? "." : within.slice(0, lastSlash)
 	const name = lastSlash === -1 ? within : within.slice(lastSlash + 1)
-
 	const depth = lastSlash === -1 ? 0 : countSlashes(within)
-
 	const entry = createSyntheticDirent(name, parentPath, false)
 
 	resolveSources(
@@ -63,22 +58,16 @@ function processSingleFile(
 			target: scanOptions.target,
 		},
 		(err, res) => {
-			if (state.errorOccurred || signal?.aborted) {
-				taskDone()
-				return
-			}
-
+			if (state.errorOccurred || signal?.aborted) return taskDone()
 			if (err) {
 				handleError(err)
-				taskDone()
-				return
+				return taskDone()
 			}
 
 			if (res && "error" in res && res.error) {
 				if (!failed) {
 					handleError(res.error)
-					taskDone()
-					return
+					return taskDone()
 				}
 				failed.push(res)
 			}
@@ -94,16 +83,11 @@ function processSingleFile(
 			})
 
 			const handleResult = (self: WalkResult | null) => {
-				if (state.errorOccurred || signal?.aborted) {
-					taskDone()
-					return
-				}
+				if (state.errorOccurred || signal?.aborted) return taskDone()
 
-				if (self && self.match) {
-					let dirMatchedFiles = 0
+				if (self?.match) {
 					const isIncluded = isMatchIncluded(self.match, invert)
-
-					if ((entry.isFile() || entry.isSymbolicLink()) && isIncluded) dirMatchedFiles = 1
+					const dirMatchedFiles = (entry.isFile() || entry.isSymbolicLink()) && isIncluded ? 1 : 0
 
 					if (onResult) {
 						onResult(self)
@@ -114,19 +98,16 @@ function processSingleFile(
 							matchedDirs: 0,
 							matchedFiles: dirMatchedFiles,
 						})
-					} else if (state.results) state.results.push(self)
+					} else state.results?.push(self)
 				}
 				taskDone()
 			}
 
 			if (selfOrPromise instanceof Promise) {
-				selfOrPromise.then(
-					(self) => handleResult(self),
-					(err) => {
-						handleError(err)
-						taskDone()
-					},
-				)
+				selfOrPromise.then(handleResult, (e) => {
+					handleError(e)
+					taskDone()
+				})
 			} else handleResult(selfOrPromise)
 		},
 	)
@@ -165,8 +146,7 @@ function processEntries(
 
 	const handleResult = (self: WalkResult | null, entry: Dirent, currentRelPath: string) => {
 		const finish = () => {
-			pendingResults--
-			if (pendingResults === 0 && onResult && !state.errorOccurred && !signal?.aborted) {
+			if (--pendingResults === 0 && onResult && !state.errorOccurred && !signal?.aborted) {
 				onResult({
 					depth,
 					dir: relPath,
@@ -178,12 +158,9 @@ function processEntries(
 			taskDone()
 		}
 
-		if (state.errorOccurred || signal?.aborted) return finish()
-
-		if (!self || !self.match) return finish()
+		if (state.errorOccurred || signal?.aborted || !self?.match) return finish()
 
 		const isIncluded = isMatchIncluded(self.match, invert)
-
 		if (self.isDir && isIncluded) dirMatchedDirs++
 		else if ((entry.isFile() || entry.isSymbolicLink()) && isIncluded) dirMatchedFiles++
 
@@ -198,8 +175,7 @@ function processEntries(
 		if (state.errorOccurred || signal?.aborted) break
 		const entry = entries[i]!
 		state.activeTasks++
-		const { name } = entry
-		const currentRelPath = prefix + name
+		const currentRelPath = prefix + entry.name
 
 		const selfOrPromise = walkIncludes({
 			depth,
@@ -210,12 +186,8 @@ function processEntries(
 			scanOptions,
 			stream,
 		})
-
 		if (selfOrPromise instanceof Promise) {
-			selfOrPromise.then(
-				(self) => handleResult(self, entry, currentRelPath),
-				(err) => handleError(err),
-			)
+			selfOrPromise.then((self) => handleResult(self, entry, currentRelPath), handleError)
 		} else handleResult(selfOrPromise, entry, currentRelPath)
 	}
 	taskDone()
@@ -233,11 +205,7 @@ export function scanParallel(
 	const { scanOptions, external, onResult } = options
 	const { within, signal } = scanOptions
 
-	const state: ScanState = {
-		activeTasks: 0,
-		errorOccurred: null,
-		results: onResult ? null : [],
-	}
+	const state: ScanState = { activeTasks: 0, errorOccurred: null, results: onResult ? null : [] }
 
 	const removeAbortListener = () => {
 		signal?.removeEventListener("abort", onAbort)
@@ -255,72 +223,15 @@ export function scanParallel(
 	}
 
 	if (signal) {
-		if (signal.aborted) {
-			handleError((signal.reason as Error) ?? new Error("Aborted"))
-			return
-		}
+		if (signal.aborted) return handleError((signal.reason as Error) ?? new Error("Aborted"))
 		signal.addEventListener("abort", onAbort, { once: true })
 	}
 
 	const taskDone = () => {
-		state.activeTasks--
-		if (state.activeTasks === 0 && !state.errorOccurred) {
+		if (--state.activeTasks === 0 && !state.errorOccurred) {
 			removeAbortListener()
 			cb(null, state.results)
 		}
-	}
-
-	const handleReaddir = (
-		err: Error | null,
-		entries: Dirent[],
-		relPath: string,
-		depth: number,
-		resource?: Resource,
-	) => {
-		if (state.errorOccurred || signal?.aborted) {
-			taskDone()
-			return
-		}
-
-		if (err) {
-			handleError(err)
-			taskDone()
-			return
-		}
-
-		resolveSources(
-			{
-				cwd: scanOptions.cwd,
-				dir: relPath,
-				entries,
-				external,
-				fs: scanOptions.fs,
-				resource,
-				signal: scanOptions.signal,
-				target: scanOptions.target,
-			},
-			(err, res) => handleResolveSources(err, res, relPath, depth, entries),
-		)
-	}
-
-	const handleResolveSources = (
-		err: Error | null,
-		res: Resource | null,
-		relPath: string,
-		depth: number,
-		entries: Dirent[],
-	) => {
-		if (state.errorOccurred || signal?.aborted) {
-			taskDone()
-			return
-		}
-
-		if (err) {
-			handleError(err)
-			taskDone()
-			return
-		}
-		processEntries(relPath, depth, entries, res, options, state, walk, handleError, taskDone)
 	}
 
 	const walk = (relPath: string, depth: number, resource?: Resource) => {
@@ -330,15 +241,48 @@ export function scanParallel(
 		scanOptions.fs.readdir(
 			join(scanOptions.cwd, relPath),
 			{ withFileTypes: true },
-			(err, entries) => handleReaddir(err, entries, relPath, depth, resource),
+			(err, entries) => {
+				if (state.errorOccurred || signal?.aborted) return taskDone()
+				if (err) {
+					handleError(err)
+					return taskDone()
+				}
+				resolveSources(
+					{
+						cwd: scanOptions.cwd,
+						dir: relPath,
+						entries,
+						external,
+						fs: scanOptions.fs,
+						resource,
+						signal: scanOptions.signal,
+						target: scanOptions.target,
+					},
+					(err, res) => {
+						if (state.errorOccurred || signal?.aborted) return taskDone()
+						if (err) {
+							handleError(err)
+							return taskDone()
+						}
+						processEntries(
+							relPath,
+							depth,
+							entries,
+							res,
+							options,
+							state,
+							walk,
+							handleError,
+							taskDone,
+						)
+					},
+				)
+			},
 		)
 	}
 
 	const withinList = Array.isArray(within) ? within : [within]
-	if (withinList.length === 0) {
-		cb(null, state.results)
-		return
-	}
+	if (withinList.length === 0) return cb(null, state.results)
 
 	for (let i = 0; i < withinList.length; i++) {
 		const item = withinList[i]!
@@ -349,8 +293,7 @@ export function scanParallel(
 			scanOptions.fs.stat(join(scanOptions.cwd, item), (err, stat) => {
 				if (err) {
 					handleError(err)
-					taskDone()
-					return
+					return taskDone()
 				}
 				if (stat.isDirectory()) {
 					walk(item, initialDepth, undefined)

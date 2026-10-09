@@ -15,11 +15,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundle-missing-d
 				node_modules: {
 					history: {
 						"index.js": "",
-						"package.json": JSON.stringify({
-							main: "index.js",
-							name: "history",
-							version: "1.0.0",
-						}),
+						"package.json": JSON.stringify({ main: "index.js", name: "history", version: "1.0.0" }),
 					},
 				},
 				"package.json": JSON.stringify({

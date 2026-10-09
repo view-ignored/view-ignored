@@ -131,23 +131,13 @@ export async function testScan(
 			done()
 			throw e
 		}
-		await test({
-			ctx,
-			fs: adapter,
-			options: o,
-			vol,
-		})
+		await test({ ctx, fs: adapter, options: o, vol })
 		const stream = scanStream(o)
 		stream.addEventListener(
 			"end",
 			async ({ detail: sctx }) => {
 				try {
-					await test({
-						ctx: sctx,
-						fs: adapter,
-						options: o,
-						vol,
-					})
+					await test({ ctx: sctx, fs: adapter, options: o, vol })
 				} finally {
 					done()
 				}
@@ -249,12 +239,7 @@ export async function testStream(
 
 	if (typeof test === "function") {
 		const stream = scanStream(o)
-		const promise = test({
-			fs: adapter,
-			options: o,
-			stream,
-			vol,
-		})
+		const promise = test({ fs: adapter, options: o, stream, vol })
 		await stream.start()
 		await promise
 		return

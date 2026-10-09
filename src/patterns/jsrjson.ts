@@ -11,10 +11,7 @@ const decoder = new TextDecoder()
 interface JsrManifest {
 	exclude?: string[]
 	include?: string[]
-	publish?: {
-		exclude?: string[]
-		include?: string[]
-	}
+	publish?: { exclude?: string[]; include?: string[] }
 }
 
 /**
@@ -42,43 +39,27 @@ export function extractJsrJsonRules(source: Source, content: Uint8Array): void {
 		throw new Error("Invalid JSON in '" + source.path + "'", { cause: e })
 	}
 
-	// Basic runtime check to ensure dist is an object
 	if (!dist || typeof dist !== "object" || Array.isArray(dist))
 		throw new Error("Invalid '" + source.path + "': Root must be an object")
 
 	let rule: GlobRule | undefined
-
-	// Resolve patterns based on the manifest hierarchy
 	const target = dist.publish ?? dist
 
-	const exKey = dist.publish ? "publish.exclude" : "exclude"
-	const incKey = dist.publish ? "publish.include" : "include"
-
-	const exRanges = scanJsonRuleRanges(content, exKey)
-	const incRanges = scanJsonRuleRanges(content, incKey)
-
-	let exIdx = 0
-	let incIdx = 0
-	const options = { nocase: true }
-	if (Array.isArray(target.exclude)) {
-		for (const pattern of target.exclude) {
-			const range = exRanges[exIdx++]
-			const nextRule = resolveNegatable(pattern, false, rule, range?.[0], range?.[1])
-			if (nextRule === rule) continue
-			rule = nextRule
-			source.rules.push(rule)
+	const processList = (list: string[] | undefined, key: string, invert: boolean) => {
+		if (!Array.isArray(list)) return
+		const ranges = scanJsonRuleRanges(content, key)
+		for (let i = 0; i < list.length; i++) {
+			const range = ranges[i]
+			const nextRule = resolveNegatable(list[i]!, invert, rule, range?.[0], range?.[1])
+			if (nextRule !== rule) {
+				rule = nextRule
+				source.rules.push(rule)
+			}
 		}
 	}
 
-	if (Array.isArray(target.include)) {
-		for (const pattern of target.include) {
-			const range = incRanges[incIdx++]
-			const nextRule = resolveNegatable(pattern, true, rule, range?.[0], range?.[1])
-			if (nextRule === rule) continue
-			rule = nextRule
-			source.rules.push(rule)
-		}
-	}
+	processList(target.exclude, dist.publish ? "publish.exclude" : "exclude", false)
+	processList(target.include, dist.publish ? "publish.include" : "include", true)
 
-	compileSourceRules(source, options)
+	compileSourceRules(source, { nocase: true })
 }

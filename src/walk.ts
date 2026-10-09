@@ -30,34 +30,19 @@ export type WalkOptions = {
 }
 
 export class WalkResult {
-	path: string
-	parentPath: string
-	match: RuleMatch
 	includeParent = false
-	tooDeep = false
 	next: 0 | 1 = 0
-	depth: number
-	isDir: boolean
-	entry: Dirent
 	context: MatcherContext | null | undefined = undefined
 
 	constructor(
-		path: string,
-		parentPath: string,
-		match: RuleMatch,
-		depth: number,
-		isDir: boolean,
-		entry: Dirent,
-		tooDeep = false,
-	) {
-		this.path = path
-		this.parentPath = parentPath
-		this.match = match
-		this.depth = depth
-		this.isDir = isDir
-		this.entry = entry
-		this.tooDeep = tooDeep
-	}
+		public path: string,
+		public parentPath: string,
+		public match: RuleMatch,
+		public depth: number,
+		public isDir: boolean,
+		public entry: Dirent,
+		public tooDeep = false,
+	) {}
 }
 
 export type WalkTotal = {
@@ -83,13 +68,18 @@ function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): 
 	const { depth: maxDepth, invert, skipDepth } = scanOptions
 
 	const tooDeepFlag = skipDepth && depth > maxDepth
-	const isExcluded = isMatchExcluded(invert, match)
-	const direntPath = isDir ? path + "/" : path
-
-	const result = new WalkResult(direntPath, parentPath, match, depth, isDir, entry, tooDeepFlag)
+	const result = new WalkResult(
+		isDir ? path + "/" : path,
+		parentPath,
+		match,
+		depth,
+		isDir,
+		entry,
+		tooDeepFlag,
+	)
 
 	if (isRuleMatchInvalid(match)) return result
-	if (isExcluded) {
+	if (isMatchExcluded(invert, match)) {
 		if (
 			isDir &&
 			match.ignored &&
@@ -115,18 +105,20 @@ function getWalkResult(match: RuleMatch, options: WalkOptions, isDir: boolean): 
 function handleRuleResolvedCtx(
 	resolvedCtx: MatcherContext | 0 | null,
 	options: WalkOptions,
-	runIgnoresSync: () => WalkResult,
+	runSync: () => WalkResult,
 ): WalkResult {
-	if (resolvedCtx === null) return runIgnoresSync()
-	const { entry, relPath: path, parentPath, depth } = options
-	const res = new WalkResult(path + "/", parentPath, ruleMatchIgnoredNone, depth, true, entry)
+	if (resolvedCtx === null) return runSync()
+	const res = new WalkResult(
+		options.relPath + "/",
+		options.parentPath,
+		ruleMatchIgnoredNone,
+		options.depth,
+		true,
+		options.entry,
+	)
 	res.context = resolvedCtx === 0 ? null : resolvedCtx
 	res.next = 1
 	return res
-}
-
-function throwErrorCallback(err: Error): never {
-	throw err
 }
 
 function runIgnoresSync(options: WalkOptions, isDir: boolean): WalkResult {
@@ -160,12 +152,11 @@ function checkRulesList(
 
 	let ignoreOptions: IgnoresOptions | undefined
 
-	const len = list.length
-	for (let i = 0; i < len; i++) {
+	for (let i = 0; i < list.length; i++) {
 		const rule = list[i]!
 		if (typeof rule !== "function") continue
 
-		ignoreOptions ??= {
+		ignoreOptions ||= {
 			cwd,
 			depth: maxDepth - depth,
 			dirent: entry,
@@ -182,14 +173,17 @@ function checkRulesList(
 		const res = rule(ignoreOptions)
 		if (res === null) continue
 
-		if (res && typeof (res as Promise<unknown>).then === "function")
-			return (res as Promise<MatcherContext | 0 | null>).then(
+		if (res instanceof Promise) {
+			return res.then(
 				(resolvedCtx) =>
 					handleRuleResolvedCtx(resolvedCtx, options, () => runIgnoresSync(options, isDir)),
-				throwErrorCallback,
+				(err) => {
+					throw err
+				},
 			)
+		}
 		const walkRes = new WalkResult(path + "/", parentPath, ruleMatchIgnoredNone, depth, true, entry)
-		walkRes.context = res === 0 ? null : (res as MatcherContext)
+		walkRes.context = res === 0 ? null : res
 		walkRes.next = 1
 		return walkRes
 	}
@@ -202,17 +196,15 @@ function checkRulesList(
 export function walkIncludes(options: WalkOptions): WalkResult | Promise<WalkResult> {
 	const { entry, scanOptions } = options
 	const { target, depth: maxDepth } = scanOptions
-
 	const isDir = entry.isDirectory()
 
-	if (!isDir) return runIgnoresSync(options, isDir)
+	if (!isDir || !target.internalRules) return runIgnoresSync(options, isDir)
 
-	const { internalRules } = target
-	if (!internalRules) return runIgnoresSync(options, isDir)
-
-	const isArr = Array.isArray(internalRules)
-	const list1 = isArr ? (internalRules as Rule[]) : (internalRules as InternalRules).before
-	const list2 = isArr ? null : (internalRules as InternalRules).after
+	const isArr = Array.isArray(target.internalRules)
+	const list1 = isArr
+		? (target.internalRules as Rule[])
+		: (target.internalRules as InternalRules).before
+	const list2 = isArr ? null : (target.internalRules as InternalRules).after
 
 	const res1 = checkRulesList(list1, options, maxDepth, isDir)
 	if (res1 !== null) return res1
@@ -224,13 +216,10 @@ export function walkIncludes(options: WalkOptions): WalkResult | Promise<WalkRes
 }
 
 abstract class BaseSyntheticDirent implements Dirent {
-	name: string
-	parentPath: string
-
-	constructor(name: string, parentPath: string) {
-		this.name = name
-		this.parentPath = parentPath
-	}
+	constructor(
+		public name: string,
+		public parentPath: string,
+	) {}
 
 	isBlockDevice(): boolean {
 		return false
@@ -276,6 +265,15 @@ export function createSyntheticDirent(name: string, parentPath: string, isDir: b
 		: new SyntheticFileDirent(name, parentPath)
 }
 
+function pathParentAndName(path: string, isDir: boolean) {
+	const clean = isDir ? path.slice(0, -1) : path
+	const idx = clean.lastIndexOf("/")
+	return {
+		name: idx === -1 ? clean : clean.slice(idx + 1),
+		parentPath: idx === -1 ? "." : clean.slice(0, idx),
+	}
+}
+
 function patch(
 	ctx: MatcherContext,
 	stream: MatcherStream | undefined,
@@ -288,10 +286,7 @@ function patch(
 	if (!stream) return
 
 	if (path.endsWith("/") && !entry.isDirectory()) {
-		const cleanPath = path.slice(0, -1)
-		const lastSlash = cleanPath.lastIndexOf("/")
-		const parentPath = lastSlash === -1 ? "." : cleanPath.slice(0, lastSlash)
-		const name = lastSlash === -1 ? cleanPath : cleanPath.slice(lastSlash + 1)
+		const { name, parentPath } = pathParentAndName(path, true)
 		const dirDirent = createSyntheticDirent(name, parentPath, true)
 		stream.dispatchEvent(new CustomEvent("dirent", { detail: { dirent: dirDirent, match, path } }))
 		return
@@ -305,9 +300,7 @@ function patchMerged(
 	stream: MatcherStream | undefined,
 	mergedCtx: MatcherContext,
 ): void {
-	for (const rule of mergedCtx.matchedRules) {
-		ctx.matchedRules.add(rule)
-	}
+	for (const rule of mergedCtx.matchedRules) ctx.matchedRules.add(rule)
 
 	if (mergedCtx.paths.dirs) {
 		for (const dir of mergedCtx.paths.dirs.keys()) {
@@ -322,10 +315,7 @@ function patchMerged(
 		if (!stream) continue
 
 		const isDir = path.endsWith("/")
-		const cleanPath = isDir ? path.slice(0, -1) : path
-		const lastSlash = cleanPath.lastIndexOf("/")
-		const parentPath = lastSlash === -1 ? "." : cleanPath.slice(0, lastSlash)
-		const name = lastSlash === -1 ? cleanPath : cleanPath.slice(lastSlash + 1)
+		const { name, parentPath } = pathParentAndName(path, isDir)
 		const dirent = createSyntheticDirent(name, parentPath, isDir)
 		stream.dispatchEvent(new CustomEvent("dirent", { detail: { dirent, match, path } }))
 	}
@@ -363,18 +353,13 @@ export function walkPatchResult(
 
 	if (isDir && match) {
 		const cleanDir = path.endsWith("/") ? path.slice(0, -1) : path
-		if (cleanDir && cleanDir !== "." && cleanDir !== "/") {
-			ctx.paths.dirs.set(cleanDir, match)
-		}
+		if (cleanDir && cleanDir !== "." && cleanDir !== "/") ctx.paths.dirs.set(cleanDir, match)
 	}
 
-	const isExcluded = isMatchExcluded(invert, match)
 	if (context) patchMerged(ctx, stream, context)
 	const shouldPatch = dirs || (!isDir && (entry.isFile() || entry.isSymbolicLink()))
-	if (isExcluded) {
-		if (isRuleMatchInvalid(match) && stream && shouldPatch) {
-			patch(ctx, stream, path, entry, match)
-		}
+	if (isMatchExcluded(invert, match)) {
+		if (isRuleMatchInvalid(match) && stream && shouldPatch) patch(ctx, stream, path, entry, match)
 		return
 	}
 	if (!tooDeep && shouldPatch) patch(ctx, stream, path, entry, match)
@@ -389,10 +374,7 @@ function addToTotal(
 ): void {
 	const dirTotal = total.get(dir)
 	if (!dirTotal) {
-		total.set(dir, {
-			totalMatchedDirs: matchedDirs,
-			totalMatchedFiles: matchedFiles,
-		})
+		total.set(dir, { totalMatchedDirs: matchedDirs, totalMatchedFiles: matchedFiles })
 		return
 	}
 	dirTotal.totalMatchedFiles += matchedFiles
@@ -411,15 +393,13 @@ export function walkPatchTotal(ctx: MatcherContext, maxDepth: number, t: WalkTot
  */
 export function propagateTotals(total: Map<string, Total>): void {
 	if (total.size <= 1) return
-	const dirs = Array.from(total.keys())
-	dirs.sort((a, b) => b.length - a.length)
-	for (let i = 0, len = dirs.length; i < len; i++) {
+	const dirs = Array.from(total.keys()).sort((a, b) => b.length - a.length)
+	for (let i = 0; i < dirs.length; i++) {
 		const dir = dirs[i]!
 		if (dir === "." || dir === "/") continue
 		const dirTotal = total.get(dir)!
-		const files = dirTotal.totalMatchedFiles
-		const subdirs = dirTotal.totalMatchedDirs
-		if (files === 0 && subdirs === 0) continue
-		addToTotal(total, dirname(dir), files, subdirs)
+		if (dirTotal.totalMatchedFiles || dirTotal.totalMatchedDirs) {
+			addToTotal(total, dirname(dir), dirTotal.totalMatchedFiles, dirTotal.totalMatchedDirs)
+		}
 	}
 }

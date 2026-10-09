@@ -17,11 +17,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist package-json-nes
 						"a.js": "one",
 						b: {
 							"b.js": "one",
-							c: {
-								"c.js": "one",
-								"file.txt": "one",
-								"readme.md": "one",
-							},
+							c: { "c.js": "one", "file.txt": "one", "readme.md": "one" },
 							"file.txt": "one",
 							"readme.md": "one",
 						},
@@ -29,20 +25,13 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist package-json-nes
 						"readme.md": "one",
 					},
 				},
-				"package.json": JSON.stringify({
-					name: "test-package",
-					version: "1.0.0",
-				}),
+				"package.json": JSON.stringify({ name: "test-package", version: "1.0.0" }),
 				test: {
 					a: {
 						"a.js": "one",
 						b: {
 							"b.js": "one",
-							c: {
-								"c.js": "one",
-								"file.txt": "one",
-								"readme.md": "one",
-							},
+							c: { "c.js": "one", "file.txt": "one", "readme.md": "one" },
 							"file.txt": "one",
 							"readme.md": "one",
 						},

@@ -29,9 +29,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 					},
 					"package.json": JSON.stringify({
 						bundleDependencies: ["bundled"],
-						dependencies: {
-							bundled: "1.0.0",
-						},
+						dependencies: { bundled: "1.0.0" },
 						main: "index.js",
 						name: "root",
 						version: "1.0.0",

@@ -100,23 +100,11 @@ function loadGitIndex(
  * @since 0.12.0
  */
 export function makeGit(): Target {
-	const extractors: Extractor[] = [
-		{
-			extract: extractGitignore,
-			path: ".gitignore",
-		},
-	]
+	const extractors: Extractor[] = [{ extract: extractGitignore, path: ".gitignore" }]
 
-	cachedGitRule ||= ruleCompile({
-		compiled: null,
-		excludes: true,
-		list: [".git"],
-	})
+	cachedGitRule ||= ruleCompile({ compiled: null, excludes: true, list: [".git"] })
 
-	const internal: InternalRules = {
-		after: [],
-		before: [makeGitSkipRule(), cachedGitRule],
-	}
+	const internal: InternalRules = { after: [], before: [makeGitSkipRule(), cachedGitRule] }
 
 	return {
 		extractors,
@@ -168,11 +156,7 @@ export function makeGit(): Target {
 				) => {
 					fs.readFile(filePath, (err, res) => {
 						if (!err && res) {
-							const source: Source = {
-								inverted: false,
-								path: sourcePath,
-								rules: [],
-							}
+							const source: Source = { inverted: false, path: sourcePath, rules: [] }
 							extractGitignore(source, res, { nocase: ignorecase })
 							if (source.rules.length > 0) store(source.rules)
 						}

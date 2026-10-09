@@ -16,34 +16,15 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist symlink", () => 
 		await testScan(
 			done,
 			{
-				".git": {
-					gitstub: "won't fool git, also won't be included",
-				},
+				".git": { gitstub: "won't fool git, also won't be included" },
 				".npmignore": ".npmignore\ndummy\n/package.json\n",
 				".npmrc": "packaged=false",
-				build: {
-					"config.gypi": "i_wont_be_included='with any luck'",
-					"npm-debug.log": "0 lol\n",
-				},
-				deps: {
-					foo: {
-						config: {
-							"config.gypi": "i_will_be_included='with any luck'",
-						},
-					},
-				},
+				build: { "config.gypi": "i_wont_be_included='with any luck'", "npm-debug.log": "0 lol\n" },
+				deps: { foo: { config: { "config.gypi": "i_will_be_included='with any luck'" } } },
 				dummy: "foo",
 				"elf.js": elfJS,
-				node_modules: {
-					history: {
-						"README.md": "please don't include me",
-					},
-				},
-				"package.json": JSON.stringify({
-					main: "elf.js",
-					name: "test-package",
-					version: "3.1.4",
-				}),
+				node_modules: { history: { "README.md": "please don't include me" } },
+				"package.json": JSON.stringify({ main: "elf.js", name: "test-package", version: "3.1.4" }),
 				test: {
 					resolver: {
 						multirepo: {
@@ -53,17 +34,11 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist symlink", () => 
 									node_modules: {
 										"@scope": {},
 										some_dep: {
-											"package.json": JSON.stringify({
-												name: "some_dep",
-												version: "1.2.3",
-											}),
+											"package.json": JSON.stringify({ name: "some_dep", version: "1.2.3" }),
 										},
 									},
 								},
-								b: {
-									"index.js": 'console.log("woop")',
-									node_modules: {},
-								},
+								b: { "index.js": 'console.log("woop")', node_modules: {} },
 							},
 						},
 					},

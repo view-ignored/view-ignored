@@ -3,10 +3,7 @@ import { describe, test, expect } from "bun:test"
 import { testScan } from "../testScan.test.js"
 import { makeYarn } from "./yarn.js"
 
-const packageJsonNoFiles = JSON.stringify({
-	name: "me",
-	version: "0.0.1",
-})
+const packageJsonNoFiles = JSON.stringify({ name: "me", version: "0.0.1" })
 
 describe("Yarn", () => {
 	test("empty for empty", async (done) => {
@@ -27,11 +24,7 @@ describe("Yarn", () => {
 	test("keeps for empty source", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "",
-				filekeep: "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "", filekeep: "", "package.json": packageJsonNoFiles },
 			["filekeep", "package.json"],
 			{ target: makeYarn() },
 		)
@@ -40,11 +33,7 @@ describe("Yarn", () => {
 	test("ignores file", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "file",
-				file: "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "file", file: "", "package.json": packageJsonNoFiles },
 			["package.json"],
 			{ target: makeYarn() },
 		)
@@ -53,11 +42,7 @@ describe("Yarn", () => {
 	test("ignores file nocase", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "File",
-				file: "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "File", file: "", "package.json": packageJsonNoFiles },
 			["package.json"],
 			{ target: makeYarn() },
 		)
@@ -80,12 +65,7 @@ describe("Yarn", () => {
 	test("ignores files with pattern", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "*.js",
-				"bar.js": "",
-				"foo.js": "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "*.js", "bar.js": "", "foo.js": "", "package.json": packageJsonNoFiles },
 			["package.json"],
 			{ target: makeYarn() },
 		)
@@ -97,10 +77,7 @@ describe("Yarn", () => {
 			{
 				".npmignore": "src/",
 				"package.json": packageJsonNoFiles,
-				src: {
-					"helper.js": "",
-					"main.js": "",
-				},
+				src: { "helper.js": "", "main.js": "" },
 			},
 			["package.json"],
 			{ target: makeYarn() },
@@ -110,12 +87,7 @@ describe("Yarn", () => {
 	test("does not ignore files not matching pattern", async (done) => {
 		await testScan(
 			done,
-			{
-				".npmignore": "*.js",
-				"bar.js": "",
-				"foo.txt": "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ ".npmignore": "*.js", "bar.js": "", "foo.txt": "", "package.json": packageJsonNoFiles },
 			["foo.txt", "package.json"],
 			{ target: makeYarn() },
 		)
@@ -142,19 +114,11 @@ describe("Yarn", () => {
 				file: "1",
 				"index.js": "('src')",
 				"index.ts": "('src')",
-				"package.json": JSON.stringify({
-					files: ["index.ts"],
-					name: "root",
-					version: "0.0.1",
-				}),
+				"package.json": JSON.stringify({ files: ["index.ts"], name: "root", version: "0.0.1" }),
 				packages: {
 					a: {
 						"index.js": "('a')",
-						"package.json": JSON.stringify({
-							files: ["index.js"],
-							name: "a",
-							version: "0.0.1",
-						}),
+						"package.json": JSON.stringify({ files: ["index.js"], name: "a", version: "0.0.1" }),
 					},
 				},
 			},
@@ -182,9 +146,7 @@ describe("Yarn", () => {
 		await testScan(
 			done,
 			{
-				bin: {
-					app: "yarn bin test file content",
-				},
+				bin: { app: "yarn bin test file content" },
 				"index.js": "",
 				"package.json": JSON.stringify({
 					bin: "./bin/app",
@@ -201,9 +163,7 @@ describe("Yarn", () => {
 		await testScan(
 			done,
 			{
-				bin: {
-					app: "yarn bin test file content",
-				},
+				bin: { app: "yarn bin test file content" },
 				"index.js": "",
 				"package.json": JSON.stringify({
 					bin: "bin/app",
@@ -220,9 +180,7 @@ describe("Yarn", () => {
 		await testScan(
 			done,
 			{
-				bin: {
-					app: "yarn bin test file content",
-				},
+				bin: { app: "yarn bin test file content" },
 				"index.js": "",
 				"package.json": JSON.stringify({
 					bin: { bin: "./bin/app" },
@@ -280,10 +238,7 @@ describe("Yarn", () => {
 	test("list mode parses files correctly", async (done) => {
 		await testScan(
 			done,
-			{
-				"README.md": "",
-				"package.json": packageJsonNoFiles,
-			},
+			{ "README.md": "", "package.json": packageJsonNoFiles },
 			["README.md", "package.json"],
 			{ target: makeYarn("list") },
 		)

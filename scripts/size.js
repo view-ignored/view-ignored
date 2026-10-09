@@ -170,12 +170,7 @@ function getPackageSize(dir) {
 		const depsBytes = getProductionDependenciesSizes(dir)
 		const totalBytes = ownBytes + depsBytes
 
-		return {
-			ownBytes,
-			ownSizeStr,
-			totalBytes,
-			totalSizeStr: formatBytes(totalBytes),
-		}
+		return { ownBytes, ownSizeStr, totalBytes, totalSizeStr: formatBytes(totalBytes) }
 	} catch (e) {
 		process.stderr.write(`Failed to calculate package size in ${dir}: ${e}\n`)
 		return null

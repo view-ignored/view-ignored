@@ -19,11 +19,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 							"a.js": "one",
 							b: {
 								"b.js": "one",
-								c: {
-									"c.js": "one",
-									"file.txt": "one",
-									"readme.md": "one",
-								},
+								c: { "c.js": "one", "file.txt": "one", "readme.md": "one" },
 								"file.txt": "one",
 								"readme.md": "one",
 							},
@@ -41,11 +37,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 							"a.js": "one",
 							b: {
 								"b.js": "one",
-								c: {
-									"c.js": "one",
-									"file.txt": "one",
-									"readme.md": "one",
-								},
+								c: { "c.js": "one", "file.txt": "one", "readme.md": "one" },
 								"file.txt": "one",
 								"readme.md": "one",
 							},

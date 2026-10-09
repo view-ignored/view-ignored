@@ -50,10 +50,7 @@ export type EndListener = (ctx: MatcherContext) => void
  *
  * @since 0.6.0
  */
-export type EventMap = {
-	dirent: CustomEvent<EntryInfo>
-	end: CustomEvent<MatcherContext>
-}
+export type EventMap = { dirent: CustomEvent<EntryInfo>; end: CustomEvent<MatcherContext> }
 
 /**
  * @see {@link MatcherStream} uses it for its event map.

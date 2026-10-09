@@ -18,9 +18,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-scoped-s
 			{
 				".npmrc": "packaged=false",
 				"elf.js": elfJS,
-				node_modules: {
-					"@npmwombat": {},
-				},
+				node_modules: { "@npmwombat": {} },
 				history: {
 					"index.js": elfJS,
 					lib: {},
@@ -30,15 +28,11 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-scoped-s
 						name: "@npmwombat/history",
 						version: "1.0.0",
 					}),
-					tests: {
-						"test.js": "please do not include me",
-					},
+					tests: { "test.js": "please do not include me" },
 				},
 				"package.json": JSON.stringify({
 					bundleDependencies: ["@npmwombat/history"],
-					dependencies: {
-						"@npmwombat/history": "1.0.0",
-					},
+					dependencies: { "@npmwombat/history": "1.0.0" },
 					main: "elf.js",
 					name: "test-package",
 					version: "3.1.4",
@@ -51,10 +45,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-scoped-s
 				"package.json",
 			],
 			{ target: makeNPM(), dirs: false },
-			{
-				"node_modules/@npmwombat/history": "../../history",
-				"history/lib/linky": "../tests",
-			},
+			{ "node_modules/@npmwombat/history": "../../history", "history/lib/linky": "../tests" },
 		)
 	})
 })

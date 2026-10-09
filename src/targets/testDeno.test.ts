@@ -3,11 +3,7 @@ import { describe, test, expect } from "bun:test"
 import { testScan } from "../testScan.test.js"
 import { makeDeno } from "./deno.js"
 
-const denoJson = JSON.stringify({
-	exports: ".",
-	name: "deno-test",
-	version: "1.0.0",
-})
+const denoJson = JSON.stringify({ exports: ".", name: "deno-test", version: "1.0.0" })
 
 describe("Deno", () => {
 	test("includes deno.json", async (done) => {

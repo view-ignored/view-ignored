@@ -22,9 +22,7 @@ module.exports = elf =>
 			{
 				__bin: bin,
 				dummy: "ignore",
-				lib: {
-					"elf.js": elfJS,
-				},
+				lib: { "elf.js": elfJS },
 				"package.json": JSON.stringify({
 					bin: "__bin",
 					files: ["lib"],

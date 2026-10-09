@@ -20,49 +20,23 @@ const fsJson = {
 	".gitignore": "node_modules\nout\ndist\n*.tgz\n*.cpuprofile",
 	"LICENSE.txt": "something something internal",
 	node_modules: {
-		".bin": {
-			"a.exe": "00000001",
-		},
+		".bin": { "a.exe": "00000001" },
 		a: {
 			bin: { "a.js": "run 00000001" },
 			lib: { "index.js": "module a" },
-			"package.json": JSON.stringify({
-				bin: "./bin/a.js",
-				name: "a",
-				version: "0.0.1",
-			}),
+			"package.json": JSON.stringify({ bin: "./bin/a.js", name: "a", version: "0.0.1" }),
 		},
 	},
 	out: {
 		"index.js": "7out",
-		patterns: {
-			"gitignore.js": "4out",
-			"index.js": "6out",
-			"jsrjson.js": "5out",
-		},
-		targets: {
-			"git.js": "2out",
-			"index.js": "1out",
-			"npm.js": "3out",
-		},
+		patterns: { "gitignore.js": "4out", "index.js": "6out", "jsrjson.js": "5out" },
+		targets: { "git.js": "2out", "index.js": "1out", "npm.js": "3out" },
 	},
-	"package.json": JSON.stringify({
-		files: ["/out"],
-		name: "view-ignored-inmem",
-		version: "0.0.1",
-	}),
+	"package.json": JSON.stringify({ files: ["/out"], name: "view-ignored-inmem", version: "0.0.1" }),
 	src: {
 		"index.ts": "1src",
-		patterns: {
-			"gitignore.ts": "2src",
-			"index.ts": "3src",
-			"jsrjson.ts": "4src",
-		},
-		targets: {
-			"git.ts": "5src",
-			"index.ts": "6src",
-			"npm.ts": "7src",
-		},
+		patterns: { "gitignore.ts": "2src", "index.ts": "3src", "jsrjson.ts": "4src" },
+		targets: { "git.ts": "5src", "index.ts": "6src", "npm.ts": "7src" },
 	},
 	"tsconfig.prod.json": "{compilerOptions...}",
 }
@@ -91,11 +65,7 @@ const sourcePackageJson: Source = {
 			excludes: false,
 			list: sourcePackageJsonExclude,
 		},
-		{
-			compiled: null,
-			excludes: true,
-			list: [],
-		},
+		{ compiled: null, excludes: true, list: [] },
 	],
 }
 
@@ -104,11 +74,7 @@ const sourceGitignore: Source = {
 	inverted: false,
 	path: ".gitignore",
 	rules: [
-		{
-			compiled: null,
-			excludes: false,
-			list: [],
-		},
+		{ compiled: null, excludes: false, list: [] },
 		{
 			compiled: patternListCompile({ list: sourceGitignoreExclude }),
 			excludes: true,
@@ -268,15 +234,7 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 					},
 				],
 			]),
-			total: new Map<string, Total>([
-				[
-					".",
-					{
-						totalMatchedDirs: 3,
-						totalMatchedFiles: 9,
-					},
-				],
-			]),
+			total: new Map<string, Total>([[".", { totalMatchedDirs: 3, totalMatchedFiles: 9 }]]),
 		})
 	})
 })
@@ -374,20 +332,8 @@ describe("matcherContext{Add,Remove}Path prepare", () => {
 				],
 			]),
 			total: new Map<string, Total>([
-				[
-					".",
-					{
-						totalMatchedDirs: 3,
-						totalMatchedFiles: 9,
-					},
-				],
-				[
-					"out",
-					{
-						totalMatchedDirs: 2,
-						totalMatchedFiles: 6,
-					},
-				],
+				[".", { totalMatchedDirs: 3, totalMatchedFiles: 9 }],
+				["out", { totalMatchedDirs: 2, totalMatchedFiles: 6 }],
 			]),
 		})
 	})
@@ -508,15 +454,7 @@ describe("matcherContextAddPath", () => {
 						{ ignored: false, kind: RuleMatchKind.noMatch, source: sourceGitignore },
 					],
 				]),
-				total: new Map<string, Total>([
-					[
-						".",
-						{
-							totalMatchedDirs: 3,
-							totalMatchedFiles: 10,
-						},
-					],
-				]),
+				total: new Map<string, Total>([[".", { totalMatchedDirs: 3, totalMatchedFiles: 10 }]]),
 			}
 			expect(c).toMatchObject(newc)
 		})
@@ -927,10 +865,7 @@ describe("matcherContextRemovePath", () => {
 			})
 		})
 		test("source file update: remove and add back", async () => {
-			const o = {
-				...opt,
-				fs: patchFS((json) => json),
-			}
+			const o = { ...opt, fs: patchFS((json) => json) }
 			const c = await scan(o)
 
 			// Remove package.json (a source file)
@@ -1083,15 +1018,7 @@ describe("matcherContextRemovePath", () => {
 						},
 					],
 				]),
-				total: new Map<string, Total>([
-					[
-						".",
-						{
-							totalMatchedDirs: 3,
-							totalMatchedFiles: 8,
-						},
-					],
-				]),
+				total: new Map<string, Total>([[".", { totalMatchedDirs: 3, totalMatchedFiles: 8 }]]),
 			})
 		})
 		test("source file is changed", async () => {
@@ -1150,15 +1077,7 @@ describe("matcherContextRemovePath", () => {
 						{ ignored: false, kind: RuleMatchKind.noMatch, source: sourceGitignore },
 					],
 				]),
-				total: new Map<string, Total>([
-					[
-						".",
-						{
-							totalMatchedDirs: 3,
-							totalMatchedFiles: 5,
-						},
-					],
-				]),
+				total: new Map<string, Total>([[".", { totalMatchedDirs: 3, totalMatchedFiles: 5 }]]),
 			}
 			expect(c).toMatchObject(newc)
 		})

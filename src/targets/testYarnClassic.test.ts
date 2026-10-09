@@ -3,10 +3,7 @@ import { describe, test, expect } from "bun:test"
 import { testScan } from "../testScan.test.js"
 import { makeYarnClassic } from "./yarnClassic.js"
 
-const packageJson = JSON.stringify({
-	name: "yarn-classic-test",
-	version: "1.0.0",
-})
+const packageJson = JSON.stringify({ name: "yarn-classic-test", version: "1.0.0" })
 
 describe("Yarn Classic", () => {
 	test("includes package.json", async (done) => {
@@ -30,13 +27,7 @@ describe("Yarn Classic", () => {
 	test("excludes .gitignore and .npmignore after evaluating nested rules", async (done) => {
 		await testScan(
 			done,
-			{
-				sub: {
-					".gitignore": "*\n!file.txt",
-					"file.txt": "hello",
-				},
-				"package.json": packageJson,
-			},
+			{ sub: { ".gitignore": "*\n!file.txt", "file.txt": "hello" }, "package.json": packageJson },
 			["package.json", "sub/file.txt"],
 			{ dirs: false, target: makeYarnClassic() },
 		)
@@ -63,13 +54,7 @@ describe("Yarn Classic", () => {
 	test("ignores nested .yarnignore as pattern extractor while keeping root .yarnignore", async (done) => {
 		await testScan(
 			done,
-			{
-				"package.json": packageJson,
-				sub: {
-					".yarnignore": "file.txt",
-					"file.txt": "hello",
-				},
-			},
+			{ "package.json": packageJson, sub: { ".yarnignore": "file.txt", "file.txt": "hello" } },
 			["package.json", "sub/.yarnignore", "sub/file.txt"],
 			{ dirs: false, target: makeYarnClassic() },
 		)
@@ -118,10 +103,7 @@ describe("Yarn Classic", () => {
 					name: "yarn-classic-test",
 					version: "1.0.0",
 				}),
-				dist: {
-					"README.md": "nested readme",
-					"index.js": "code",
-				},
+				dist: { "README.md": "nested readme", "index.js": "code" },
 			},
 			["dist/README.md", "dist/index.js", "package.json"],
 			{ dirs: false, target: makeYarnClassic() },
@@ -138,12 +120,7 @@ describe("Yarn Classic", () => {
 				lib: { "util.js": "lib code" },
 				"package.json": JSON.stringify({
 					bin: "bin.mjs",
-					exports: {
-						"./browser": {
-							import: "./browser.mjs",
-							types: "./browser.d.ts",
-						},
-					},
+					exports: { "./browser": { import: "./browser.mjs", types: "./browser.d.ts" } },
 					files: ["lib"],
 					main: "index.js",
 					name: "yarn-classic-test",

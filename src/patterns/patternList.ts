@@ -148,9 +148,5 @@ export function patternListCompile(
 
 	const compiledItems = len === 1 ? [] : patternSources.map((s) => new RegExp(s, nocase ? "i" : ""))
 
-	return {
-		compiledItems,
-		list,
-		re: combinedRegex,
-	}
+	return { compiledItems, list, re: combinedRegex }
 }

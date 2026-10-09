@@ -21,9 +21,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-file-in-
 						version: "1.0.0",
 					}),
 					"readme.md": "",
-					test: {
-						"index.js": "",
-					},
+					test: { "index.js": "" },
 				},
 				"index.js": "",
 				"package.json": JSON.stringify({
@@ -54,9 +52,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-file-in-
 						version: "1.0.0",
 					}),
 					"readme.md": "",
-					test: {
-						"index.js": "",
-					},
+					test: { "index.js": "" },
 				},
 				"index.js": "",
 				"package.json": JSON.stringify({
@@ -69,11 +65,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-file-in-
 				}),
 				unrelated: {
 					"index.js": "",
-					"package.json": JSON.stringify({
-						main: "index.js",
-						name: "unrelated",
-						version: "1.0.0",
-					}),
+					"package.json": JSON.stringify({ main: "index.js", name: "unrelated", version: "1.0.0" }),
 				},
 			},
 			["index.js", "package.json", "docs/bar.txt", "docs/baz.txt", "docs/foo.txt"],

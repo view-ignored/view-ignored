@@ -15,9 +15,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 				{
 					device: "not a file or dir",
 					"index.js": "",
-					lib: {
-						socket: "not a file or dir",
-					},
+					lib: { socket: "not a file or dir" },
 					"package.json": JSON.stringify({
 						files: ["lib", "device"],
 						main: "index.js",

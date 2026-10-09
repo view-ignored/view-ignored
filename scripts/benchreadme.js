@@ -59,10 +59,7 @@ function extractBenchmarksFromLog(logText) {
 		}
 	}
 
-	return {
-		bun: bunBlock.join("\n").trim(),
-		node: nodeBlock.join("\n").trim(),
-	}
+	return { bun: bunBlock.join("\n").trim(), node: nodeBlock.join("\n").trim() }
 }
 
 function ensureMarkers(content) {

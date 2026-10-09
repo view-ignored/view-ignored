@@ -19,22 +19,10 @@ let cachedDenoRule: GlobRule | null = null
  */
 export function makeDeno(): Target {
 	const extractors: Extractor[] = [
-		{
-			extract: extractJsrJson,
-			path: "deno.json",
-		},
-		{
-			extract: extractJsrJson,
-			path: "deno.jsonc",
-		},
-		{
-			extract: extractJsrJson,
-			path: "jsr.json",
-		},
-		{
-			extract: extractJsrJson,
-			path: "jsr.jsonc",
-		},
+		{ extract: extractJsrJson, path: "deno.json" },
+		{ extract: extractJsrJson, path: "deno.jsonc" },
+		{ extract: extractJsrJson, path: "jsr.json" },
+		{ extract: extractJsrJson, path: "jsr.jsonc" },
 		packageJsonExtractor,
 	]
 

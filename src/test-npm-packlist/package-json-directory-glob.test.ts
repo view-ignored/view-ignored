@@ -7,19 +7,9 @@ import { makeNPM } from "../targets/npm.js"
 import { testScan } from "../testScan.test.js"
 
 const createTree = (files: string[]) => ({
-	folder: {
-		one: { file: "one" },
-		two: { file: "two" },
-	},
-	folder1: {
-		one: { file: "one" },
-		two: { file: "two" },
-	},
-	"package.json": JSON.stringify({
-		files,
-		name: "test-package",
-		version: "1.0.0",
-	}),
+	folder: { one: { file: "one" }, two: { file: "two" } },
+	folder1: { one: { file: "one" }, two: { file: "two" } },
+	"package.json": JSON.stringify({ files, name: "test-package", version: "1.0.0" }),
 })
 
 describe.skipIf(process.env.TEST_PACKLIST == "0")(
@@ -51,12 +41,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 			await testScan(
 				done,
 				{
-					dist: {
-						sub: {
-							"deep.js": "deep",
-						},
-						"top.js": "top",
-					},
+					dist: { sub: { "deep.js": "deep" }, "top.js": "top" },
 					"package.json": JSON.stringify({
 						files: ["dist/*"],
 						name: "test-package",
@@ -75,11 +60,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 					"dist-cjs": { "index.js": "cjs" },
 					"dist-es": { "index.js": "es" },
 					"dist-other.js": "other",
-					"package.json": JSON.stringify({
-						files: ["dist-*"],
-						name: "cli-7514",
-						version: "1.0.0",
-					}),
+					"package.json": JSON.stringify({ files: ["dist-*"], name: "cli-7514", version: "1.0.0" }),
 				},
 				["dist-cjs/index.js", "dist-es/index.js", "dist-other.js", "package.json"],
 				{ target: makeNPM(), dirs: false },

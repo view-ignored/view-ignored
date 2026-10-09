@@ -357,19 +357,14 @@ export interface RuleTestOptions extends PatternFinderOptions {
 }
 
 function cacheTest(rs: null | PatternListCompiled, path: string): string | null {
-	if (!rs) return null
-	if (!rs.re.test(path)) return null
+	if (!rs || !rs.re.test(path)) return null
 	if (rs.list.length === 1) return rs.list[0]!
 
-	let items = rs.compiledItems
-
-	const len = items.length
-	for (let i = 0; i < len; i++) {
+	const items = rs.compiledItems
+	for (let i = 0; i < items.length; i++) {
 		if (items[i]!.test(path)) return rs.list[i]!
 	}
-	throw new Error("view-ignored has crashed: expected sub-pattern", {
-		cause: rs,
-	})
+	throw new Error("view-ignored has crashed: expected sub-pattern", { cause: rs })
 }
 
 type IgnoreOptsHolder = { opts: IgnoresOptions | null }
@@ -382,21 +377,18 @@ function evalRule(
 	holder: IgnoreOptsHolder,
 ): string | Error | null {
 	if ("match" in rule) {
-		if (holder.opts) {
-			holder.opts.resource = src
-		} else {
-			holder.opts = {
-				cwd: options.cwd,
-				dirent: options.dirent,
-				entry: options.entry,
-				fs: options.fs,
-				lowerEntry: options.lowerEntry,
-				parentPath: options.parentPath,
-				resource: src,
-				signal: options.signal,
-				target: options.target,
-			}
+		holder.opts ||= {
+			cwd: options.cwd,
+			dirent: options.dirent,
+			entry: options.entry,
+			fs: options.fs,
+			lowerEntry: options.lowerEntry,
+			parentPath: options.parentPath,
+			resource: src,
+			signal: options.signal,
+			target: options.target,
 		}
+		holder.opts.resource = src
 		return rule.match(holder.opts)
 	}
 	return cacheTest(rule.compiled!, entryPath)
@@ -414,9 +406,7 @@ const MISSING_SOURCE_MATCH: RuleMatch = Object.freeze({
  */
 export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 	const src = options.resource
-
 	if (src === undefined) throw new Error("view-ignored has crashed: no source cached")
-
 	if (src !== null && "error" in src)
 		return { ...src, ignored: true, kind: RuleMatchKind.invalidSource }
 
@@ -427,7 +417,6 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 
 	const { internalRules } = options.target
 	const beforeInternal = Array.isArray(internalRules) ? internalRules : internalRules.before
-
 	const holder: IgnoreOptsHolder = { opts: null }
 
 	if (beforeInternal.length > 0) {
@@ -440,9 +429,8 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 	while (currentSrc !== null && !("error" in currentSrc)) {
 		if (currentSrc.inverted) hasInverted = true
 		const { rules } = currentSrc
-		const rlen = rules.length
 
-		for (let i = 0; i < rlen; i++) {
+		for (let i = 0; i < rules.length; i++) {
 			const rule = rules[i]!
 			if (typeof rule === "function") continue
 			const res = evalRule(rule, entry, options, currentSrc, holder)
@@ -457,7 +445,6 @@ export function ruleTestSync(options: RuleTestOptions): RuleMatch {
 					source: currentSrc,
 				}
 			}
-
 			return {
 				ignored: rule.excludes,
 				kind: RuleMatchKind.external,
@@ -491,51 +478,31 @@ function ruleTestInternalSync(
 	entryPath: string,
 	holder: IgnoreOptsHolder,
 ): RuleMatch | void {
-	for (let i = 0, len = rules.length; i < len; i++) {
+	for (let i = 0; i < rules.length; i++) {
 		const rule = rules[i]!
 		if (typeof rule === "function") continue
 		const res = evalRule(rule, entryPath, options, src, holder)
 		if (res === null) continue
 
 		const source = "source" in rule && rule.source ? (rule.source as Source) : null
+		const isErr = res instanceof Error
+		const kind = isErr
+			? source
+				? RuleMatchKind.invalidExternal
+				: RuleMatchKind.invalidInternal
+			: source
+				? RuleMatchKind.external
+				: RuleMatchKind.internal
 
-		if (res instanceof Error) {
-			if (source) {
-				return {
-					error: res,
-					ignored: false,
-					kind: RuleMatchKind.invalidExternal,
-					pattern: "",
-					rule,
-					source,
-				}
-			}
-
-			return {
-				error: res,
-				ignored: false,
-				kind: RuleMatchKind.invalidInternal,
-				pattern: "",
-				rule,
-			}
-		}
-
-		if (source) {
-			return {
-				ignored: rule.excludes,
-				kind: RuleMatchKind.external,
-				pattern: res,
-				rule,
-				source,
-			}
-		}
-
-		return {
-			ignored: rule.excludes,
-			kind: RuleMatchKind.internal,
-			pattern: res,
+		const match: Record<string, unknown> = {
+			ignored: isErr ? false : rule.excludes,
+			kind,
+			pattern: isErr ? "" : res,
 			rule,
 		}
+		if (isErr) match.error = res
+		if (source) match.source = source
+		return match as unknown as RuleMatch
 	}
 }
 

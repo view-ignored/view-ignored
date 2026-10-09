@@ -31,19 +31,15 @@ function parseEntryPath(entry: string) {
 	const isDir = entry.endsWith("/")
 	const direntPath = isDir ? entry.slice(0, -1) : entry
 	const parentPath = dirname(direntPath)
-	const lastSlash = direntPath.lastIndexOf("/")
-	const name = lastSlash === -1 ? direntPath : direntPath.slice(lastSlash + 1)
+	const idx = direntPath.lastIndexOf("/")
+	const name = idx === -1 ? direntPath : direntPath.slice(idx + 1)
 	return { direntPath, isDir, name, parentPath }
 }
 
 function isExtractorSource(target: { extractors: { path: string }[] }, entry: string): boolean {
-	const { extractors } = target
-	for (let i = 0; i < extractors.length; i++) {
-		const { path } = extractors[i]!
-		const cleanPath = path.startsWith("./") ? path.slice(2) : path
-		if (cleanPath === entry) return true
-	}
-	return false
+	return target.extractors.some(
+		({ path }) => (path.startsWith("./") ? path.slice(2) : path) === entry,
+	)
 }
 
 export async function matcherContextAddPath(
@@ -73,7 +69,6 @@ export async function matcherContextAddPath(
 			signal,
 			target,
 		})
-
 		const match = await promIgnores({
 			cwd,
 			dirent: createSyntheticDirent(name, parentPath, true),
@@ -96,26 +91,23 @@ export async function matcherContextAddPath(
 		updateTotals(ctx, parentPath, 0, match.ignored ? 0 : 1)
 		if (parentPath !== ".")
 			added.push(...(await matcherContextAddPath(ctx, options, parentPath + "/")))
-
 		return added
 	}
 
-	const isSource = isExtractorSource(target, entry)
-	if (isSource) {
-		function onResult(result: WalkResult | WalkTotal) {
-			if ("dir" in result) {
-				walkPatchTotal(ctx, maxDepth, result)
-				return
-			}
-			const { path, parentPath: rParentPath, includeParent } = result
-			if (!ctx.paths.has(path)) added.push(path)
-			if (includeParent && !ctx.paths.has(rParentPath + "/")) added.push(rParentPath + "/")
-			walkPatchResult(ctx, result, options)
-		}
+	if (isExtractorSource(target, entry)) {
 		const o: ScanParallelOptions = {
 			external: ctx.external,
 			failed: ctx.failed,
-			onResult,
+			onResult: (result: WalkResult | WalkTotal) => {
+				if ("dir" in result) {
+					walkPatchTotal(ctx, maxDepth, result)
+					return
+				}
+				if (!ctx.paths.has(result.path)) added.push(result.path)
+				if (result.includeParent && !ctx.paths.has(result.parentPath + "/"))
+					added.push(result.parentPath + "/")
+				walkPatchResult(ctx, result, options)
+			},
 			scanOptions: { ...options, within: unixify(parentPath) },
 			stream: undefined,
 		}
@@ -136,7 +128,6 @@ export async function matcherContextAddPath(
 		signal,
 		target,
 	})
-
 	const match = await promIgnores({
 		cwd,
 		dirent: createSyntheticDirent(name, parentPath, false),
@@ -182,16 +173,12 @@ export async function matcherContextRemovePath(
 	}
 
 	if (isDir) {
-		let deletedMatchedFiles = 0,
-			deletedMatchedDirs = 0
 		const total = ctx.total.get(direntPath)
-		if (total) {
-			deletedMatchedFiles = total.totalMatchedFiles
-			deletedMatchedDirs = total.totalMatchedDirs
-			ctx.total.delete(direntPath)
-		}
+		const files = total?.totalMatchedFiles || 0
+		const dirs = total?.totalMatchedDirs || 0
+		if (total) ctx.total.delete(direntPath)
 
-		updateTotals(ctx, parentPath, -deletedMatchedFiles, -deletedMatchedDirs)
+		updateTotals(ctx, parentPath, -files, -dirs)
 
 		const entryLen = entry.length
 		for (const element of ctx.paths.keys()) {
@@ -226,29 +213,25 @@ export async function matcherContextRemovePath(
 		return removed
 	}
 
-	const isSource = isExtractorSource(options.target, entry)
-	if (!isSource) {
+	if (!isExtractorSource(options.target, entry)) {
 		const deleted = ctx.paths.delete(entry)
 		if (deleted) removed.push(entry)
 		updateTotals(ctx, parentPath, deleted ? -1 : 0, 0)
 		return removed
 	}
+
 	const maxDepth = options.depth
 	const resultPromise = promScanParallel({
 		external: ctx.external,
 		failed: ctx.failed,
 		onResult: (result) => {
-			if ("dir" in result) {
-				walkPatchTotal(ctx, maxDepth, result)
-				return
-			}
-			walkPatchResult(ctx, result, options)
+			if ("dir" in result) walkPatchTotal(ctx, maxDepth, result)
+			else walkPatchResult(ctx, result, options)
 		},
 		scanOptions: { ...options, within: unixify(parentPath) },
 		stream: undefined,
 	})
-	const parentPathDir = parentPath + "/"
-	removed.push(...(await matcherContextRemovePath(ctx, options, parentPathDir)))
+	removed.push(...(await matcherContextRemovePath(ctx, options, parentPath + "/")))
 	await resultPromise
 	propagateTotals(ctx.total)
 	return removed
@@ -260,12 +243,9 @@ function updateTotals(
 	deltaMatchedFiles: number,
 	deltaMatchedDirs: number,
 ) {
-	if (deltaMatchedFiles === 0 && deltaMatchedDirs === 0) return
+	if (!deltaMatchedFiles && !deltaMatchedDirs) return
 	for (let parent = path; ;) {
-		const total = getOrInsert(ctx.total, parent, {
-			totalMatchedDirs: 0,
-			totalMatchedFiles: 0,
-		})
+		const total = getOrInsert(ctx.total, parent, { totalMatchedDirs: 0, totalMatchedFiles: 0 })
 		total.totalMatchedFiles += deltaMatchedFiles
 		total.totalMatchedDirs += deltaMatchedDirs
 

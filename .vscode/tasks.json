@@ -2,37 +2,25 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"icon": {
-				"id": "versions",
-				"color": "terminal.ansiRed"
-			},
+			"icon": { "id": "versions", "color": "terminal.ansiRed" },
 			"type": "bun",
 			"script": "release:major",
 			"label": "Release major - any backward incompatible changes"
 		},
 		{
-			"icon": {
-				"id": "versions",
-				"color": "terminal.ansiGreen"
-			},
+			"icon": { "id": "versions", "color": "terminal.ansiGreen" },
 			"type": "bun",
 			"script": "release:minor",
 			"label": "Release minor - any new public functionality or deprecation"
 		},
 		{
-			"icon": {
-				"id": "versions",
-				"color": "terminal.ansiYellow"
-			},
+			"icon": { "id": "versions", "color": "terminal.ansiYellow" },
 			"type": "bun",
 			"script": "release:patch",
 			"label": "Release patch - any backward compatible bug fixes"
 		},
 		{
-			"icon": {
-				"id": "package",
-				"color": "terminal.ansiWhite"
-			},
+			"icon": { "id": "package", "color": "terminal.ansiWhite" },
 			"problemMatcher": "$tsc",
 			"type": "bun",
 			"script": "build",
@@ -40,10 +28,7 @@
 			"detail": "bun run build"
 		},
 		{
-			"icon": {
-				"id": "package",
-				"color": "terminal.ansiWhite"
-			},
+			"icon": { "id": "package", "color": "terminal.ansiWhite" },
 			"problemMatcher": "$tsc-watch",
 			"type": "shell",
 			"command": "bun",
@@ -52,20 +37,14 @@
 			"args": ["run", "build", "--watch"]
 		},
 		{
-			"icon": {
-				"id": "sparkle",
-				"color": "terminal.ansiWhite"
-			},
+			"icon": { "id": "sparkle", "color": "terminal.ansiWhite" },
 			"type": "bun",
 			"script": "lint",
 			"label": "Lint",
 			"detail": "bun run lint"
 		},
 		{
-			"icon": {
-				"id": "check-all",
-				"color": "terminal.ansiWhite"
-			},
+			"icon": { "id": "check-all", "color": "terminal.ansiWhite" },
 			"type": "bun",
 			"script": "test",
 			"label": "Test",

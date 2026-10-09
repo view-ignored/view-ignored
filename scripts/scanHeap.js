@@ -40,9 +40,7 @@ console.log(`Scanning "${process.cwd()}" with target: ${targetName}`)
 const memBefore = getMemoryReport()
 const start = performance.now()
 
-const ctx = await scan({
-	target,
-})
+const ctx = await scan({ target })
 
 const end = performance.now()
 const memAfter = getMemoryReport()

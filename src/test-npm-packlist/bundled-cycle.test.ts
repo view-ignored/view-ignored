@@ -16,9 +16,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-cycle", 
 					a: {
 						"index.js": "",
 						"package.json": JSON.stringify({
-							dependencies: {
-								b: "1.0.0",
-							},
+							dependencies: { b: "1.0.0" },
 							main: "index.js",
 							name: "a",
 							version: "1.0.0",
@@ -27,9 +25,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-cycle", 
 					b: {
 						"index.js": "",
 						"package.json": JSON.stringify({
-							dependencies: {
-								a: "1.0.0",
-							},
+							dependencies: { a: "1.0.0" },
 							main: "index.js",
 							name: "b",
 							version: "1.0.0",
@@ -38,9 +34,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")("npm-packlist bundled-cycle", 
 				},
 				"package.json": JSON.stringify({
 					bundleDependencies: ["a"],
-					dependencies: {
-						a: "1.0.0",
-					},
+					dependencies: { a: "1.0.0" },
 					main: "index.js",
 					name: "root",
 					version: "1.0.0",

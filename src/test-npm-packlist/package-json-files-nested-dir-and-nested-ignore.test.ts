@@ -16,12 +16,7 @@ describe.skipIf(process.env.TEST_PACKLIST == "0")(
 					lib: {
 						".DS_Store": "a store of ds",
 						".npmignore": "dir/two.js",
-						dir: {
-							"for.js": "for",
-							"one.js": "one",
-							"tre.js": "tre",
-							"two.js": "two",
-						},
+						dir: { "for.js": "for", "one.js": "one", "tre.js": "tre", "two.js": "two" },
 					},
 					"package.json": JSON.stringify({
 						files: ["lib/dir"],

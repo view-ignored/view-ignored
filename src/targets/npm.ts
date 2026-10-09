@@ -20,11 +20,7 @@ import {
 } from "./npmManifest.js"
 
 const cachedNpmAfterExcludesRule = ruleCompile(
-	{
-		compiled: null,
-		excludes: true,
-		list: [".npmignore", ".gitignore"],
-	},
+	{ compiled: null, excludes: true, list: [".npmignore", ".gitignore"] },
 	{ nocase: true },
 )
 
@@ -96,14 +92,8 @@ export function makeNPM(mode: "list" | "publish" | "bundle" = "publish"): Target
 
 	const extractors: Extractor[] = [
 		makePackageJsonExtractor(mode),
-		{
-			extract: extractNpmignore,
-			path: ".npmignore",
-		},
-		{
-			extract: extractNpmignore,
-			path: ".gitignore",
-		},
+		{ extract: extractNpmignore, path: ".npmignore" },
+		{ extract: extractNpmignore, path: ".gitignore" },
 	]
 
 	const internal: InternalRules = {

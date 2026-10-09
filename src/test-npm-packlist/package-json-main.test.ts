@@ -15,31 +15,16 @@ module.exports = elf =>
 		await testScan(
 			done,
 			{
-				".git": {
-					gitstub: "won't fool git, also won't be included",
-				},
+				".git": { gitstub: "won't fool git, also won't be included" },
 				".npmignore": "!.npmignore\n!dummy\npackage.json",
 				".npmrc": "packaged=false",
 				"__main.js": elfJS,
 				"browser.js": elfJS,
-				build: {
-					"config.gypi": "i_wont_be_included='with any luck'",
-					"npm-debug.log": "0 lol\n",
-				},
-				deps: {
-					foo: {
-						config: {
-							"config.gypi": "i_will_be_included='with any luck'",
-						},
-					},
-				},
+				build: { "config.gypi": "i_wont_be_included='with any luck'", "npm-debug.log": "0 lol\n" },
+				deps: { foo: { config: { "config.gypi": "i_will_be_included='with any luck'" } } },
 				dummy: "foo",
 				"elf.js": elfJS,
-				node_modules: {
-					history: {
-						"README.md": "please don't include me",
-					},
-				},
+				node_modules: { history: { "README.md": "please don't include me" } },
 				"package.json": JSON.stringify({
 					browser: "browser.js",
 					files: ["elf.js", "deps/foo/config/config.gypi"],

@@ -8,36 +8,28 @@
 			"name": "Test watcher patchers",
 			"type": "bun",
 			"request": "launch",
-			"presentation": {
-				"group": "patterns"
-			},
+			"presentation": { "group": "patterns" },
 			"program": "./src/patterns/testMatcherContextPatch.test.ts"
 		},
 		{
 			"name": "Test in-memory Git",
 			"type": "bun",
 			"request": "launch",
-			"presentation": {
-				"group": "targets"
-			},
+			"presentation": { "group": "targets" },
 			"program": "./src/targets/testGit.test.ts"
 		},
 		{
 			"name": "Test in-memory NPM",
 			"type": "bun",
 			"request": "launch",
-			"presentation": {
-				"group": "targets"
-			},
+			"presentation": { "group": "targets" },
 			"program": "./src/targets/testNPM.test.ts"
 		},
 		{
 			"name": "Test in-memory Yarn",
 			"type": "bun",
 			"request": "launch",
-			"presentation": {
-				"group": "targets"
-			},
+			"presentation": { "group": "targets" },
 			"program": "./src/targets/testYarn.test.ts"
 		},
 		{

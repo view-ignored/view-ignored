@@ -4,11 +4,7 @@ import { testScan } from "../testScan.test.js"
 import { makeJSR } from "./jsr.js"
 import { jsrManifestParse, makeJsrInit } from "./jsrManifest.js"
 
-const jsrJson = JSON.stringify({
-	exports: "./mod.ts",
-	name: "jsr-test",
-	version: "1.0.0",
-})
+const jsrJson = JSON.stringify({ exports: "./mod.ts", name: "jsr-test", version: "1.0.0" })
 
 describe("JSR", () => {
 	test("includes jsr.json and exports", async (done) => {
@@ -19,11 +15,7 @@ describe("JSR", () => {
 			{ target: makeJSR() },
 		)
 	})
-	const validJsrJson = JSON.stringify({
-		exports: "./mod.ts",
-		name: "@scope/pkg",
-		version: "1.0.0",
-	})
+	const validJsrJson = JSON.stringify({ exports: "./mod.ts", name: "@scope/pkg", version: "1.0.0" })
 	const invalidPackageJson = '{ "name": 0, "version": 0 }'
 	test("ignores package.json if valid jsr.json exists", async (done) => {
 		expect(() =>
@@ -58,10 +50,7 @@ describe("JSR", () => {
 			const json = JSON.stringify({
 				exports: "./mod.ts",
 				name: "@scope/pkg",
-				publish: {
-					exclude: ["dist/**/*.map"],
-					include: ["dist/**/*"],
-				},
+				publish: { exclude: ["dist/**/*.map"], include: ["dist/**/*"] },
 				version: "1.0.0",
 			})
 
@@ -111,9 +100,7 @@ describe("JSR", () => {
 			const invalidPublishExclude = JSON.stringify({
 				exports: "./mod.ts",
 				name: "@scope/pkg",
-				publish: {
-					exclude: 123,
-				},
+				publish: { exclude: 123 },
 				version: "1.0.0",
 			})
 
@@ -136,19 +123,13 @@ describe("JSR", () => {
 		test("throws error if required fields are missing or non-object root", () => {
 			expect(() => jsrManifestParse("null")).toThrow("JSR manifest must be a JSON object")
 
-			const missingFields = JSON.stringify({
-				name: "@scope/pkg",
-			})
+			const missingFields = JSON.stringify({ name: "@scope/pkg" })
 
 			expect(() => jsrManifestParse(missingFields)).toThrow(
 				"Missing or invalid 'version' in manifest",
 			)
 
-			const invalidExports = JSON.stringify({
-				exports: 123,
-				name: "@scope/pkg",
-				version: "1.0.0",
-			})
+			const invalidExports = JSON.stringify({ exports: 123, name: "@scope/pkg", version: "1.0.0" })
 
 			expect(() => jsrManifestParse(invalidExports)).toThrow(
 				"Missing or invalid 'exports' in manifest",

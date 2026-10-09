@@ -46,21 +46,11 @@ barplot(() => {
 			}).gc(true)
 		if (!igw)
 			bench("'view-ignored'.scan(Git, inverted)", async () => {
-				return scan({
-					cwd,
-					fs,
-					invert: true,
-					target: makeGit(),
-				})
+				return scan({ cwd, fs, invert: true, target: makeGit() })
 			}).gc(true)
 		if (!igw)
 			bench("'view-ignored'.browserScan(Git, inverted)", async () => {
-				return browserScan({
-					cwd,
-					fs,
-					invert: true,
-					target: makeGit(),
-				})
+				return browserScan({ cwd, fs, invert: true, target: makeGit() })
 			}).gc(true)
 		if (!vign)
 			bench("'ignore-walk'.walk(.gitignore)", async () => {
@@ -69,9 +59,7 @@ barplot(() => {
 	})
 })
 
-const stats = await run({
-	format: process.argv.includes("--json") ? "json" : "mitata",
-})
+const stats = await run({ format: process.argv.includes("--json") ? "json" : "mitata" })
 
 if (process.argv.includes("--json")) {
 	process.stdout.write(JSON.stringify(stats))

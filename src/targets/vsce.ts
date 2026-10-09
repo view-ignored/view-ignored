@@ -17,12 +17,7 @@ let cachedVSCERule: GlobRule | null = null
  * @since 0.12.0
  */
 export function makeVSCE(): Target {
-	const extractors: Extractor[] = [
-		{
-			extract: extractNpmignore,
-			path: "./.vscodeignore",
-		},
-	]
+	const extractors: Extractor[] = [{ extract: extractNpmignore, path: "./.vscodeignore" }]
 
 	cachedVSCERule ||= ruleCompile({
 		compiled: null,

@@ -36,14 +36,8 @@ export function makeBun(mode: "list" | "publish" | "bundle" = "publish"): Target
 
 	const extractors: Extractor[] = [
 		makePackageJsonExtractor(mode),
-		{
-			extract: extractNpmignore,
-			path: ".npmignore",
-		},
-		{
-			extract: extractNpmignore,
-			path: ".gitignore",
-		},
+		{ extract: extractNpmignore, path: ".npmignore" },
+		{ extract: extractNpmignore, path: ".gitignore" },
 	]
 
 	cachedBunExcludesRule ||= ruleCompile({

@@ -68,15 +68,7 @@ describe("Git", () => {
 
 describe("Stream Stability - Unique Directories", () => {
 	test("Deeply nested directories should emit each directory only once", async () => {
-		const tree = {
-			a: {
-				b: {
-					c: {
-						"file.txt": "content",
-					},
-				},
-			},
-		}
+		const tree = { a: { b: { c: { "file.txt": "content" } } } }
 		await testStream(
 			tree,
 			({ stream }) => {
@@ -97,14 +89,7 @@ describe("Stream Stability - Unique Directories", () => {
 	})
 
 	test("Scanning from a subdirectory should emit that subdirectory as root only once if applicable", async () => {
-		const tree = {
-			subdir: {
-				"file.txt": "content",
-				nested: {
-					"inner.txt": "content",
-				},
-			},
-		}
+		const tree = { subdir: { "file.txt": "content", nested: { "inner.txt": "content" } } }
 		await testStream(
 			tree,
 			({ stream }) => {
@@ -130,13 +115,7 @@ describe("Stream Stability - Unique Directories", () => {
 	})
 
 	test("Multiple files in same directory should not cause multiple directory emissions", async () => {
-		const tree = {
-			dir: {
-				"file1.txt": "1",
-				"file2.txt": "2",
-				"file3.txt": "3",
-			},
-		}
+		const tree = { dir: { "file1.txt": "1", "file2.txt": "2", "file3.txt": "3" } }
 		await testStream(
 			tree,
 			({ stream }) => {
@@ -159,9 +138,7 @@ describe("Stream Stability - Unique Directories", () => {
 	test("Invert options stability", async () => {
 		const tree = {
 			".gitignore": "ignored/",
-			ignored: {
-				"file.txt": "content",
-			},
+			ignored: { "file.txt": "content" },
 			"included.txt": "content",
 		}
 
@@ -252,11 +229,7 @@ describe("scanParallel and walk edge cases", () => {
 			},
 			// oxlint-disable-next-line typescript/no-explicit-any
 			stat: (_p: string, cb: any) => {
-				cb(null, {
-					isDirectory: () => false,
-					isFile: () => true,
-					isSymbolicLink: () => false,
-				})
+				cb(null, { isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false })
 			},
 		}
 
@@ -292,9 +265,7 @@ describe("scanParallel and walk edge cases", () => {
 		}
 
 		// oxlint-disable-next-line typescript/no-explicit-any
-		const mockTarget: any = {
-			internalRules: [rejectingSkipRule],
-		}
+		const mockTarget: any = { internalRules: [rejectingSkipRule] }
 
 		// oxlint-disable-next-line typescript/no-explicit-any
 		const options: any = {
@@ -340,12 +311,7 @@ describe("scanParallel and walk edge cases", () => {
 		}
 
 		// oxlint-disable-next-line typescript/no-explicit-any
-		const mockCtx: any = {
-			external: new Map(),
-			failed: [],
-			paths: new PathMap(),
-			total: new Map(),
-		}
+		const mockCtx: any = { external: new Map(), failed: [], paths: new PathMap(), total: new Map() }
 
 		// oxlint-disable-next-line typescript/no-explicit-any
 		const result: any = {
@@ -362,10 +328,7 @@ describe("scanParallel and walk edge cases", () => {
 		}
 
 		// oxlint-disable-next-line typescript/no-explicit-any
-		const options: any = {
-			dirs: true,
-			invert: false,
-		}
+		const options: any = { dirs: true, invert: false }
 
 		walkPatchResult(mockCtx, result, options, mockStream)
 		expect(dispatchedEvent).not.toBeNull()

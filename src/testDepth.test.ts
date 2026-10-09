@@ -5,19 +5,10 @@ import { testScan } from "./testScan.test.js"
 
 const dir = {
 	".gitignore": "out\nnode_modules",
-	node_modules: {
-		a: { "package.json": "{}" },
-		b: { "package.json": "{}" },
-	},
-	out: {
-		"index.js": "",
-		submodule: { "index.js": "" },
-	},
+	node_modules: { a: { "package.json": "{}" }, b: { "package.json": "{}" } },
+	out: { "index.js": "", submodule: { "index.js": "" } },
 	"package.json": "{}",
-	src: {
-		"index.ts": "",
-		submodule: { "index.ts": "" },
-	},
+	src: { "index.ts": "", submodule: { "index.ts": "" } },
 }
 
 const skipDepth = true

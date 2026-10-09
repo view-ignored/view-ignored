@@ -15,32 +15,16 @@ describe("dirs option", () => {
 	test("dirs: false skips directories in results", async (done) => {
 		await testScan(
 			done,
-			{
-				"a.txt": "a",
-				dir: {
-					"b.txt": "b",
-					subdir: {
-						"c.txt": "c",
-					},
-				},
-			},
+			{ "a.txt": "a", dir: { "b.txt": "b", subdir: { "c.txt": "c" } } },
 			["a.txt", "dir/b.txt", "dir/subdir/c.txt"],
 			{ dirs: false, target: makeGit() },
 		)
 	})
 
 	test("dirs: true (default) includes directories in results", async (done) => {
-		await testScan(
-			done,
-			{
-				"a.txt": "a",
-				dir: {
-					"b.txt": "b",
-				},
-			},
-			["a.txt", "dir/", "dir/b.txt"],
-			{ target: makeGit() },
-		)
+		await testScan(done, { "a.txt": "a", dir: { "b.txt": "b" } }, ["a.txt", "dir/", "dir/b.txt"], {
+			target: makeGit(),
+		})
 	})
 
 	test("dirs: false with skipDepth (skipOptions)", async (done) => {
@@ -49,9 +33,7 @@ describe("dirs option", () => {
 		await testScan(
 			done,
 			{
-				".git": {
-					config: "config",
-				},
+				".git": { config: "config" },
 				".gitignore": "ignored.txt",
 				"a.txt": "a",
 				"ignored.txt": "ignored",
@@ -62,18 +44,12 @@ describe("dirs option", () => {
 	})
 
 	test("dirs: false with skipDepth: true (skipDepth)", async (done) => {
-		await testScan(
-			done,
-			{
-				"a.txt": "a",
-				dir: {
-					"b.txt": "b",
-					"c.txt": "c",
-				},
-			},
-			["a.txt"],
-			{ depth: 0, dirs: false, skipDepth: true, target: makeGit() },
-		)
+		await testScan(done, { "a.txt": "a", dir: { "b.txt": "b", "c.txt": "c" } }, ["a.txt"], {
+			depth: 0,
+			dirs: false,
+			skipDepth: true,
+			target: makeGit(),
+		})
 	})
 
 	test("skips directory recursion for explicitly excluded directories", async (done) => {
@@ -82,12 +58,7 @@ describe("dirs option", () => {
 			{
 				".gitignore": "ignored_dir/\n",
 				"a.txt": "a",
-				ignored_dir: {
-					"file.txt": "ignored",
-					nested: {
-						"file.txt": "ignored",
-					},
-				},
+				ignored_dir: { "file.txt": "ignored", nested: { "file.txt": "ignored" } },
 			},
 			[".gitignore", "a.txt"],
 			{ dirs: false, target: makeGit() },
