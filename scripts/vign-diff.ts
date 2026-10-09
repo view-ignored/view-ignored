@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import type { MatcherContext } from "../patterns/matcherContext.js"
-import type { Target } from "../targets/target.js"
-import type { ScanOptions } from "../types.js"
+import type { MatcherContext } from "../src/patterns/matcherContext.js"
+import type { Target } from "../src/targets/target.js"
+import type { ScanOptions } from "../src/types.js"
 
 import { execSync, spawn } from "node:child_process"
 import { readFileSync, unlinkSync, existsSync } from "node:fs"
@@ -10,9 +10,9 @@ import { performance } from "node:perf_hooks"
 import { parseArgs, styleText, stripVTControlCharacters } from "node:util"
 import { gunzipSync } from "node:zlib"
 
-import pkg from "../../package.json" with { type: "json" }
-import { RuleMatchKind, type RuleMatch } from "../patterns/rule.js"
-import { scan } from "../scan.js"
+import pkg from "../package.json" with { type: "json" }
+import { RuleMatchKind, type RuleMatch } from "../src/patterns/rule.js"
+import { scan } from "../src/scan.js"
 import {
 	makeGit,
 	makeNPM,
@@ -22,8 +22,8 @@ import {
 	makeJSR,
 	makeYarn,
 	makeYarnClassic,
-} from "../targets/index.js"
-import { unixify } from "../unixify.js"
+} from "../src/targets/index.js"
+import { unixify } from "../src/unixify.js"
 
 interface CommandSet {
 	cmd: string
