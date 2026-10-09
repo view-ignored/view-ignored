@@ -170,7 +170,6 @@ describe("scanParallel and walk edge cases", () => {
 					cwd: ".",
 					depth: 10,
 					dirs: false,
-					// oxlint-disable-next-line typescript/no-explicit-any
 					fs: {} as FsAdapter,
 					invert: false,
 					// oxlint-disable-next-line typescript/no-explicit-any
@@ -279,7 +278,6 @@ describe("scanParallel and walk edge cases", () => {
 				cwd: ".",
 				depth: 10,
 				dirs: false,
-				// oxlint-disable-next-line typescript/no-explicit-any
 				fs: {} as FsAdapter,
 				invert: false,
 				signal: null,

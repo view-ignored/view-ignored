@@ -34,11 +34,12 @@ export function mergeConfig(target: any, source: any): void {
 	}
 }
 
-// oxlint-disable-next-line typescript/no-explicit-any
 function handlePathKey(
+	// oxlint-disable-next-line typescript/no-explicit-any
 	section: any,
 	sectionName: string | null,
 	key: string,
+	// oxlint-disable-next-line typescript/no-explicit-any
 	val: any,
 	order: string[],
 ): void {

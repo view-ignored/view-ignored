@@ -117,7 +117,6 @@ test("loadRec with abort signal and cached results", (done) => {
 	const controller = new AbortController()
 	controller.abort()
 
-	// oxlint-disable-next-line typescript/no-explicit-any
 	loadRec({} as FsAdapter, "config", null, null, controller.signal, (res) => {
 		expect(res).toBeNull()
 	})

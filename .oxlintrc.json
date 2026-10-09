@@ -12,7 +12,6 @@
 		"typescript/restrict-template-expressions": "off",
 		"import/no-duplicates": "error",
 		"import/no-cycle": "error",
-		"sort-keys": ["error", "asc", { "natural": true }],
 		"typescript/dot-notation": "error",
 		"object-shorthand": "error",
 		"oxc/no-map-spread": "error",
@@ -27,11 +26,5 @@
 		"eslint/func-names": ["error", "always"],
 		"check-access": "error"
 	},
-	"categories": { "perf": "error" },
-	"overrides": [
-		{
-			"files": ["src/test-npm-packlist/**/*.ts", "src/targets/**/*.test.ts"],
-			"rules": { "sort-keys": "off" }
-		}
-	]
+	"categories": { "perf": "error" }
 }

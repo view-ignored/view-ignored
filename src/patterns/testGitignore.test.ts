@@ -136,7 +136,6 @@ describe("gitignore parsing compliance", () => {
 		extractGitignore(source, Buffer.from("foo"), { spec: PatternSpec.packageJsonFiles })
 		expect(source.rules.length).toBeGreaterThan(0)
 
-		// oxlint-disable-next-line typescript/no-explicit-any
 		const badSource = null as unknown as Source
 		const err = extractGitignore(badSource, Buffer.from("foo"))
 		expect(err).toBeInstanceOf(Error)

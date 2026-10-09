@@ -173,7 +173,6 @@ async function runBenchmarkFile(file, extraArgs = []) {
 			? $`node --expose-gc ${file} ${extraArgs}`.quiet()
 			: $`bun --expose-gc ${file} ${extraArgs}`.quiet()
 
-		// oxlint-disable-next-line no-await-in-loop
 		const out = await cmd.text()
 		const startIdx = out.indexOf('{"layout":')
 		if (startIdx !== -1) {

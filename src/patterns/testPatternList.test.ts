@@ -71,7 +71,6 @@ describe("patternListCompile", () => {
 	})
 
 	test("extractPackageJson error handling", () => {
-		// oxlint-disable-next-line typescript/no-explicit-any
 		const badSource = null as unknown as Source
 		const err = extractPackageJson(badSource, Buffer.from("{}"))
 		expect(err).toBeInstanceOf(Error)

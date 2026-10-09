@@ -174,8 +174,8 @@ function launchExtractor(
 	fs.readFile(join(parent, cleanPath), (err, buff) => {
 		// oxlint-disable-next-line typescript/no-explicit-any
 		if (signal?.aborted) return cb(signal.reason as Error, null as any)
-		// oxlint-disable-next-line typescript/no-explicit-any
 		if (err && (err as unknown as NodeJS.ErrnoException).code === "ENOENT")
+			// oxlint-disable-next-line typescript/no-explicit-any
 			return cb(null, null as any)
 
 		const source: Source = { dir, inverted: false, path: join(dir, cleanPath), rules: [] }
