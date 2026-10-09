@@ -17,8 +17,8 @@ const vign = process.argv.includes("--vign")
 const cwd = process.cwd()
 
 // Precache Arborist tree to avoid data skewing
-const arborist = new Arborist({ path: cwd })
-let tree = await arborist.loadActual()
+const arboristOpts = { path: cwd }
+const tree = await new Arborist(arboristOpts).loadActual()
 
 if (!igw) {
 	for (let i = 0; i < 10; i++) {
@@ -39,7 +39,7 @@ if (!vign) {
 		// oxlint-disable-next-line eslint/no-await-in-loop
 		await walk({ ignoreFiles: [".npmignore", ".gitignore"] })
 		// oxlint-disable-next-line eslint/no-await-in-loop
-		await arborist.loadActual()
+		await new Arborist(arboristOpts).loadActual()
 	}
 }
 globalThis.gc?.()
@@ -83,7 +83,7 @@ barplot(() => {
 					resolveForPack(cwd, fs, resolve)
 				})).gc(true)
 			bench("'npmcli/arborist'.loadActual()", async () => {
-				return arborist.loadActual()
+				return new Arborist(arboristOpts).loadActual()
 			}).gc(true)
 		})
 	}
