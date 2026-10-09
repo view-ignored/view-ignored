@@ -8,6 +8,7 @@ and this project adheres to
 
 ## [Unreleased]
 
+- Move `vign-diff` CLI utility out of public space into `scripts/vign-diff.ts` as an internal tool.
 - Optimize matching performance and memory by eliminating closure and option allocations during synchronous rule evaluation and dirent walking.
 - Optimize JSON property key matching in `scanJsonRuleRanges` and `findJsonKeyRange` via fast byte-level comparisons on package manifest buffers.
 
