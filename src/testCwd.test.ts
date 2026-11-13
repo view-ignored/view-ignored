@@ -1,6 +1,6 @@
+import { makeGit } from "@view-ignored/target-git"
 import { describe, test } from "bun:test"
 
-import { makeGit } from "./targets/git.js"
 import { testScan } from "./testScan.test.js"
 
 describe("Git", () => {

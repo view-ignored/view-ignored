@@ -1,6 +1,6 @@
 import type * as fs from "node:fs"
 
-import type { Target } from "./targets/target.js"
+import type { Target } from "./target.js"
 
 /**
  * Minimal FS implementation needed for `scan`, `scanStream`, and their browser versions.

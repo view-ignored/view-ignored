@@ -1,12 +1,11 @@
+import { makeNPM } from "@view-ignored/target-npm"
 import { describe, test, expect } from "bun:test"
 
-import { makeNPM } from "../targets/npm.js"
 import { type FsAdapter } from "../types.js"
 import { MatcherStream } from "./matcherStream.js"
-import { extractPackageJson, extractPackageJsonRules } from "./packagejson.js"
 import { patternListCompile, PatternSpec } from "./patternList.js"
 import { resolveSources } from "./resolveSources.js"
-import { ruleTestSync, RuleMatchKind, type CustomRule, type GlobRule } from "./rule.js"
+import { ruleTestSync, RuleMatchKind, type CustomRule } from "./rule.js"
 import { type Source } from "./source.js"
 import { wildmatchCompile } from "./wildmatch.js"
 
@@ -68,27 +67,6 @@ describe("patternListCompile", () => {
 		expect(patternCacheTest(ext4, "index.js")).toBeTrue()
 		expect(patternCacheTest(ext4, "index.cjs")).toBeTrue()
 		expect(patternCacheTest(ext4, "index.d.ts")).toBeTrue()
-	})
-
-	test("extractPackageJson error handling", () => {
-		const badSource = null as unknown as Source
-		const err = extractPackageJson(badSource, Buffer.from("{}"))
-		expect(err).toBeInstanceOf(Error)
-
-		const source: Source = { dir: ".", inverted: false, path: "package.json", rules: [] }
-		const err2 = extractPackageJson(source, Buffer.from("invalid json {"))
-		expect(err2).toBeInstanceOf(Error)
-	})
-
-	test("extractPackageJsonRules records byte offset range", () => {
-		const source: Source = { dir: ".", inverted: false, path: "package.json", rules: [] }
-		const contentStr =
-			'{\n  "name": "foo",\n  "version": "1.0.0",\n  "files": [\n    "dist"\n  ]\n}'
-		extractPackageJsonRules(source, Buffer.from(contentStr))
-		expect(source.rules).toHaveLength(1)
-		const rule = source.rules[0] as GlobRule
-		expect(rule.range).toBeDefined()
-		expect(contentStr.slice(rule.range![0], rule.range![1])).toBe('"dist"')
 	})
 
 	test("wildmatchCompile empty list, invalid range, and regex fallback", () => {

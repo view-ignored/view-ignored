@@ -1,4 +1,4 @@
-import type { Target } from "../targets/target.js"
+import type { Target } from "../target.js"
 import type { FsAdapter } from "../types.js"
 
 /**

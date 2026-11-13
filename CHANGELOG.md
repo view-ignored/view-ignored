@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- BREAKING: Extracted built-in targets (`git`, `npm`, `bun`, `deno`, `jsr`, `vsce`, `yarn`, `yarn-classic`) into dedicated packages (`@view-ignored/target-*`).
+- `view-ignored` is now target-agnostic and exports the core `Target` interface via `view-ignored/target` and `view-ignored`.
+- Export `PatternSpec` and `RuleMatchKind` as standard enums for TypeScript compatibility with `verbatimModuleSyntax`.
+- Export `extractorUtils` and `extglob` from `view-ignored/patterns` to facilitate custom target and manifest extractor implementations.
+
+### Removed
+
+- Removed `view-ignored/targets` export subpath.
+- Removed target-specific unit and packlist test suites (moved to their respective target plugin packages).
+
 ## [0.13.2] - 2026-10-09
 
 - Reduce package size (no output minification when building) for readability.

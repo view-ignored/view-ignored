@@ -1,8 +1,8 @@
+import { makeGit } from "@view-ignored/target-git"
 import { describe, test, expect } from "bun:test"
 import { Volume } from "memfs"
 
 import { scan } from "../scan.js"
-import { makeGit } from "../targets/git.js"
 import { createAdapter } from "../testScan.test.js"
 import { PathMap } from "./pathMap.js"
 import { RuleMatchKind, type RuleMatch } from "./rule.js"

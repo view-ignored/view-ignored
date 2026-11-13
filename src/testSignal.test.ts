@@ -2,10 +2,10 @@ import type { Dirent } from "node:fs"
 
 import type { FsAdapter } from "./types.js"
 
+import { makeGit } from "@view-ignored/target-git"
 import { describe, test, expect } from "bun:test"
 
 import { scan } from "./scan.js"
-import { makeGit } from "./targets/git.js"
 
 describe("signal option", () => {
 	// We can't easily test AbortSignal with testScan because it's async and depends on timing.

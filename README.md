@@ -8,11 +8,8 @@
 [![engine node 22 or later](https://npmx.dev/api/registry/badge/engines/view-ignored)](https://npmx.dev/package/view-ignored)
 [![updated](https://npmx.dev/api/registry/badge/updated/view-ignored)](https://npmx.dev/package/view-ignored)<br/>
 [![coverage](https://codecov.io/gh/view-ignored/view-ignored/graph/badge.svg?token=O5I06Y2A86)](https://codecov.io/gh/view-ignored/view-ignored)
-![typescript v5.7 or later](https://img.shields.io/badge/ts->=5.7-salad?repo=view-ignored/view-ignored)
+![typescript v5.7 or later](https://img.shields.io/badge/ts->%3D5.7-salad?repo=view-ignored/view-ignored)
 [![speed-fast](https://img.shields.io/badge/speed-fast-salad?repo=view-ignored/view-ignored.svg)](https://github.com/view-ignored/view-ignored/tree/main/benchmarks)
-[![npm-packlist-tests](https://img.shields.io/badge/npm--packlist-68%2F68-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-npm-packlist/)
-[![wildmatch-tests](https://img.shields.io/badge/wildmatch-346%2F346-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/git-wildmatch.ts)
-[![node-ignore-tests](https://img.shields.io/badge/node--ignore-70%2F84-blue)](https://github.com/view-ignored/view-ignored/tree/main/src/test-wildmatch/node-ignore.test.ts)
 
 Retrieve a list of files ignored or included by Git, NPM, Yarn, JSR, Deno, Bun, VS Code extension CLI, and other tools.
 
@@ -25,13 +22,17 @@ Retrieve a list of files ignored or included by Git, NPM, Yarn, JSR, Deno, Bun, 
 - **Fast & Streaming.** Highly optimized performance with native `scanStream` support for massive file trees.
 - **Execution Control.** Fine-tune traversal with `within`, `depth`, `skipDepth`, and standard `AbortSignal`.
 - **Browser & Windows.** Fully compatible with browser environments, custom filesystem adapters (`memfs`), and Windows paths.
-- **Plugins.** Built-in targets for popular tools + custom target support via the `Target` interface.
+- **Plugins.** Modular targets for popular tools + custom target support via the `Target` interface.
 
 ## Quick Start
 
+```sh
+bun add view-ignored @view-ignored/target-git
+```
+
 ```ts
 import * as vign from "view-ignored"
-import { makeGit } from "view-ignored/targets"
+import { makeGit } from "@view-ignored/target-git"
 
 const ctx = await vign.scan({ target: makeGit() })
 console.log(ctx.paths.has("src/index.ts")) // true

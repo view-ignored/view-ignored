@@ -1,7 +1,7 @@
-import type { Extractor } from "../patterns/extractor.js"
-import type { IgnoresCb } from "../patterns/ignores.js"
-import type { InitCb } from "../patterns/init.js"
-import type { Rule, InternalRules } from "../patterns/rule.js"
+import type { Extractor } from "./patterns/extractor.js"
+import type { IgnoresCb } from "./patterns/ignores.js"
+import type { InitCb } from "./patterns/init.js"
+import type { Rule, InternalRules } from "./patterns/rule.js"
 
 /**
  * Contains the matcher used for scanning.

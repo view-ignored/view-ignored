@@ -1,10 +1,10 @@
+import { makeGit } from "@view-ignored/target-git"
+import { makeNPM } from "@view-ignored/target-npm"
 import { describe, test, expect } from "bun:test"
 
 import { PathMap } from "./patterns/matcherContext.js"
 import { RuleMatchKind, type SkipRule } from "./patterns/rule.js"
 import { scanParallel } from "./scanParallel.js"
-import { makeGit } from "./targets/git.js"
-import { makeNPM } from "./targets/npm.js"
 import { testStream } from "./testScan.test.js"
 import { type FsAdapter } from "./types.js"
 import { walkIncludes, walkPatchResult } from "./walk.js"

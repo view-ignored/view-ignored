@@ -74,16 +74,16 @@
 			"types": "./out/patterns/index.d.ts",
 			"default": "./out/patterns/index.js"
 		},
-		"./targets": {
-			"types": "./out/targets/index.d.ts",
-			"default": "./out/targets/index.js"
+		"./target": {
+			"types": "./out/target.d.ts",
+			"default": "./out/target.js"
 		}
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
-		"prerelease": "bun check && bun run test && bun run prod && bun run lint && bun run fmt --check && bun run ts-compat && bun run node-compat && bun publint --pack npm --strict && bun run badges --check",
+		"prerelease": "bun check && bun run test && bun run prod && bun run lint && bun run fmt --check && bun run ts-compat && bun run node-compat && bun publint --pack npm --strict",
 		"heap": "bun scripts/scanHeap.js --snapshot",
 		"heap:node": "node scripts/scanHeap.js --snapshot",
 		"cpu": "bun run --expose-gc --cpu-prof --cpu-prof-md --cpu-prof-name CPU.me scripts/scan.js",
@@ -104,7 +104,6 @@
 		"test:packlist": "bun test src/test-npm-packlist/",
 		"test:wildmatch": "bun test src/test-wildmatch/git-wildmatch.test.ts",
 		"test:ignore": "TEST_NODEIGNORE=1 bun test src/test-wildmatch/node-ignore.test.ts",
-		"badges": "bun scripts/badges.js",
 		"lint": "bun run oxlint --type-aware",
 		"fmt": "bun run oxfmt",
 		"check": "bun tsc -p src --noEmit",
@@ -125,7 +124,7 @@
 		"zeptomatch": "^2.1.0"
 	},
 	"devDependencies": {
-		"@npmcli/arborist": "^10.0.3",
+		"@npmcli/arborist": "^10.0.4",
 		"@release-it/keep-a-changelog": "8.0.1",
 		"@types/bun": "1.4.2",
 		"@types/ignore-walk": "npm:@types/ignore-walk@^4.0.3",

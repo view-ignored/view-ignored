@@ -1,11 +1,11 @@
 import type { Resource } from "./resource.js"
 import type { Source } from "./source.js"
 
+import { makeNPM } from "@view-ignored/target-npm"
 import { describe, test, expect } from "bun:test"
 import { Volume, type NestedDirectoryJSON } from "memfs"
 
 import { scan, type ScanOptions } from "../scan.js"
-import { makeNPM } from "../targets/npm.js"
 import { createAdapter } from "../testScan.test.js"
 import { unixify } from "../unixify.js"
 import { PathMap, type MatcherContext, type Total } from "./matcherContext.js"

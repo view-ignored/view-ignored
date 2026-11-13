@@ -1,6 +1,6 @@
+import { makeGit } from "@view-ignored/target-git"
 import { describe, test, expect } from "bun:test"
 
-import { makeGit } from "./targets/git.js"
 import { testScan, testStream } from "./testScan.test.js"
 
 const dir = { ".gitignore": "ignored.txt", "ignored.txt": "content", "included.txt": "content" }

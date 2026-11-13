@@ -1,7 +1,7 @@
+import { makeGit } from "@view-ignored/target-git"
 import { describe, test, expect } from "bun:test"
 
 import { scan } from "./scan.js"
-import { makeGit } from "./targets/git.js"
 import { testScan } from "./testScan.test.js"
 
 describe("within option with file path", () => {

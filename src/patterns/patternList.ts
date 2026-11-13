@@ -8,7 +8,7 @@ import { wildmatchCompile } from "./wildmatch.js"
  *
  * @since 0.12.2
  */
-export const enum PatternSpec {
+export enum PatternSpec {
 	gitignore,
 	npmignore,
 	packageJsonFiles,

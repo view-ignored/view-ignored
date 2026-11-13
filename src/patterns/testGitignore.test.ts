@@ -1,6 +1,6 @@
+import { makeGit } from "@view-ignored/target-git"
 import { describe, test, expect } from "bun:test"
 
-import { makeGit } from "../targets/git.js"
 import { extractGitignore, extractGitignoreRules } from "./gitignore.js"
 import {
 	isRuleMatchPattern,

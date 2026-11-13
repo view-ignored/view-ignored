@@ -241,7 +241,7 @@ export interface RuleMatchBaseExternal<K extends string | number | symbol>
  *
  * @since 0.11.0
  */
-export const enum RuleMatchKind {
+export enum RuleMatchKind {
 	none,
 	missingSource,
 	noMatch,

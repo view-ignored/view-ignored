@@ -1,5 +1,6 @@
 import type { FsAdapter, ScanOptions } from "./types.js"
 
+import { makeGit } from "@view-ignored/target-git"
 import { describe, test, expect } from "bun:test"
 import * as nodefs from "node:fs"
 import * as process from "node:process"
@@ -7,7 +8,6 @@ import * as process from "node:process"
 import { PathMap } from "./patterns/matcherContext.js"
 import { matcherContextAddPath } from "./patterns/matcherContextPatch.js"
 import { RuleMatchKind, type Rule } from "./patterns/rule.js"
-import { makeGit } from "./targets/git.js"
 import { testScan } from "./testScan.test.js"
 import { unixify } from "./unixify.js"
 
